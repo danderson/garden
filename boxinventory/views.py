@@ -17,7 +17,7 @@ def box(request, box_id):
 def qr(request, box_id):
     code = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
+        box_size=5,
     )
     code.add_data(request.build_absolute_uri(reverse('boxinventory:box', args=(box_id,))))
     code.make(fit=True)
@@ -25,3 +25,8 @@ def qr(request, box_id):
     resp = HttpResponse(content_type="image/png")
     img.save(resp, "png")
     return resp
+
+def qr_sheet(request):
+    boxes = Box.objects.order_by('name')[:10]
+    ctx = {'boxes': boxes}
+    return render(request, 'boxinventory/qr-sheet.html', ctx)

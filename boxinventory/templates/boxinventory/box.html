@@ -1,6 +1,6 @@
 <html>
 <body>
-<h1>Groimes, oi need wots in box {{ box.name }}</h1>
+<h1>Contents of box {{ box.name }}</h1>
 <ul>
 {% for thing in box.boxcontent_set.all %}
 <li>{{ thing.name }}, planted in {{ thing.when_planted }}</li>

@@ -7,6 +7,7 @@ class Box(models.Model):
         verbose_name_plural = "boxes"
 
     name = models.CharField(max_length=200)
+    want_qr = models.BooleanField('QR code?', default=False)
 
     def __str__(self):
         return "{} ({} things)".format(self.name, self.boxcontent_set.count())

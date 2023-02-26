@@ -1,6 +1,6 @@
 <html>
 <body>
-<h1>Groimes, me boxes</h1>
+<h1>boxes</h1>
 <ul>
 {% for box in boxes %}
 <li>
@@ -12,5 +12,6 @@
 </li>
 {% endfor %}
 </ul>
+<h2><a href="{% url 'boxinventory:qr-sheet' %}">QR code sheet</a></h2>
 </body>
 </html>
