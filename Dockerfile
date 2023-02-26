@@ -1,8 +1,9 @@
 FROM golang:1.20 AS go
 
 WORKDIR /build
-COPY ./proxy .
-RUN CGO_ENABLED=0 go build -v -o proxy .
+COPY proxy proxy
+COPY go.mod go.sum ./
+RUN CGO_ENABLED=0 go build -v -o proxy ./proxy
 
 FROM python:3-slim as py
 
