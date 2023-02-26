@@ -27,6 +27,6 @@ def qr(request, box_id):
     return resp
 
 def qr_sheet(request):
-    boxes = Box.objects.order_by('name')[:10]
+    boxes = Box.objects.filter(want_qr=True).order_by('name')
     ctx = {'boxes': boxes}
     return render(request, 'boxinventory/qr-sheet.html', ctx)
