@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-5nlo=x%*#8=*a5=hm5d&r0b8_@3o9vtot0!28ik(ct!pdh+^&&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['garden']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -47,8 +47,13 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'garden.tailscale_auth_middleware.TailscaleAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.RemoteUserBackend',
 ]
 
 ROOT_URLCONF = 'garden.urls'

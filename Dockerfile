@@ -18,3 +18,5 @@ COPY dockerstuff/* ./
 RUN ./manage.py collectstatic --noinput --clear
 
 ENV DJANGO_SETTINGS_MODULE=garden.prod_settings
+
+CMD ["/app/run.sh"]
