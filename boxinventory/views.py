@@ -19,7 +19,7 @@ def qr(request, box_id):
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=10,
     )
-    code.add_data(reverse('boxinventory:box', args=(box_id,)))
+    code.add_data(request.build_absolute_uri(reverse('boxinventory:box', args=(box_id,))))
     code.make(fit=True)
     img = code.make_image(fill_color="black", back_color="white")
     resp = HttpResponse(content_type="image/png")
