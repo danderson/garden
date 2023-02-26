@@ -1,0 +1,10 @@
+<html>
+<body>
+<h1>Groimes, me boxes</h1>
+<ul>
+{% for box in boxes %}
+<li>{{ box.name }} ({{ box.boxcontent_set.count }} thing{{ box.boxcontent_set.count|pluralize }})</li>
+{% endfor %}
+</ul>
+</body>
+</html>
