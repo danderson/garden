@@ -8,5 +8,8 @@
 </ul>
 <h2>Code for this box</h2>
 <img src="{% url 'boxinventory:qr' box.id %}" alt="QR code for {{ box.name }}" />
+<div>
+<a href="{% url 'boxinventory:index' %}">Back to list</a>
+</div>
 </body>
 </html>
