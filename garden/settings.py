@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['localhost', 'vega-1.corp.ts.net']
 
 INSTALLED_APPS = [
     'boxinventory.apps.BoxinventoryConfig',
+    'herbarium.apps.HerbariumConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

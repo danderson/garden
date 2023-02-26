@@ -18,6 +18,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path('box/', include('boxinventory.urls')),
+    path('plant/', include('herbarium.urls')),
     path('admin/', admin.site.urls),
     path('', include('boxinventory.urls')),
 ]
