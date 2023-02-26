@@ -15,6 +15,7 @@
           python3
           virtualenv
           go_1_20
+          flyctl
         ];
       };
     };
