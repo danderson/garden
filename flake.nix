@@ -14,10 +14,10 @@
           git
           python3
           virtualenv
+          go_1_20
         ];
       };
     };
   in
     flake-utils.lib.eachDefaultSystem (system: flakeForSystem nixpkgs system);
 }
-# nix-direnv cache busting line: sha256-afcuo/pcLnfFHYTViYi8rPM0ovnUuawuZ26cYhZ1hss= sha256-dhoXBuYV9lE+ssIK4i/TG4cFbzUKSOKnQP47qEEcvsQ=

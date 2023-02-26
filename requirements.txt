@@ -1,0 +1,8 @@
+asgiref==3.6.0
+distlib @ file:///build/distlib-0.3.6/dist/distlib-0.3.6-py2.py3-none-any.whl
+Django==4.1.7
+filelock @ file:///build/filelock-3.9.0/dist/filelock-3.9.0-py3-none-any.whl
+gunicorn==20.1.0
+platformdirs @ file:///build/source/dist/platformdirs-2.6.2-py3-none-any.whl
+sqlparse==0.4.3
+virtualenv @ file:///build/virtualenv-20.17.1/dist/virtualenv-20.17.1-py3-none-any.whl
