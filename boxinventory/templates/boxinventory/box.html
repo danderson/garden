@@ -1,0 +1,12 @@
+<html>
+<body>
+<h1>Groimes, oi need wots in box {{ box.name }}</h1>
+<ul>
+{% for thing in box.boxcontent_set.all %}
+<li>{{ thing.name }}, planted in {{ thing.when_planted }}</li>
+{% endfor %}
+</ul>
+<h2>Code for this box</h2>
+<img src="{% url 'boxinventory:qr' box.id %}" alt="QR code for {{ box.name }}" />
+</body>
+</html>
