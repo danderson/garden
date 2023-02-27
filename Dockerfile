@@ -15,6 +15,7 @@ RUN pip install -Ur requirements.txt
 COPY --from=go /build/proxy .
 COPY garden garden
 COPY boxinventory boxinventory
+COPY herbarium herbarium
 COPY dockerstuff/* ./
 RUN ./manage.py collectstatic --noinput --clear
 

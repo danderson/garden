@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['garden']
 # Application definition
 
 INSTALLED_APPS = [
+    'herbarium.apps.HerbariumConfig',
     'boxinventory.apps.BoxinventoryConfig',
     'django.contrib.admin',
     'django.contrib.auth',
