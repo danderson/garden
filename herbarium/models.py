@@ -3,6 +3,7 @@ from django.db import models
 class Family(models.Model):
     class Meta:
         verbose_name_plural = "families"
+        ordering = ['name']
 
     name = models.CharField(max_length=200)
 
@@ -55,6 +56,7 @@ class PlantName(models.Model):
 class Variety(models.Model):
     class Meta:
         verbose_name_plural = "varieties"
+        ordering = ['name']
 
     name = models.CharField(max_length=200)
     plant = models.ForeignKey(Plant, on_delete=models.CASCADE)
