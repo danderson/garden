@@ -12,14 +12,14 @@ class Family(models.Model):
 class Plant(models.Model):
     family = models.ForeignKey(Family, on_delete=models.CASCADE)
 
-    edible = models.BooleanField('Edible?', default=False)
-    needs_trellis = models.BooleanField('Needs trellis?', default=False)
-    needs_bird_netting = models.BooleanField('Needs bird netting?', default=False)
-    is_keto = models.BooleanField('Is keto?', default=False)
-    native = models.BooleanField('Native plant?', default=False)
-    invasive = models.BooleanField('Is invasive?', default=False)
-    is_cover = models.BooleanField('Cover crop?', default=False)
-    grow_from_seed = models.BooleanField('Good to grow from seeds?', default=True)
+    edible = models.BooleanField('Edible?', null=True)
+    needs_trellis = models.BooleanField('Needs trellis?', null=True)
+    needs_bird_netting = models.BooleanField('Needs bird netting?', null=True)
+    is_keto = models.BooleanField('Is keto?', null=True)
+    native = models.BooleanField('Native plant?', null=True)
+    invasive = models.BooleanField('Is invasive?', null=True)
+    is_cover = models.BooleanField('Cover crop?', null=True)
+    grow_from_seed = models.BooleanField('Good to grow from seeds?', default=True, null=True)
 
     class Type(models.TextChoices):
         VEGETABLE = 'V', 'Vegetable'
@@ -32,11 +32,12 @@ class Plant(models.Model):
         ANNUAL = 'A', 'Annual'
         BIENNIAL = 'B', 'Biennial'
         PERENNIAL = 'P', 'Perennial'
+        UNKNOWN = 'U', 'Unknown'
 
     type = models.CharField(max_length=1, choices=Type.choices)
-    lifespan = models.CharField(max_length=1, choices=Lifespan.choices)
-    bad_for_cats = models.BooleanField('Bad for cats?', default=False)
-    deer_resistant = models.BooleanField('Deer resistant?', default=False)
+    lifespan = models.CharField(max_length=1, choices=Lifespan.choices, default=Lifespan.UNKNOWN)
+    bad_for_cats = models.BooleanField('Bad for cats?', null=True)
+    deer_resistant = models.BooleanField('Deer resistant?', null=True)
 
     def __str__(self):
         return "{} ({}, {} varieties)".format(self.primary_name(), self.family, self.variety_set.count())
@@ -57,7 +58,7 @@ class Variety(models.Model):
 
     name = models.CharField(max_length=200)
     plant = models.ForeignKey(Plant, on_delete=models.CASCADE)
-    heat_sensitive = models.BooleanField('Cover during heatwaves?', default=False)
+    heat_sensitive = models.BooleanField('Cover during heatwaves?', null=True)
 
     def __str__(self):
         return "{} {} ({})".format(self.name, self.plant.primary_name(), self.plant.family.name)
