@@ -14,7 +14,8 @@ class PlantAdmin(admin.ModelAdmin):
     inlines = [PlantNameInline, VarietyInline]
     fieldsets = [
         (None, {
-            'fields': ('family',
+            'fields': ('name',
+                       'family',
                        'type',
                        'lifespan'),
         }),

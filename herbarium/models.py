@@ -11,6 +11,10 @@ class Family(models.Model):
         return self.name
 
 class Plant(models.Model):
+    class Meta:
+        ordering = ['name']
+
+    name = models.CharField(max_length=200, default='')
     family = models.ForeignKey(Family, on_delete=models.CASCADE)
 
     edible = models.BooleanField('Edible?', null=True)
@@ -41,12 +45,9 @@ class Plant(models.Model):
     deer_resistant = models.BooleanField('Deer resistant?', null=True)
 
     def __str__(self):
-        return "{} ({}, {} varieties)".format(self.primary_name(), self.family, self.variety_set.count())
+        return self.name
 
-    def primary_name(self):
-        return self.plantname_set.all()[0].name
-
-class PlantName(models.Model):
+class PlantName(models.Model): # Actually an alias
     class Meta:
         verbose_name_plural = "plant names"
 
@@ -63,4 +64,4 @@ class Variety(models.Model):
     heat_sensitive = models.BooleanField('Cover during heatwaves?', null=True)
 
     def __str__(self):
-        return "{} {} ({})".format(self.name, self.plant.primary_name(), self.plant.family.name)
+        return "{} {} ({})".format(self.name, self.plant.name, self.plant.family.name)
