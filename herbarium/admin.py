@@ -1,17 +1,13 @@
 from django.contrib import admin
 
-from .models import Family, Plant, Variety, PlantName
-
-class VarietyInline(admin.StackedInline):
-    model = Variety
-    extra = 1
+from .models import Family, Plant, PlantName
 
 class PlantNameInline(admin.StackedInline):
     model = PlantName
     extra = 1
 
 class PlantAdmin(admin.ModelAdmin):
-    inlines = [PlantNameInline, VarietyInline]
+    inlines = [PlantNameInline]
     fieldsets = [
         (None, {
             'fields': ('name',
@@ -37,4 +33,3 @@ class PlantAdmin(admin.ModelAdmin):
 
 admin.site.register(Family)
 admin.site.register(Plant, PlantAdmin)
-admin.site.register(Variety)

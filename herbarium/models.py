@@ -53,15 +53,3 @@ class PlantName(models.Model): # Actually an alias
 
     name = models.CharField(max_length=200)
     plant = models.ForeignKey(Plant, on_delete=models.CASCADE)
-
-class Variety(models.Model):
-    class Meta:
-        verbose_name_plural = "varieties"
-        ordering = ['name']
-
-    name = models.CharField(max_length=200)
-    plant = models.ForeignKey(Plant, on_delete=models.CASCADE)
-    heat_sensitive = models.BooleanField('Cover during heatwaves?', null=True)
-
-    def __str__(self):
-        return "{} {} ({})".format(self.name, self.plant.name, self.plant.family.name)
