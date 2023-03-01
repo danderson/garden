@@ -10,12 +10,19 @@ class Family(models.Model):
     def __str__(self):
         return self.name
 
+class Tag(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class Plant(models.Model):
     class Meta:
         ordering = ['name']
 
     name = models.CharField(max_length=200, default='')
     family = models.ForeignKey(Family, on_delete=models.CASCADE)
+    tags = models.ManyToManyField(Tag)
 
     edible = models.BooleanField('Edible?', null=True)
     needs_trellis = models.BooleanField('Needs trellis?', null=True)

@@ -1,19 +1,25 @@
 from django.contrib import admin
 
-from .models import Family, Plant, PlantName
+from .models import Family, Plant, PlantName, Tag
+
+class TagInline(admin.TabularInline):
+    model = Plant.tags.through
+    extra = 1
 
 class PlantNameInline(admin.StackedInline):
     model = PlantName
     extra = 1
 
 class PlantAdmin(admin.ModelAdmin):
-    inlines = [PlantNameInline]
+    inlines = [PlantNameInline]#, TagInline]
+    filter_horizontal = ['tags']
     fieldsets = [
         (None, {
             'fields': ('name',
                        'family',
                        'type',
-                       'lifespan'),
+                       'lifespan',
+                       'tags'),
         }),
         ('Extra', {
             'classes': ('collapse',),
@@ -33,3 +39,4 @@ class PlantAdmin(admin.ModelAdmin):
 
 admin.site.register(Family)
 admin.site.register(Plant, PlantAdmin)
+admin.site.register(Tag)
