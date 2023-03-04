@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Family, Plant, PlantName, Tag
+from .models import Family, Plant, PlantName, Tag, PlantingWindow
 
 class TagInline(admin.TabularInline):
     model = Plant.tags.through
@@ -10,8 +10,12 @@ class PlantNameInline(admin.StackedInline):
     model = PlantName
     extra = 1
 
+class PlantingWindowInline(admin.TabularInline):
+    model = PlantingWindow
+    extra = 1
+
 class PlantAdmin(admin.ModelAdmin):
-    inlines = [PlantNameInline]#, TagInline]
+    inlines = [PlantNameInline, PlantingWindowInline]
     filter_horizontal = ['tags']
     fieldsets = [
         (None, {

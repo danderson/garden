@@ -13,7 +13,7 @@ devreset:
 
 .PHONY: fromprod
 fromprod:
-	rm -f db.sqlite3
+	rm -f db.sqlite3.2
 	fly sftp get /state/garden/db.sqlite3 db.sqlite3.2
 	cp -f db.sqlite3.2 db.sqlite3
 	./manage.py makemigrations

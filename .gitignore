@@ -1,6 +1,6 @@
 .git/
 .direnv/
-*.sqlite3
+*.sqlite3*
 /staticfiles
 __pycache__/
 *.py[cod]

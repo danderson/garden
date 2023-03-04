@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <style>
+            div {
+                margin: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Missing windows</h1>
+        <form action="/plant/missing/{{plant.id}}" method="POST">
+            {% csrf_token %}
+            <h2>{{plant.name}}</h2>
+            {{form}}
+            <div><input type="submit" value="Submit"></div>
+            <div><b>I</b>: Indoors<br>
+                 <b>D</b>: Direct<br>
+                 <b>T</b>: Transplant<br>
+                 <b>C</b>: Direct (covered)<br>
+                 <b>E</b>: Transplant (covered)</div>
+        </form>
+    </body>
+</html>
