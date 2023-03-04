@@ -30,3 +30,12 @@ def updateMissing(request, id):
         'plant': plant,
         'form': form,
     })
+
+def now(request):
+    now = datetime.datetime.now()
+    windows = PlantingWindow.objects.on_date(now).order_by('plant__name')
+    for w in windows:
+        print(PlantingWindow.Type(w.type).label)
+    return render(request, 'herbarium/now.html', {
+        'windows': windows,
+    })

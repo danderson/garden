@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <style>
+        table {
+            border: 1px solid black;
+        }
+        td {
+            padding-left: 2em;
+            padding-right: 2em;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>What can I plant now?</h1>
+        <table>
+            <th><tr>
+                <td>Plant</td>
+                <td>Type</td>
+                <td>From</td>
+                <td>To</td>
+            </tr></th>
+            {% for window in windows %}
+            <tr>
+                <td>{{ window.plant.name }}</td>
+                <td>{{ window.type_label }}</td>
+                <td>{{ window.start_str }}</td>
+                <td>{{ window.end_str }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

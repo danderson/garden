@@ -73,6 +73,16 @@ class PlantName(models.Model): # Actually an alias
     name = models.CharField(max_length=200)
     plant = models.ForeignKey(Plant, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
+class PlantingWindowManager(models.Manager):
+    def on_date(self, date):
+        date = date.replace(year=1900)
+        first = date.replace(month=1, day=1)
+        days = (date - first).days+1
+        return self.filter(start__lte=days, end__gte=days)
+
 class PlantingWindow(models.Model):
     class Type(models.TextChoices):
         INDOORS = 'I', 'Indoors'
@@ -81,10 +91,16 @@ class PlantingWindow(models.Model):
         DIRECT_COVERED = 'C', 'Direct, covered'
         TRANSPLANT_COVERED = 'E', 'Transplant, covered'
 
+    objects = PlantingWindowManager()
+
     plant = models.ForeignKey(Plant, on_delete=models.CASCADE)    
     type = models.CharField(max_length=1, choices=Type.choices)
     start = models.SmallIntegerField()
     end = models.SmallIntegerField()
+
+    @property
+    def type_label(self):
+        return PlantingWindow.Type(self.type).label
 
     @property
     def short_str(self):
@@ -115,3 +131,13 @@ class PlantingWindow(models.Model):
     def end_short_str(self, value):
         d = datetime.datetime.strptime(value, '%m-%d')
         self.end = (d - datetime.datetime(year=1900, month=1, day=1)).days+1
+
+    @property
+    def start_str(self):
+        d = datetime.datetime.now().replace(month=1, day=1) + datetime.timedelta(days=self.start-1)
+        return d.strftime('%B %d')
+    
+    @property
+    def end_str(self):
+        d = datetime.datetime.now().replace(month=1, day=1) + datetime.timedelta(days=self.end-1)
+        return d.strftime('%B %d')
