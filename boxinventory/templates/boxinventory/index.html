@@ -1,17 +1,20 @@
-<html>
-<body>
-<h1>boxes</h1>
-<ul>
-{% for box in boxes %}
-<li>
-    <a href="{% url 'boxinventory:box' box.id %}">{{ box.name }}</a> {% if box.boxcontent_set.count > 0 %}
-      ({{ box.boxcontent_set.count }} thing{{ box.boxcontent_set.count|pluralize }})
-    {% else %}
-      (empty)
-    {% endif %}
-</li>
-{% endfor %}
-</ul>
-<h2><a href="{% url 'boxinventory:qr-sheet' %}">QR code sheet</a></h2>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block "content" %}
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Contents</th>
+    </tr>
+    {% for box in boxes %}
+    <tr>
+        <td><a href="{% url 'boxinventory:box' box.id %}">{{ box.name }}</a></td>
+        <td>
+            {% for item in box.boxcontent_set.all %}
+                {{ item.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

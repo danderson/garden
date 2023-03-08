@@ -1,15 +1,18 @@
-<html>
-<body>
-<h1>Contents of box {{ box.name }}</h1>
+{% extends "base.html" %}
+
+{% block "content" %}
+
+{% for year, things in contents %}
+<h2>{{year}}</h2>
 <ul>
-{% for thing in box.boxcontent_set.all %}
-<li>{{ thing.name }}, planted in {{ thing.when_planted }}</li>
+{% for thing in things %}
+<li>{{ thing.name }}</li>
 {% endfor %}
 </ul>
+{% endfor %}
 <h2>Code for this box</h2>
 <img src="{% url 'boxinventory:qr' box.id %}" alt="QR code for {{ box.name }}" />
 <div>
 <a href="{% url 'boxinventory:index' %}">Back to list</a>
 </div>
-</body>
-</html>
+{% endblock %}

@@ -13,6 +13,17 @@ class Box(models.Model):
     def __str__(self):
         return "{} ({} things)".format(self.name, self.boxcontent_set.count())
 
+    @property
+    def contents_by_year(self):
+        ret = {}
+        for content in self.boxcontent_set.all():
+            if content.when_planted not in ret:
+                ret[content.when_planted] = []
+            ret[content.when_planted].append(content)
+        for year in ret:
+            ret[year].sort(key=lambda x: x.name)
+        return ret
+
 class BoxContent(models.Model):
     class Meta:
         ordering = ['when_planted', 'name']

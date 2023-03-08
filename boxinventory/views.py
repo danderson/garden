@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .models import Box
 import qrcode
 from django.urls import reverse
+import datetime
 
 def index(request):
     boxes = Box.objects.order_by('name')
@@ -11,7 +12,11 @@ def index(request):
 
 def box(request, box_id):
     box = Box.objects.get(pk=box_id)
-    ctx = {'box': box}
+    this_year = datetime.date.today().year
+    ctx = {
+        'box': box,
+        'contents': sorted(box.contents_by_year.items(), key=lambda x: x[0], reverse=True),
+    }
     return render(request, 'boxinventory/box.html', ctx)
 
 def qr(request, box_id):

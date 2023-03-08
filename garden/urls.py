@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
+
 
 urlpatterns = [
     path('box/', include('boxinventory.urls')),
     path('plant/', include('herbarium.urls')),
     path('admin/', admin.site.urls),
-    path('', include('boxinventory.urls')),
+    path('', RedirectView.as_view(pattern_name='boxinventory:index', permanent=False), name='index'),
 ]
