@@ -17,17 +17,17 @@ class Box(models.Model):
     def contents_by_year(self):
         ret = {}
         for content in self.boxcontent_set.all():
-            if content.when_planted not in ret:
-                ret[content.when_planted] = []
-            ret[content.when_planted].append(content)
+            if content.planted.year not in ret:
+                ret[content.planted.year] = []
+            ret[content.planted.year].append(content)
         for year in ret:
             ret[year].sort(key=lambda x: x.name)
         return ret
 
 class BoxContent(models.Model):
     class Meta:
-        ordering = ['when_planted', 'name']
+        ordering = ['planted', 'name']
 
     box = models.ForeignKey(Box, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
-    when_planted = models.PositiveIntegerField(default=2022)
+    planted = models.DateField(default=datetime.date.today)
