@@ -16,6 +16,7 @@
           virtualenv
           go_1_20
           flyctl
+          python3Packages.python-lsp-server
         ];
       };
     };
