@@ -29,5 +29,5 @@ class BoxContent(models.Model):
         ordering = ['planted', 'name']
 
     box = models.ForeignKey(Box, on_delete=models.CASCADE)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, blank=False)
     planted = models.DateField(default=datetime.date.today)

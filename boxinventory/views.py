@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Box
+from .models import Box, BoxContent
+from .forms import AddPlantForm
 import qrcode
 from django.urls import reverse
 import datetime
@@ -18,6 +19,20 @@ def box(request, box_id):
         'contents': sorted(box.contents_by_year.items(), key=lambda x: x[0], reverse=True),
     }
     return render(request, 'boxinventory/box.html', ctx)
+
+def addplant(request, box_id):
+    if request.method == 'POST':
+        form = AddPlantForm(request.POST)
+        if form.is_valid():
+            box = Box.objects.get(pk=box_id)
+            ct = form.save(commit=False)
+            ct.box = box
+            ct.save()
+            return redirect('boxinventory:box', box_id)
+    else:
+        form = AddPlantForm()
+
+    return render(request, 'boxinventory/addplant.html', {'form': form})
 
 def qr(request, box_id):
     code = qrcode.QRCode(
