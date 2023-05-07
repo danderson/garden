@@ -10,4 +10,5 @@ urlpatterns = [
     path('<int:box_id>/qr', views.qr, name='qr'),
     path('<int:box_id>/add', views.addplant, name='addplant'),
     path('<int:box_id>/set-qr-applied', views.set_qr_applied, name='set-qr-applied'),
+    path('<int:box_id>/remove', views.remove_plants, name='remove-plants'),
 ]
