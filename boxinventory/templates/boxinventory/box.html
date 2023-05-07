@@ -6,6 +6,9 @@
 
 <ul>
     <li><a href="{% url 'boxinventory:addplant' box.id %}">New plant</a></li>
+    {% if not box.qr_applied %}
+    <li><a href="{% url 'boxinventory:set-qr-applied' box.id %}">QR code is applied</a></li>
+    {% endif %}
 </ul>
 
 {% for year, things in contents %}

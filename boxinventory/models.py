@@ -9,6 +9,7 @@ class Box(models.Model):
 
     name = models.CharField(max_length=200)
     want_qr = models.BooleanField('QR code?', default=False)
+    qr_applied = models.BooleanField('QR code applied?', default=False)
 
     def __str__(self):
         return "{} ({} things)".format(self.name, self.boxcontent_set.count())

@@ -34,6 +34,12 @@ def addplant(request, box_id):
 
     return render(request, 'boxinventory/addplant.html', {'form': form})
 
+def set_qr_applied(request, box_id):
+    box = Box.objects.get(pk=box_id)
+    box.qr_applied = True
+    box.save()
+    return redirect('boxinventory:box', box_id)
+
 def qr(request, box_id):
     code = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -47,6 +53,6 @@ def qr(request, box_id):
     return resp
 
 def qr_sheet(request):
-    boxes = Box.objects.filter(want_qr=True).order_by('name')
+    boxes = Box.objects.filter(want_qr=True, qr_applied=False).order_by('name')
     ctx = {'boxes': boxes}
     return render(request, 'boxinventory/qr-sheet.html', ctx)
