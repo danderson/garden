@@ -31,6 +31,7 @@ class BoxContent(models.Model):
 
     box = models.ForeignKey(Box, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, blank=False)
+    latin_name = models.CharField(max_length=200, default="", blank=True)
     planted = models.DateField(default=datetime.date.today)
     removed = models.DateField(default=None, null=True, blank=True)
 
@@ -49,7 +50,9 @@ class BoxContent(models.Model):
 
     @property
     def dated_name(self):
+        paren = 'planted {}'.format(self.planted_pretty)
         if self.removed:
-            return '{} (planted {}, removed {})'.format(self.name, self.planted_pretty, self.removed_pretty)
-        else:
-            return '{} (planted {})'.format(self.name, self.planted_pretty)
+            paren = '{}, removed {}'.format(paren, self.removed_pretty)
+        if self.latin_name:
+            paren = '{}, {}'.format(self.latin_name, paren)
+        return '{} ({})'.format(self.name, paren)
