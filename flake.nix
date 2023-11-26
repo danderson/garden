@@ -14,7 +14,7 @@
           git
           python3
           virtualenv
-          go_1_20
+          go
           flyctl
           python3Packages.python-lsp-server
           sqlite

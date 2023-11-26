@@ -1,11 +1,11 @@
-FROM golang:1.20 AS go
+FROM golang:1.21 AS go
 
 WORKDIR /build
 COPY proxy proxy
 COPY go.mod go.sum ./
 RUN CGO_ENABLED=0 go build -v -o proxy ./proxy
 
-FROM python:3-slim as py
+FROM python:3.11-slim as py
 
 WORKDIR /app
 RUN python -m venv /opt/venv
