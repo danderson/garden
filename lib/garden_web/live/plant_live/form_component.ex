@@ -1,7 +1,7 @@
 defmodule GardenWeb.PlantLive.FormComponent do
   use GardenWeb, :live_component
 
-  alias Garden.Inventory
+  alias Garden.Plants
 
   @impl true
   def render(assigns) do
@@ -30,7 +30,7 @@ defmodule GardenWeb.PlantLive.FormComponent do
 
   @impl true
   def update(%{plant: plant} = assigns, socket) do
-    changeset = Inventory.change_plant(plant)
+    changeset = Plants.change_plant(plant)
 
     {:ok,
      socket
@@ -42,7 +42,7 @@ defmodule GardenWeb.PlantLive.FormComponent do
   def handle_event("validate", %{"plant" => plant_params}, socket) do
     changeset =
       socket.assigns.plant
-      |> Inventory.change_plant(plant_params)
+      |> Plants.change_plant(plant_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
@@ -53,7 +53,7 @@ defmodule GardenWeb.PlantLive.FormComponent do
   end
 
   defp save_plant(socket, :edit, plant_params) do
-    case Inventory.update_plant(socket.assigns.plant, plant_params) do
+    case Plants.update_plant(socket.assigns.plant, plant_params) do
       {:ok, plant} ->
         notify_parent({:saved, plant})
 
@@ -68,7 +68,7 @@ defmodule GardenWeb.PlantLive.FormComponent do
   end
 
   defp save_plant(socket, :new, plant_params) do
-    case Inventory.create_plant(plant_params) do
+    case Plants.create_plant(plant_params) do
       {:ok, plant} ->
         notify_parent({:saved, plant})
 

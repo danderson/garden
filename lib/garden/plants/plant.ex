@@ -1,4 +1,4 @@
-defmodule Garden.Inventory.Plant do
+defmodule Garden.Plants.Plant do
   use Ecto.Schema
   import Ecto.Changeset
 

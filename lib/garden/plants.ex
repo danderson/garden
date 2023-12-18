@@ -1,12 +1,12 @@
-defmodule Garden.Inventory do
+defmodule Garden.Plants do
   @moduledoc """
-  The Inventory context.
+  The Plants context.
   """
 
   import Ecto.Query, warn: false
   alias Garden.Repo
 
-  alias Garden.Inventory.Plant
+  alias Garden.Plants.Plant
 
   @doc """
   Returns the list of plants.

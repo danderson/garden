@@ -1,12 +1,12 @@
 defmodule GardenWeb.PlantLive.Index do
   use GardenWeb, :live_view
 
-  alias Garden.Inventory
-  alias Garden.Inventory.Plant
+  alias Garden.Plants
+  alias Garden.Plants.Plant
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :plants, Inventory.list_plants())}
+    {:ok, stream(socket, :plants, Plants.list_plants())}
   end
 
   @impl true
@@ -17,7 +17,7 @@ defmodule GardenWeb.PlantLive.Index do
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Plant")
-    |> assign(:plant, Inventory.get_plant!(id))
+    |> assign(:plant, Plants.get_plant!(id))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -39,8 +39,8 @@ defmodule GardenWeb.PlantLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    plant = Inventory.get_plant!(id)
-    {:ok, _} = Inventory.delete_plant(plant)
+    plant = Plants.get_plant!(id)
+    {:ok, _} = Plants.delete_plant(plant)
 
     {:noreply, stream_delete(socket, :plants, plant)}
   end

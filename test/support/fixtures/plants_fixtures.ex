@@ -1,7 +1,7 @@
-defmodule Garden.InventoryFixtures do
+defmodule Garden.PlantsFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `Garden.Inventory` context.
+  entities via the `Garden.Plants` context.
   """
 
   @doc """
@@ -13,7 +13,7 @@ defmodule Garden.InventoryFixtures do
       |> Enum.into(%{
         name: "some name"
       })
-      |> Garden.Inventory.create_plant()
+      |> Garden.Plants.create_plant()
 
     plant
   end
