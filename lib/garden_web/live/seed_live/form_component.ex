@@ -4,14 +4,6 @@ defmodule GardenWeb.SeedLive.FormComponent do
   alias Garden.Library
 
   @impl true
-  def mount(socket) do
-    {:ok,
-     socket
-     |> assign(:uploaded_files, [])
-     |> allow_upload(:photo, accept: ["image/jpeg"])}
-  end
-
-  @impl true
   def render(assigns) do
     ~H"""
     <div>
@@ -28,27 +20,6 @@ defmodule GardenWeb.SeedLive.FormComponent do
         phx-submit="save"
       >
         <.input field={@form[:name]} type="text" label="Name" />
-        <div style="block">
-          <label for={@uploads.photo.ref}>
-            <.icon name="hero-camera" />
-          </label>
-          <.live_file_input upload={@uploads.photo} capture="environment" style="display: none" />
-        </div>
-        <%= for entry <- @uploads.photo.entries do %>
-          <article class="upload-entry">
-            <figure>
-              <.live_img_preview entry={entry} />
-            </figure>
-            <button
-              type="button"
-              phx-target={@myself}
-              phx-click="cancel-upload"
-              phx-value-ref={entry.ref}
-            >
-              &times;
-            </button>
-          </article>
-        <% end %>
         <:actions>
           <.button phx-disable-with="Saving...">Save Seed</.button>
         </:actions>
@@ -75,10 +46,6 @@ defmodule GardenWeb.SeedLive.FormComponent do
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
-  end
-
-  def handle_event("cancel-upload", %{"ref" => ref}, socket) do
-    {:noreply, cancel_upload(socket, :photo, ref)}
   end
 
   def handle_event("save", %{"seed" => seed_params}, socket) do

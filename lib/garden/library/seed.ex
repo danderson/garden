@@ -4,7 +4,6 @@ defmodule Garden.Library.Seed do
 
   schema "seeds" do
     field :name, :string
-    field :photo, :binary, load_in_query: false
 
     timestamps(type: :utc_datetime)
   end
