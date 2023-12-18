@@ -1,7 +1,7 @@
-defmodule GardenWeb.PlantLive.FormComponent do
+defmodule GardenWeb.SeedLive.FormComponent do
   use GardenWeb, :live_component
 
-  alias Garden.Plants
+  alias Garden.Library
 
   @impl true
   def render(assigns) do
@@ -9,19 +9,19 @@ defmodule GardenWeb.PlantLive.FormComponent do
     <div>
       <.header>
         <%= @title %>
-        <:subtitle>Use this form to manage plant records in your database.</:subtitle>
+        <:subtitle>Use this form to manage seed records in your database.</:subtitle>
       </.header>
 
       <.simple_form
         for={@form}
-        id="plant-form"
+        id="seed-form"
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"
       >
         <.input field={@form[:name]} type="text" label="Name" />
         <:actions>
-          <.button phx-disable-with="Saving...">Save Plant</.button>
+          <.button phx-disable-with="Saving...">Save Seed</.button>
         </:actions>
       </.simple_form>
     </div>
@@ -29,8 +29,8 @@ defmodule GardenWeb.PlantLive.FormComponent do
   end
 
   @impl true
-  def update(%{plant: plant} = assigns, socket) do
-    changeset = Plants.change_plant(plant)
+  def update(%{seed: seed} = assigns, socket) do
+    changeset = Library.change_seed(seed)
 
     {:ok,
      socket
@@ -39,27 +39,27 @@ defmodule GardenWeb.PlantLive.FormComponent do
   end
 
   @impl true
-  def handle_event("validate", %{"plant" => plant_params}, socket) do
+  def handle_event("validate", %{"seed" => seed_params}, socket) do
     changeset =
-      socket.assigns.plant
-      |> Plants.change_plant(plant_params)
+      socket.assigns.seed
+      |> Library.change_seed(seed_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
   end
 
-  def handle_event("save", %{"plant" => plant_params}, socket) do
-    save_plant(socket, socket.assigns.action, plant_params)
+  def handle_event("save", %{"seed" => seed_params}, socket) do
+    save_seed(socket, socket.assigns.action, seed_params)
   end
 
-  defp save_plant(socket, :edit, plant_params) do
-    case Plants.update_plant(socket.assigns.plant, plant_params) do
-      {:ok, plant} ->
-        notify_parent({:saved, plant})
+  defp save_seed(socket, :edit, seed_params) do
+    case Library.update_seed(socket.assigns.seed, seed_params) do
+      {:ok, seed} ->
+        notify_parent({:saved, seed})
 
         {:noreply,
          socket
-         |> put_flash(:info, "Plant updated successfully")
+         |> put_flash(:info, "Seed updated successfully")
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -67,14 +67,14 @@ defmodule GardenWeb.PlantLive.FormComponent do
     end
   end
 
-  defp save_plant(socket, :new, plant_params) do
-    case Plants.create_plant(plant_params) do
-      {:ok, plant} ->
-        notify_parent({:saved, plant})
+  defp save_seed(socket, :new, seed_params) do
+    case Library.create_seed(seed_params) do
+      {:ok, seed} ->
+        notify_parent({:saved, seed})
 
         {:noreply,
          socket
-         |> put_flash(:info, "Plant created successfully")
+         |> put_flash(:info, "Seed created successfully")
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->

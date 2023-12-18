@@ -1,7 +1,7 @@
-defmodule GardenWeb.PlantLive.Show do
+defmodule GardenWeb.LocationLive.Show do
   use GardenWeb, :live_view
 
-  alias Garden.Plants
+  alias Garden.Library
 
   @impl true
   def mount(_params, _session, socket) do
@@ -13,9 +13,9 @@ defmodule GardenWeb.PlantLive.Show do
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:plant, Plants.get_plant!(id))}
+     |> assign(:location, Library.get_location!(id))}
   end
 
-  defp page_title(:show), do: "Show Plant"
-  defp page_title(:edit), do: "Edit Plant"
+  defp page_title(:show), do: "Show Location"
+  defp page_title(:edit), do: "Edit Location"
 end
