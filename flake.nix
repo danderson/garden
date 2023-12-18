@@ -9,6 +9,7 @@
         inotify-tools
         nodejs
         erlang
+	sqlite
       ];
     };
   };
