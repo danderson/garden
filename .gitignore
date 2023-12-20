@@ -39,3 +39,5 @@ npm-debug.log
 *.db
 *.db-*
 
+# Dev mode uploaded images dir
+/images/
