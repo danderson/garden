@@ -49,9 +49,9 @@ defmodule Garden.Library do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_seed(attrs \\ %{}, image_id \\ nil) do
+  def create_seed(attrs \\ %{}, front_image_id \\ nil, back_image_id \\ nil) do
     %Seed{}
-    |> Seed.changeset(attrs, image_id)
+    |> Seed.changeset(attrs, front_image_id, back_image_id)
     |> Repo.insert()
   end
 
@@ -67,9 +67,9 @@ defmodule Garden.Library do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_seed(%Seed{} = seed, attrs, image_id \\ nil) do
+  def update_seed(%Seed{} = seed, attrs, front_image_id \\ nil, back_image_id \\ nil) do
     seed
-    |> Seed.changeset(attrs, image_id)
+    |> Seed.changeset(attrs, front_image_id, back_image_id)
     |> Repo.update()
   end
 
@@ -85,9 +85,10 @@ defmodule Garden.Library do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_seed(%Seed{:image_id => image_id} = seed) do
+  def delete_seed(%Seed{:front_image_id => front_id, :back_image_id => back_id} = seed) do
     res = Repo.delete(seed)
-    Images.delete(image_id)
+    Images.delete(front_id)
+    Images.delete(back_id)
     res
   end
 

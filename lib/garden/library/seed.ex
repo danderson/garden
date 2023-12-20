@@ -4,19 +4,35 @@ defmodule Garden.Library.Seed do
 
   schema "seeds" do
     field :name, :string
-    field :image_id, :string, default: ""
+    field :front_image_id, :string, default: ""
+    field :back_image_id, :string, default: ""
+    field :year, :integer
 
     timestamps(type: :utc_datetime)
   end
 
   @doc false
-  def changeset(seed, attrs, image_id \\ nil) do
-    seed
-    |> cast(attrs, [:name])
-    |> maybe_update_image(image_id)
-    |> validate_required([:name])
+  def changeset(seed, attrs, front_image_id \\ nil, back_image_id \\ nil) do
+    change =
+      seed
+      |> defaults
+      |> cast(attrs, [:name, :year])
+      |> validate_number(:year, greater_than_or_equal_to: 2020)
+      |> front_image(front_image_id)
+      |> back_image(back_image_id)
+      |> validate_required([:name])
   end
 
-  defp maybe_update_image(changeset, nil), do: changeset
-  defp maybe_update_image(changeset, id), do: put_change(changeset, :image_id, id)
+  def defaults(seed) do
+    if seed.id != nil, do: seed
+    %{seed | year: current_year()}
+  end
+
+  def current_year(), do: Date.utc_today().year
+
+  defp front_image(changeset, nil), do: changeset
+  defp front_image(changeset, id), do: put_change(changeset, :front_image_id, id)
+
+  defp back_image(changeset, nil), do: changeset
+  defp back_image(changeset, id), do: put_change(changeset, :back_image_id, id)
 end
