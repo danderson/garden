@@ -13,14 +13,13 @@ defmodule Garden.Library.Seed do
 
   @doc false
   def changeset(seed, attrs, front_image_id \\ nil, back_image_id \\ nil) do
-    change =
-      seed
-      |> defaults
-      |> cast(attrs, [:name, :year])
-      |> validate_number(:year, greater_than_or_equal_to: 2020)
-      |> front_image(front_image_id)
-      |> back_image(back_image_id)
-      |> validate_required([:name])
+    seed
+    |> defaults
+    |> cast(attrs, [:name, :year])
+    |> validate_number(:year, greater_than_or_equal_to: 2020)
+    |> front_image(front_image_id)
+    |> back_image(back_image_id)
+    |> validate_required([:name])
   end
 
   def defaults(seed) do

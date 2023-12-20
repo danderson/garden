@@ -18,7 +18,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:name]} type="text" label="Name" placeholder="Big potats" />
+        <.input field={@form[:name]} type="text" label="Name" placeholder="Big potats" data-1p-ignore />
         <.input field={@form[:year]} type="number" label="Packed for" min="2020" max="2099" step="1" />
 
         <.photo_upload
