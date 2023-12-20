@@ -19,7 +19,15 @@ defmodule GardenWeb.SeedLive.FormComponent do
         phx-submit="save"
       >
         <.input field={@form[:name]} type="text" label="Name" placeholder="Big potats" data-1p-ignore />
-        <.input field={@form[:year]} type="number" label="Packed for" min="2020" max="2099" step="1" />
+        <.input
+          field={@form[:year]}
+          type="number"
+          label="Packed for"
+          min="2020"
+          max="2099"
+          step="1"
+          placeholder="Year"
+        />
 
         <.photo_upload
           upload={@uploads.front_photo}
@@ -82,6 +90,13 @@ defmodule GardenWeb.SeedLive.FormComponent do
       |> allow_upload(:back_photo, accept: ["image/jpeg"])
 
     {:ok, socket}
+  end
+
+  def update(%{id: :new} = assigns, socket) do
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign_form(Library.new_seed())}
   end
 
   @impl true

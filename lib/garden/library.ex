@@ -8,83 +8,24 @@ defmodule Garden.Library do
 
   alias Garden.Library.Seed
 
-  @doc """
-  Returns the list of seeds.
-
-  ## Examples
-
-      iex> list_seeds()
-      [%Seed{}, ...]
-
-  """
   def list_seeds do
     Repo.all(Seed)
   end
 
-  @doc """
-  Gets a single seed.
-
-  Raises `Ecto.NoResultsError` if the Seed does not exist.
-
-  ## Examples
-
-      iex> get_seed!(123)
-      %Seed{}
-
-      iex> get_seed!(456)
-      ** (Ecto.NoResultsError)
-
-  """
   def get_seed!(id), do: Repo.get!(Seed, id)
 
-  @doc """
-  Creates a seed.
-
-  ## Examples
-
-      iex> create_seed(%{field: value})
-      {:ok, %Seed{}}
-
-      iex> create_seed(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def create_seed(attrs \\ %{}, front_image_id \\ nil, back_image_id \\ nil) do
     %Seed{}
     |> Seed.changeset(attrs, front_image_id, back_image_id)
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a seed.
-
-  ## Examples
-
-      iex> update_seed(seed, %{field: new_value})
-      {:ok, %Seed{}}
-
-      iex> update_seed(seed, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def update_seed(%Seed{} = seed, attrs, front_image_id \\ nil, back_image_id \\ nil) do
     seed
     |> Seed.changeset(attrs, front_image_id, back_image_id)
     |> Repo.update()
   end
 
-  @doc """
-  Deletes a seed.
-
-  ## Examples
-
-      iex> delete_seed(seed)
-      {:ok, %Seed{}}
-
-      iex> delete_seed(seed)
-      {:error, %Ecto.Changeset{}}
-
-  """
   def delete_seed(%Seed{:front_image_id => front_id, :back_image_id => back_id} = seed) do
     res = Repo.delete(seed)
     Images.delete(front_id)
@@ -92,15 +33,10 @@ defmodule Garden.Library do
     res
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking seed changes.
+  def new_seed() do
+    Seed.changeset(%Seed{}, %{year: Date.utc_today().year})
+  end
 
-  ## Examples
-
-      iex> change_seed(seed)
-      %Ecto.Changeset{data: %Seed{}}
-
-  """
   def change_seed(%Seed{} = seed, attrs \\ %{}) do
     Seed.changeset(seed, attrs)
   end
