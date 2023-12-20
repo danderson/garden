@@ -10,6 +10,7 @@
 
 <.list>
   <:item title="Name"><%= @seed.name %></:item>
+  <:item title="Photo"><a href={Images.url(@seed.image_id, :full)}><img src={Images.url(@seed.image_id, :medium)} /></a></:item>
 </.list>
 
 <.back navigate={~p"/seeds"}>Back to seeds</.back>

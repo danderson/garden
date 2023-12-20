@@ -23,6 +23,11 @@ defmodule GardenWeb.Endpoint do
     gzip: false,
     only: GardenWeb.static_paths()
 
+  plug Plug.Static,
+    at: Images.base_url(),
+    from: Images.images_dir(),
+    gzip: false
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

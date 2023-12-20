@@ -9,7 +9,8 @@ import Config
 
 config :garden,
   ecto_repos: [Garden.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  images_dir: Path.expand("../images", __DIR__)
 
 # Configures the endpoint
 config :garden, GardenWeb.Endpoint,

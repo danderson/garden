@@ -28,6 +28,15 @@ if config_env() == :prod do
       For example: /etc/garden/garden.db
       """
 
+  images_dir =
+    System.get_env("IMAGES_PATH") ||
+      raise """
+      Set IMAGES_PATH
+      """
+
+  config :garden,
+    images_dir: images_dir
+
   config :garden, Garden.Repo,
     database: database_path,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
