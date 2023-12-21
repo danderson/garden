@@ -55,7 +55,7 @@ defmodule GardenWeb.LocationLive.FormComponent do
   defp save_location(socket, :edit, location_params) do
     case Locations.update_location(socket.assigns.location, location_params) do
       {:ok, location} ->
-        notify_parent({:saved, location})
+        notify_parent({:saved, Locations.get_location!(location.id)})
 
         {:noreply,
          socket
@@ -70,7 +70,7 @@ defmodule GardenWeb.LocationLive.FormComponent do
   defp save_location(socket, :new, location_params) do
     case Locations.create_location(location_params) do
       {:ok, location} ->
-        notify_parent({:saved, location})
+        notify_parent({:saved, Locations.get_location!(location.id)})
 
         {:noreply,
          socket

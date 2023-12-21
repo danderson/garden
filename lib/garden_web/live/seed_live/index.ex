@@ -2,7 +2,6 @@ defmodule GardenWeb.SeedLive.Index do
   use GardenWeb, :live_view
 
   alias Garden.Seeds
-  alias Garden.Seeds.Seed
 
   @impl true
   def mount(_params, _session, socket) do
@@ -23,7 +22,7 @@ defmodule GardenWeb.SeedLive.Index do
   defp apply_action(socket, :new, _params) do
     socket
     |> assign(:page_title, "New Seed")
-    |> assign(:seed, %Seed{})
+    |> assign(:seed, Seeds.new_seed())
   end
 
   defp apply_action(socket, :index, _params) do
@@ -34,7 +33,7 @@ defmodule GardenWeb.SeedLive.Index do
 
   @impl true
   def handle_info({GardenWeb.SeedLive.FormComponent, {:saved, seed}}, socket) do
-    {:noreply, stream_insert(socket, :seeds, seed)}
+    {:noreply, stream_insert(socket, :seeds, Seeds.expand_seed(seed))}
   end
 
   @impl true

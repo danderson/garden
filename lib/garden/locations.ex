@@ -20,6 +20,12 @@ defmodule Garden.Locations do
     base_query() |> Repo.get!(id)
   end
 
+  def expand_location(%Location{} = location) do
+    Repo.preload(location, [:plants, plants: :seed])
+  end
+
+  def new_location(), do: expand_location(%Location{})
+
   def create_location(attrs \\ %{}) do
     %Location{}
     |> Location.changeset(attrs)

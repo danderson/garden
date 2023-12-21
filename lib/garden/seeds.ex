@@ -20,6 +20,16 @@ defmodule Garden.Seeds do
     base_query() |> Repo.get!(id)
   end
 
+  def expand_seed(%Seed{} = seed), do: seed |> Repo.preload([:plants, plants: :location])
+
+  def new_seed() do
+    expand_seed(%Seed{})
+  end
+
+  def new_seed_changeset() do
+    new_seed() |> Seed.changeset(%{year: Date.utc_today().year})
+  end
+
   def create_seed(attrs \\ %{}, private_attrs \\ %{}) do
     %Seed{}
     |> Seed.changeset(attrs, private_attrs)
@@ -50,10 +60,6 @@ defmodule Garden.Seeds do
     Images.delete(:seeds, front_id)
     Images.delete(:seeds, back_id)
     res
-  end
-
-  def new_seed() do
-    Seed.changeset(%Seed{}, %{year: Date.utc_today().year})
   end
 
   def change_seed(%Seed{} = seed, attrs \\ %{}) do

@@ -2,7 +2,6 @@ defmodule GardenWeb.PlantLive.Index do
   use GardenWeb, :live_view
 
   alias Garden.Plants
-  alias Garden.Plants.Plant
 
   @impl true
   def mount(_params, _session, socket) do
@@ -28,7 +27,7 @@ defmodule GardenWeb.PlantLive.Index do
 
     socket
     |> assign(:page_title, "Add Plant")
-    |> assign(:plant, %Plant{})
+    |> assign(:plant, Plants.new_plant())
     |> assign(:form_initial_params, init)
   end
 
@@ -40,7 +39,7 @@ defmodule GardenWeb.PlantLive.Index do
 
   @impl true
   def handle_info({GardenWeb.PlantLive.FormComponent, {:saved, plant}}, socket) do
-    {:noreply, stream_insert(socket, :plants, plant)}
+    {:noreply, stream_insert(socket, :plants, Plants.expand_plant(plant))}
   end
 
   @impl true

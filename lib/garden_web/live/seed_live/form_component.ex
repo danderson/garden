@@ -98,7 +98,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign_form(Seeds.new_seed())}
+     |> assign_form(Seeds.new_seed_changeset())}
   end
 
   @impl true
