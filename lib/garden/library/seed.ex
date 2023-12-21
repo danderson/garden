@@ -4,26 +4,35 @@ defmodule Garden.Library.Seed do
 
   schema "seeds" do
     field :name, :string
-    field :front_image_id, :string, default: ""
-    field :back_image_id, :string, default: ""
+    field :front_image_id, :string
+    field :back_image_id, :string
     field :year, :integer
 
     timestamps(type: :utc_datetime)
   end
 
   @doc false
-  def changeset(seed, attrs, front_image_id \\ nil, back_image_id \\ nil) do
+  def changeset(seed, attrs, private_attrs \\ %{}) do
     seed
     |> cast(attrs, [:name, :year])
+    |> cast(private_attrs, [:front_image_id, :back_image_id])
     |> validate_number(:year, greater_than_or_equal_to: 2020)
-    |> front_image(front_image_id)
-    |> back_image(back_image_id)
     |> validate_required([:name])
   end
 
-  defp front_image(changeset, nil), do: changeset
-  defp front_image(changeset, id), do: put_change(changeset, :front_image_id, id)
+  def new_images(%Ecto.Changeset{} = change) do
+    [
+      get_change(change, :front_image_id),
+      get_change(change, :back_image_id)
+    ]
+    |> Enum.reject(&is_nil/1)
+  end
 
-  defp back_image(changeset, nil), do: changeset
-  defp back_image(changeset, id), do: put_change(changeset, :back_image_id, id)
+  def replaced_images(%Ecto.Changeset{} = change) do
+    [
+      if(changed?(change, :front_image_id), do: change.data.front_image_id),
+      if(changed?(change, :back_image_id), do: change.data.back_image_id)
+    ]
+    |> Enum.reject(&is_nil/1)
+  end
 end

@@ -13,14 +13,14 @@
   <:item title="Packed for">
     <%= @seed.year || "(unknown)" %>
   </:item>
-  <:item title="Front">
-    <a href={Images.url(@seed.front_image_id, :full)}>
-      <img src={Images.url(@seed.front_image_id, :medium)} />
+  <:item :if={@seed.front_image_id} title="Front">
+    <a href={Library.seed_image(@seed.front_image_id, :full)}>
+      <img src={Library.seed_image(@seed.front_image_id, :medium)} />
     </a>
   </:item>
-  <:item title="Back">
-    <a href={Images.url(@seed.back_image_id, :full)}>
-      <img src={Images.url(@seed.back_image_id, :medium)} />
+  <:item :if={@seed.back_image_id} title="Back">
+    <a href={Library.seed_image(@seed.back_image_id, :full)}>
+      <img src={Library.seed_image(@seed.back_image_id, :medium)} />
     </a>
   </:item>
 </.list>

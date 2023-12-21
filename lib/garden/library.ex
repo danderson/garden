@@ -14,22 +14,35 @@ defmodule Garden.Library do
 
   def get_seed!(id), do: Repo.get!(Seed, id)
 
-  def create_seed(attrs \\ %{}, front_image_id \\ nil, back_image_id \\ nil) do
+  def create_seed(attrs \\ %{}, private_attrs \\ %{}) do
     %Seed{}
-    |> Seed.changeset(attrs, front_image_id, back_image_id)
+    |> Seed.changeset(attrs, private_attrs)
     |> Repo.insert()
   end
 
-  def update_seed(%Seed{} = seed, attrs, front_image_id \\ nil, back_image_id \\ nil) do
-    seed
-    |> Seed.changeset(attrs, front_image_id, back_image_id)
-    |> Repo.update()
+  def update_seed(%Seed{} = seed, attrs, private_attrs \\ %{}) do
+    change =
+      seed
+      |> Seed.changeset(attrs, private_attrs)
+
+    case Repo.update(change) do
+      {:ok, _} = res ->
+        Seed.replaced_images(change) |> Enum.each(&Images.delete(:seed, &1))
+        res
+
+      {:error, _} = res ->
+        Seed.new_images(change) |> Enum.each(&Images.delete(:seed, &1))
+        res
+    end
   end
+
+  def store_seed_image(src), do: Images.store(:seeds, src)
+  def seed_image(id, size), do: Images.url(:seeds, id, size)
 
   def delete_seed(%Seed{:front_image_id => front_id, :back_image_id => back_id} = seed) do
     res = Repo.delete(seed)
-    Images.delete(front_id)
-    Images.delete(back_id)
+    Images.delete(:seeds, front_id)
+    Images.delete(:seeds, back_id)
     res
   end
 

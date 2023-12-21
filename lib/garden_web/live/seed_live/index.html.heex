@@ -13,9 +13,8 @@
   row_click={fn {_id, seed} -> JS.navigate(~p"/seeds/#{seed}") end}
 >
   <:col :let={{_id, seed}}><%= seed.name %></:col>
-  <:col :let={{_id, seed}}><%= if seed.front_image_id do %>
-    <img src={Images.url(seed.front_image_id, :thumbnail)} />
-    <% end %>
+  <:col :let={{_id, seed}}>
+    <img :if={seed.front_image_id} src={Library.seed_image(seed.front_image_id, :thumbnail)} />
   </:col>
 
   <:action :let={{_id, seed}}>

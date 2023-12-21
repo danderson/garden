@@ -3,8 +3,8 @@ defmodule Images do
 
   def images_dir, do: Application.fetch_env!(:garden, :images_dir)
 
-  def store(src_path) do
-    File.mkdir_p!(images_dir())
+  def store(kind, src_path) do
+    File.mkdir_p!(disk_dir(kind))
 
     id = generate_id()
 
@@ -13,33 +13,34 @@ defmodule Images do
       |> Image.open!()
       |> Image.autorotate!()
       |> Image.thumbnail!("1600x1600", resize: :down)
-      |> Image.write!(disk(id, :full))
+      |> Image.write!(disk(kind, id, :full))
 
     full
     |> Image.thumbnail!("400x600", resize: :down)
-    |> Image.write!(disk(id, :medium))
+    |> Image.write!(disk(kind, id, :medium))
 
     full
     |> Image.thumbnail!("128x128", resize: :down)
-    |> Image.write!(disk(id, :thumbnail))
+    |> Image.write!(disk(kind, id, :thumbnail))
 
     id
   end
 
-  def delete(nil), do: nil
+  def delete(_kind, nil), do: nil
 
-  def delete(id) do
+  def delete(kind, id) do
     [:full, :medium, :thumbnail]
     |> Enum.each(fn size ->
-      path = disk(id, size)
+      path = disk(kind, id, size)
       if File.exists?(path), do: File.rm!(path)
     end)
 
     nil
   end
 
-  def url(id, size), do: Path.join(base_url(), filename(id, size))
-  defp disk(id, size), do: Path.join(images_dir(), filename(id, size))
+  def url(kind, id, size), do: Path.join([base_url(), to_string(kind), filename(id, size)])
+  defp disk_dir(kind), do: Path.join(images_dir(), to_string(kind))
+  defp disk(kind, id, size), do: Path.join(disk_dir(kind), filename(id, size))
 
   defp filename(id, :full), do: "#{id}.jpg"
   defp filename(id, :medium), do: "#{id}_med.jpg"

@@ -30,14 +30,16 @@ defmodule GardenWeb.SeedLive.FormComponent do
         />
 
         <.photo_upload
-          upload={@uploads.front_photo}
+          upload={@uploads.front_image}
           label="Front photo"
           existing_id={@seed.front_image_id}
+          target={@myself}
         />
         <.photo_upload
-          upload={@uploads.back_photo}
+          upload={@uploads.back_image}
           label="Back photo"
           existing_id={@seed.back_image_id}
+          target={@myself}
         />
 
         <:actions>
@@ -51,15 +53,14 @@ defmodule GardenWeb.SeedLive.FormComponent do
   attr :upload, :any, required: true, doc: "the upload object for the photo"
   attr :label, :string, required: true, doc: "the label for the photo"
   attr :existing_id, :string, required: true, doc: "the existing database ID for the photo"
+  attr :target, :any, required: true, doc: "target of events"
 
   def photo_upload(assigns) do
     ~H"""
     <div>
       <div class="block text-sm font-semibold leading-6 text-zinc-800"><%= @label %></div>
       <%= if @upload.entries == [] do %>
-        <%= if @existing_id != "" do %>
-          <img src={Images.url(@existing_id, :medium)} />
-        <% end %>
+        <img :if={@existing_id} src={Library.seed_image(@existing_id, :medium)} />
       <% else %>
         <.live_img_preview entry={List.first(@upload.entries)} />
         <%= for err <- upload_errors(@upload, List.first(@upload.entries)) do %>
@@ -70,6 +71,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
           phx-click="cancel-upload"
           phx-value-upload={@upload.name}
           phx-value-ref={List.first(@upload.entries).ref}
+          phx-target={@target}
         >
           <.icon name="hero-trash" />
         </button>
@@ -86,8 +88,8 @@ defmodule GardenWeb.SeedLive.FormComponent do
   def mount(socket) do
     socket =
       socket
-      |> allow_upload(:front_photo, accept: ["image/jpeg"])
-      |> allow_upload(:back_photo, accept: ["image/jpeg"])
+      |> allow_upload(:front_image, accept: ["image/jpeg"])
+      |> allow_upload(:back_image, accept: ["image/jpeg"])
 
     {:ok, socket}
   end
@@ -111,7 +113,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
 
   @impl true
   def handle_event("cancel-upload", %{"upload" => upload, "ref" => ref}, socket) do
-    {:noreply, cancel_upload(socket, upload, ref)}
+    {:noreply, cancel_upload(socket, String.to_existing_atom(upload), ref)}
   end
 
   @impl true
@@ -132,8 +134,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
     case Library.update_seed(
            socket.assigns.seed,
            seed_params,
-           uploaded_photo(socket, :front_photo),
-           uploaded_photo(socket, :back_photo)
+           collect_images(socket)
          ) do
       {:ok, seed} ->
         notify_parent({:saved, seed})
@@ -151,8 +152,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
   defp save_seed(socket, :new, seed_params) do
     case Library.create_seed(
            seed_params,
-           uploaded_photo(socket, :front_photo),
-           uploaded_photo(socket, :back_photo)
+           collect_images(socket)
          ) do
       {:ok, seed} ->
         notify_parent({:saved, seed})
@@ -167,10 +167,19 @@ defmodule GardenWeb.SeedLive.FormComponent do
     end
   end
 
-  defp uploaded_photo(socket, name) do
+  defp collect_images(socket) do
+    %{
+      front_image_id: collect_image(socket, :front_image),
+      back_image_id: collect_image(socket, :back_image)
+    }
+    |> Enum.filter(fn {_k, v} -> v end)
+    |> Map.new()
+  end
+
+  defp collect_image(socket, name) do
     uploads =
       consume_uploaded_entries(socket, name, fn %{path: path}, _entry ->
-        {:ok, Images.store(path)}
+        {:ok, Library.store_seed_image(path)}
       end)
 
     case uploads do
