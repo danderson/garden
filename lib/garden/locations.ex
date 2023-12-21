@@ -8,11 +8,17 @@ defmodule Garden.Locations do
 
   alias Garden.Locations.Location
 
-  def list_locations do
-    Repo.all(Location)
+  defp base_query() do
+    from l in Location, order_by: [:name]
   end
 
-  def get_location!(id), do: Repo.get!(Location, id)
+  def list_locations do
+    base_query() |> Repo.all()
+  end
+
+  def get_location!(id) do
+    base_query() |> Repo.get!(id)
+  end
 
   def create_location(attrs \\ %{}) do
     %Location{}

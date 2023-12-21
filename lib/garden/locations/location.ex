@@ -5,6 +5,7 @@ defmodule Garden.Locations.Location do
   schema "locations" do
     field :name, :string
     has_many :images, Garden.Locations.Location.LocationImage
+    has_many :plants, Garden.Plants.Plant
 
     timestamps(type: :utc_datetime)
   end

@@ -8,6 +8,8 @@ defmodule Garden.Seeds.Seed do
     field :back_image_id, :string
     field :year, :integer
 
+    has_many :plants, Garden.Plants.Plant
+
     timestamps(type: :utc_datetime)
   end
 

@@ -8,11 +8,17 @@ defmodule Garden.Seeds do
 
   alias Garden.Seeds.Seed
 
-  def list_seeds do
-    Repo.all(Seed)
+  defp base_query() do
+    from s in Seed, order_by: [:name]
   end
 
-  def get_seed!(id), do: Repo.get!(Seed, id)
+  def list_seeds do
+    base_query() |> Repo.all()
+  end
+
+  def get_seed!(id) do
+    base_query() |> Repo.get!(id)
+  end
 
   def create_seed(attrs \\ %{}, private_attrs \\ %{}) do
     %Seed{}

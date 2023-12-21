@@ -32,6 +32,13 @@ defmodule GardenWeb.Router do
 
     live "/locations/:id", LocationLive.Show, :show
     live "/locations/:id/show/edit", LocationLive.Show, :edit
+
+    live "/plants", PlantLive.Index, :index
+    live "/plants/new", PlantLive.Index, :new
+    live "/plants/:id/edit", PlantLive.Index, :edit
+
+    live "/plants/:id", PlantLive.Show, :show
+    live "/plants/:id/show/edit", PlantLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

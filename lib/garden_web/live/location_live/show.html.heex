@@ -1,9 +1,10 @@
+<.back navigate={~p"/locations"}>Back to locations</.back>
+
 <.header>
-  Location <%= @location.id %>
-  <:subtitle>This is a location record from your database.</:subtitle>
+  <%= @location.name %>
   <:actions>
     <.link patch={~p"/locations/#{@location}/show/edit"} phx-click={JS.push_focus()}>
-      <.button>Edit location</.button>
+      <.button>Edit</.button>
     </.link>
   </:actions>
 </.header>
@@ -11,8 +12,6 @@
 <.list>
   <:item title="Name"><%= @location.name %></:item>
 </.list>
-
-<.back navigate={~p"/locations"}>Back to locations</.back>
 
 <.modal :if={@live_action == :edit} id="location-modal" show on_cancel={JS.patch(~p"/locations/#{@location}")}>
   <.live_component
