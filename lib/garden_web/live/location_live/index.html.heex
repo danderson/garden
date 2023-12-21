@@ -15,6 +15,9 @@
   <:col :let={{_id, location}} label="Name"><%= location.name %></:col>
   <:col :let={{_id, location}} label="Plants"><%= length(location.plants) %></:col>
   <:action :let={{_id, location}}>
+    <.link navigate={~p"/plants/new?location_id=#{location.id}"}>Plant</.link>
+  </:action>
+  <:action :let={{_id, location}}>
     <div class="sr-only">
       <.link navigate={~p"/locations/#{location}"}>Show</.link>
     </div>

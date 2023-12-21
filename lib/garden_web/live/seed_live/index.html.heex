@@ -18,6 +18,9 @@
   </:col>
 
   <:action :let={{_id, seed}}>
+    <.link navigate={~p"/plants/new?seed_id=#{seed.id}"}>Plant</.link>
+  </:action>
+  <:action :let={{_id, seed}}>
     <div class="sr-only">
       <.link navigate={~p"/seeds/#{seed}"}>Show</.link>
     </div>

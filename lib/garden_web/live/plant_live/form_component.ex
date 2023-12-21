@@ -9,7 +9,6 @@ defmodule GardenWeb.PlantLive.FormComponent do
     <div>
       <.header>
         <%= @title %>
-        <:subtitle>Use this form to manage plant records in your database.</:subtitle>
       </.header>
 
       <.simple_form
@@ -19,7 +18,6 @@ defmodule GardenWeb.PlantLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:name]} type="text" label="Name" data-1p-ignore />
         <.input
           field={@form[:location_id]}
           type="select"
@@ -27,13 +25,8 @@ defmodule GardenWeb.PlantLive.FormComponent do
           prompt=""
           options={@locations}
         />
-        <.input
-          field={@form[:seed_id]}
-          type="select"
-          label="Seed (optional)"
-          prompt="N/A"
-          options={@seeds}
-        />
+        <.input field={@form[:seed_id]} type="select" label="Seed" prompt="None" options={@seeds} />
+        <.input field={@form[:name]} type="text" label="Name" data-1p-ignore />
 
         <:actions>
           <.button phx-disable-with="Saving...">Save Plant</.button>
@@ -45,7 +38,8 @@ defmodule GardenWeb.PlantLive.FormComponent do
 
   @impl true
   def update(%{plant: plant} = assigns, socket) do
-    changeset = Plants.change_plant(plant)
+    {init, assigns} = Map.pop(assigns, :initial_params, %{})
+    changeset = Plants.change_plant(plant, init)
 
     {:ok,
      socket

@@ -3,6 +3,9 @@
 <.header>
   <%= @location.name %>
   <:actions>
+    <.link navigate={~p"/plants/new?location_id=#{@location.id}"} phx-click={JS.push_focus()}>
+      <.button>Plant</.button>
+    </.link>
     <.link patch={~p"/locations/#{@location}/show/edit"} phx-click={JS.push_focus()}>
       <.button>Edit</.button>
     </.link>

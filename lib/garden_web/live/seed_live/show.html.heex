@@ -3,6 +3,9 @@
 <.header>
   <%= @seed.name %>
   <:actions>
+    <.link navigate={~p"/plants/new?seed_id=#{@seed.id}"} phx-click={JS.push_focus()}>
+      <.button>Plant</.button>
+    </.link>
     <.link patch={~p"/seeds/#{@seed}/show/edit"} phx-click={JS.push_focus()}>
       <.button>Edit</.button>
     </.link>

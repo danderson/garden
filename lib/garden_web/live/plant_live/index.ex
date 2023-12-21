@@ -6,7 +6,10 @@ defmodule GardenWeb.PlantLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :plants, Plants.list_plants())}
+    {:ok,
+     socket
+     |> stream(:plants, Plants.list_plants())
+     |> assign(:form_initial_params, %{})}
   end
 
   @impl true
@@ -20,15 +23,18 @@ defmodule GardenWeb.PlantLive.Index do
     |> assign(:plant, Plants.get_plant!(id))
   end
 
-  defp apply_action(socket, :new, _params) do
+  defp apply_action(socket, :new, params) do
+    {init, _} = new_plant_initial_params(params)
+
     socket
-    |> assign(:page_title, "New Plant")
+    |> assign(:page_title, "Add Plant")
     |> assign(:plant, %Plant{})
+    |> assign(:form_initial_params, init)
   end
 
   defp apply_action(socket, :index, _params) do
     socket
-    |> assign(:page_title, "Listing Plants")
+    |> assign(:page_title, "Plants")
     |> assign(:plant, nil)
   end
 
@@ -43,5 +49,15 @@ defmodule GardenWeb.PlantLive.Index do
     {:ok, _} = Plants.delete_plant(plant)
 
     {:noreply, stream_delete(socket, :plants, plant)}
+  end
+
+  defp new_plant_initial_params(params) do
+    {location, params} = Map.pop(params, "location_id")
+    location = if location != nil, do: %{location_id: String.to_integer(location)}, else: %{}
+
+    {seed, params} = Map.pop(params, "seed_id")
+    seed = if seed != nil, do: %{seed_id: String.to_integer(seed)}, else: %{}
+
+    {Map.merge(location, seed), params}
   end
 end
