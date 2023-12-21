@@ -26,8 +26,8 @@ defmodule GardenWeb.SeedLiveTest do
     test "saves new seed", %{conn: conn} do
       {:ok, index_live, _html} = live(conn, ~p"/seeds")
 
-      assert index_live |> element("a", "New Seed") |> render_click() =~
-               "New Seed"
+      assert index_live |> element("a", "Add") |> render_click() =~
+               "Add"
 
       assert_patch(index_live, ~p"/seeds/new")
 

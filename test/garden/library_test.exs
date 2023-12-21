@@ -21,10 +21,34 @@ defmodule Garden.LibraryTest do
     end
 
     test "create_seed/1 with valid data creates a seed" do
-      valid_attrs = %{name: "some name"}
+      valid_attrs = %{
+        name: "some name",
+        year: 2023,
+        front_image_id: "1234",
+        back_image_id: "2345"
+      }
 
       assert {:ok, %Seed{} = seed} = Library.create_seed(valid_attrs)
       assert seed.name == "some name"
+      assert seed.year == 2023
+    end
+
+    test "create_seed/2 with valid data creates a seed" do
+      attrs = %{
+        name: "some name",
+        year: 2023
+      }
+
+      private_attrs = %{
+        front_image_id: "1234",
+        back_image_id: "2345"
+      }
+
+      assert {:ok, %Seed{} = seed} = Library.create_seed(attrs, private_attrs)
+      assert seed.name == "some name"
+      assert seed.year == 2023
+      assert seed.front_image_id == "1234"
+      assert seed.back_image_id == "2345"
     end
 
     test "create_seed/1 with invalid data returns error changeset" do

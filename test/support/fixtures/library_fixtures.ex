@@ -11,7 +11,10 @@ defmodule Garden.LibraryFixtures do
     {:ok, seed} =
       attrs
       |> Enum.into(%{
-        name: "some name"
+        name: "some name",
+        year: 2023,
+        front_image_id: "1234",
+        back_image_id: "2345"
       })
       |> Garden.Library.create_seed()
 

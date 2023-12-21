@@ -17,6 +17,8 @@ config :garden, GardenWeb.Endpoint,
   secret_key_base: "L4fxJloGE1DhWa40G7n8USWEEUFUZ6WGL4/aITcsPvAUPMMXJ3RuhUj+Hi+rE+e8",
   server: false
 
+config :garden, images_dir: Path.expand("../images/tests", __DIR__)
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 
