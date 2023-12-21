@@ -9,7 +9,7 @@ defmodule Garden.Seeds do
   alias Garden.Seeds.Seed
 
   defp base_query() do
-    from s in Seed, order_by: [:name]
+    from s in Seed, order_by: [:name], preload: [:plants, plants: :location]
   end
 
   def list_seeds do

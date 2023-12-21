@@ -25,6 +25,19 @@
   </:item>
 </.list>
 
+<div :if={@seed.plants}>
+  <h2 class="text-lg font-semibold leading-8 text-zinc-800 mt-16">Planted</h2>
+  <.table
+    id="plants"
+    rows={@seed.plants}
+    row_click={fn plant -> JS.navigate(~p"/plants/#{plant.id}") end}>
+    <:col :let={plant}><%= plant.location.name %></:col>
+    <:action :let={plant}>
+      <.link patch={~p"/plants/#{plant.id}/edit"}>Edit</.link>
+    </:action>
+  </.table>
+</div>
+
 <.modal :if={@live_action == :edit} id="seed-modal" show on_cancel={JS.patch(~p"/seeds/#{@seed}")}>
   <.live_component
     module={GardenWeb.SeedLive.FormComponent}

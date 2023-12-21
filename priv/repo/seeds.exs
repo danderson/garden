@@ -53,6 +53,11 @@ plants = %{
       location_id: locations[:meadow_left].id,
       seed_id: seeds[:lawn_mix].id
     }),
+  broom:
+    Repo.insert!(%Plant{
+      name: "Fucking broom",
+      location_id: locations[:meadow_left].id
+    }),
   oak:
     Repo.insert!(%Plant{
       name: "Oak tree",

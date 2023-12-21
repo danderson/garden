@@ -9,7 +9,7 @@ defmodule Garden.Locations do
   alias Garden.Locations.Location
 
   defp base_query() do
-    from l in Location, order_by: [:name]
+    from l in Location, order_by: [:name], preload: [:plants]
   end
 
   def list_locations do
