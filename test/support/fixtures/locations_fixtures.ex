@@ -15,6 +15,6 @@ defmodule Garden.LocationsFixtures do
       })
       |> Garden.Locations.create_location()
 
-    location
+    Garden.Locations.expand_location(location)
   end
 end

@@ -18,6 +18,6 @@ defmodule Garden.SeedsFixtures do
       })
       |> Garden.Seeds.create_seed()
 
-    seed
+    Garden.Seeds.expand_seed(seed)
   end
 end

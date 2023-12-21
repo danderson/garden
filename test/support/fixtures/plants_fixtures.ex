@@ -13,8 +13,11 @@ defmodule Garden.PlantsFixtures do
       |> Enum.into(%{
         name: "some name"
       })
+      |> Map.put_new_lazy(:location_id, fn ->
+        Garden.LocationsFixtures.location_fixture().id
+      end)
       |> Garden.Plants.create_plant()
 
-    plant
+    Garden.Plants.expand_plant(plant)
   end
 end

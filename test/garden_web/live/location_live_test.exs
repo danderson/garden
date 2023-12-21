@@ -26,8 +26,9 @@ defmodule GardenWeb.LocationLiveTest do
     test "saves new location", %{conn: conn} do
       {:ok, index_live, _html} = live(conn, ~p"/locations")
 
-      assert index_live |> element("a", "New Location") |> render_click() =~
-               "New Location"
+      assert index_live
+             |> element("a", "Add")
+             |> render_click() =~ "Add"
 
       assert_patch(index_live, ~p"/locations/new")
 

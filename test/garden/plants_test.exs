@@ -7,6 +7,7 @@ defmodule Garden.PlantsTest do
     alias Garden.Plants.Plant
 
     import Garden.PlantsFixtures
+    import Garden.LocationsFixtures
 
     @invalid_attrs %{name: nil}
 
@@ -21,10 +22,17 @@ defmodule Garden.PlantsTest do
     end
 
     test "create_plant/1 with valid data creates a plant" do
-      valid_attrs = %{name: "some name"}
+      location = location_fixture()
+
+      valid_attrs = %{
+        name: "some name",
+        location_id: location.id
+      }
 
       assert {:ok, %Plant{} = plant} = Plants.create_plant(valid_attrs)
       assert plant.name == "some name"
+      assert plant.location_id == location.id
+      assert plant.seed_id == nil
     end
 
     test "create_plant/1 with invalid data returns error changeset" do

@@ -4,7 +4,10 @@ defmodule GardenWeb.PlantLiveTest do
   import Phoenix.LiveViewTest
   import Garden.PlantsFixtures
 
-  @create_attrs %{name: "some name"}
+  @create_attrs %{
+    name: "some name",
+    location_id: 1
+  }
   @update_attrs %{name: "some updated name"}
   @invalid_attrs %{name: nil}
 
@@ -19,15 +22,16 @@ defmodule GardenWeb.PlantLiveTest do
     test "lists all plants", %{conn: conn, plant: plant} do
       {:ok, _index_live, html} = live(conn, ~p"/plants")
 
-      assert html =~ "Listing Plants"
+      assert html =~ "My Plants"
       assert html =~ plant.name
     end
 
     test "saves new plant", %{conn: conn} do
       {:ok, index_live, _html} = live(conn, ~p"/plants")
 
-      assert index_live |> element("a", "New Plant") |> render_click() =~
-               "New Plant"
+      assert index_live
+             |> element("a", "Add")
+             |> render_click() =~ "Add"
 
       assert_patch(index_live, ~p"/plants/new")
 
