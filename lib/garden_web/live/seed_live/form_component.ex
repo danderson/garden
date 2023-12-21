@@ -1,7 +1,7 @@
 defmodule GardenWeb.SeedLive.FormComponent do
   use GardenWeb, :live_component
 
-  alias Garden.Library
+  alias Garden.Seeds
 
   @impl true
   def render(assigns) do
@@ -60,7 +60,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
     <div>
       <div class="block text-sm font-semibold leading-6 text-zinc-800"><%= @label %></div>
       <%= if @upload.entries == [] do %>
-        <img :if={@existing_id} src={Library.seed_image(@existing_id, :medium)} />
+        <img :if={@existing_id} src={Seeds.seed_image(@existing_id, :medium)} />
       <% else %>
         <.live_img_preview entry={List.first(@upload.entries)} />
         <%= for err <- upload_errors(@upload, List.first(@upload.entries)) do %>
@@ -98,12 +98,12 @@ defmodule GardenWeb.SeedLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign_form(Library.new_seed())}
+     |> assign_form(Seeds.new_seed())}
   end
 
   @impl true
   def update(%{seed: seed} = assigns, socket) do
-    changeset = Library.change_seed(seed)
+    changeset = Seeds.change_seed(seed)
 
     {:ok,
      socket
@@ -120,7 +120,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
   def handle_event("validate", %{"seed" => seed_params}, socket) do
     changeset =
       socket.assigns.seed
-      |> Library.change_seed(seed_params)
+      |> Seeds.change_seed(seed_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
@@ -131,7 +131,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
   end
 
   defp save_seed(socket, :edit, seed_params) do
-    case Library.update_seed(
+    case Seeds.update_seed(
            socket.assigns.seed,
            seed_params,
            collect_images(socket)
@@ -150,7 +150,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
   end
 
   defp save_seed(socket, :new, seed_params) do
-    case Library.create_seed(
+    case Seeds.create_seed(
            seed_params,
            collect_images(socket)
          ) do
@@ -179,7 +179,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
   defp collect_image(socket, name) do
     uploads =
       consume_uploaded_entries(socket, name, fn %{path: path}, _entry ->
-        {:ok, Library.store_seed_image(path)}
+        {:ok, Seeds.store_seed_image(path)}
       end)
 
     case uploads do

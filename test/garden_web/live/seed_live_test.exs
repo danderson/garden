@@ -2,7 +2,7 @@ defmodule GardenWeb.SeedLiveTest do
   use GardenWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import Garden.LibraryFixtures
+  import Garden.SeedsFixtures
 
   @create_attrs %{name: "some name"}
   @update_attrs %{name: "some updated name"}

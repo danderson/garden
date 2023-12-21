@@ -14,13 +14,13 @@
     <%= @seed.year || "(unknown)" %>
   </:item>
   <:item :if={@seed.front_image_id} title="Front">
-    <a href={Library.seed_image(@seed.front_image_id, :full)}>
-      <img src={Library.seed_image(@seed.front_image_id, :medium)} />
+    <a href={Seeds.seed_image(@seed.front_image_id, :full)}>
+      <img src={Seeds.seed_image(@seed.front_image_id, :medium)} />
     </a>
   </:item>
   <:item :if={@seed.back_image_id} title="Back">
-    <a href={Library.seed_image(@seed.back_image_id, :full)}>
-      <img src={Library.seed_image(@seed.back_image_id, :medium)} />
+    <a href={Seeds.seed_image(@seed.back_image_id, :full)}>
+      <img src={Seeds.seed_image(@seed.back_image_id, :medium)} />
     </a>
   </:item>
 </.list>
