@@ -20,6 +20,11 @@ if System.get_env("PHX_SERVER") do
   config :garden, GardenWeb.Endpoint, server: true
 end
 
+case System.get_env("TZDIR") do
+  nil -> nil
+  path -> config :zoneinfo, tzpath: path
+end
+
 if config_env() == :prod do
   database_path =
     System.get_env("DATABASE_PATH") ||

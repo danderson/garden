@@ -23,6 +23,9 @@ config :garden, GardenWeb.Endpoint,
   pubsub_server: Garden.PubSub,
   live_view: [signing_salt: "VhltddpZ"]
 
+config :elixir,
+  time_zone_database: Zoneinfo.TimeZoneDatabase
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
