@@ -3,17 +3,15 @@ defmodule GardenWeb.PlantLiveTest do
 
   import Phoenix.LiveViewTest
   import Garden.PlantsFixtures
+  import Garden.LocationsFixtures
 
-  @create_attrs %{
-    name: "some name",
-    location_id: 1
-  }
   @update_attrs %{name: "some updated name"}
   @invalid_attrs %{name: nil}
 
   defp create_plant(_) do
-    plant = plant_fixture()
-    %{plant: plant}
+    location = location_fixture()
+    plant = plant_fixture(%{location_id: location.id})
+    %{location: location, plant: plant}
   end
 
   describe "Index" do
@@ -26,7 +24,7 @@ defmodule GardenWeb.PlantLiveTest do
       assert html =~ plant.name
     end
 
-    test "saves new plant", %{conn: conn} do
+    test "saves new plant", %{conn: conn, location: location} do
       {:ok, index_live, _html} = live(conn, ~p"/plants")
 
       assert index_live
@@ -35,12 +33,21 @@ defmodule GardenWeb.PlantLiveTest do
 
       assert_patch(index_live, ~p"/plants/new")
 
-      assert index_live
-             |> form("#plant-form", plant: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
+      invalid_form_resp =
+        index_live
+        |> form("#plant-form", plant: @invalid_attrs)
+        |> render_change()
+
+      assert invalid_form_resp =~ "can&#39;t be blank"
+      assert invalid_form_resp =~ "plants have to be planted somewhere"
+
+      attrs = %{
+        name: "some name",
+        location_id: location.id
+      }
 
       assert index_live
-             |> form("#plant-form", plant: @create_attrs)
+             |> form("#plant-form", plant: attrs)
              |> render_submit()
 
       assert_patch(index_live, ~p"/plants")
@@ -53,8 +60,9 @@ defmodule GardenWeb.PlantLiveTest do
     test "updates plant in listing", %{conn: conn, plant: plant} do
       {:ok, index_live, _html} = live(conn, ~p"/plants")
 
-      assert index_live |> element("#plants-#{plant.id} a", "Edit") |> render_click() =~
-               "Edit Plant"
+      assert index_live
+             |> element("#plants-#{plant.id} a", "Edit")
+             |> render_click() =~ "Edit Plant"
 
       assert_patch(index_live, ~p"/plants/#{plant}/edit")
 
@@ -71,6 +79,24 @@ defmodule GardenWeb.PlantLiveTest do
       html = render(index_live)
       assert html =~ "Plant updated successfully"
       assert html =~ "some updated name"
+    end
+
+    test "can't remove a location by editing", %{conn: conn, plant: plant} do
+      {:ok, index_live, _html} = live(conn, ~p"/plants")
+
+      assert index_live
+             |> element("#plants-#{plant.id} a", "Edit")
+             |> render_click() =~ "Edit Plant"
+
+      assert_patch(index_live, ~p"/plants/#{plant}/edit")
+
+      remove_location = %{
+        location_id: ""
+      }
+
+      assert index_live
+             |> form("#plant-form", plant: remove_location)
+             |> render_change() =~ "plants have to be planted somewhere"
     end
 
     test "deletes plant in listing", %{conn: conn, plant: plant} do

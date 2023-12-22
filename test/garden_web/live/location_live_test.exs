@@ -76,6 +76,31 @@ defmodule GardenWeb.LocationLiveTest do
       assert index_live |> element("#locations-#{location.id} a", "Delete") |> render_click()
       refute has_element?(index_live, "#locations-#{location.id}")
     end
+
+    test "plant from listing", %{conn: conn, location: location} do
+      {:ok, index_live, _html} = live(conn, ~p"/locations")
+
+      {:ok, plant_live, _html} =
+        index_live
+        |> element("#locations-#{location.id} a", "Plant")
+        |> render_click()
+        |> follow_redirect(conn)
+
+      assert plant_live
+             |> form("#plant-form",
+               plant: %{
+                 name: "plant from location"
+               }
+             )
+             |> render_submit()
+
+      assert_patch(plant_live, ~p"/plants")
+
+      assert render(plant_live) =~ "plant from location"
+
+      new_plant = Garden.Plants.get_plant!(1)
+      assert new_plant.location_id == location.id
+    end
   end
 
   describe "Show" do
@@ -109,6 +134,31 @@ defmodule GardenWeb.LocationLiveTest do
       html = render(show_live)
       assert html =~ "Location updated successfully"
       assert html =~ "some updated name"
+    end
+
+    test "plant here", %{conn: conn, location: location} do
+      {:ok, index_live, _html} = live(conn, ~p"/locations/#{location}")
+
+      {:ok, plant_live, _html} =
+        index_live
+        |> element("main a", "Plant")
+        |> render_click()
+        |> follow_redirect(conn)
+
+      assert plant_live
+             |> form("#plant-form",
+               plant: %{
+                 name: "plant from location"
+               }
+             )
+             |> render_submit()
+
+      assert_patch(plant_live, ~p"/plants")
+
+      assert render(plant_live) =~ "plant from location"
+
+      new_plant = Garden.Plants.get_plant!(1)
+      assert new_plant.location_id == location.id
     end
   end
 end
