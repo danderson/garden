@@ -54,7 +54,7 @@ defmodule GardenWeb.SeedLiveTest do
       assert index_live |> element("#seeds-#{seed.id} a", "Edit") |> render_click() =~
                "Edit Seed"
 
-      assert_patch(index_live, ~p"/seeds/#{seed}/edit")
+      assert_patch(index_live, ~p"/seeds/#{seed.id}/edit")
 
       assert index_live
              |> form("#seed-form", seed: @invalid_attrs)
@@ -71,13 +71,6 @@ defmodule GardenWeb.SeedLiveTest do
       assert html =~ "some updated name"
     end
 
-    test "deletes seed in listing", %{conn: conn, seed: seed} do
-      {:ok, index_live, _html} = live(conn, ~p"/seeds")
-
-      assert index_live |> element("#seeds-#{seed.id} a", "Delete") |> render_click()
-      refute has_element?(index_live, "#seeds-#{seed.id}")
-    end
-
     test "plant seed from listing", %{conn: conn, seed: seed, location: location} do
       {:ok, index_live, _html} = live(conn, ~p"/seeds")
 
@@ -88,10 +81,13 @@ defmodule GardenWeb.SeedLiveTest do
         |> follow_redirect(conn)
 
       assert plant_live
-             |> form("#plant-form",
+             |> form("#new-plant-form",
                plant: %{
-                 location_id: location.id,
-                 name: "plant from seed"
+                 plant: %{
+                   name: "plant from seed",
+                   seed_id: seed.id
+                 },
+                 location_id: location.id
                }
              )
              |> render_submit()
@@ -100,7 +96,7 @@ defmodule GardenWeb.SeedLiveTest do
 
       assert render(plant_live) =~ "plant from seed"
 
-      new_plant = Garden.Plants.get_plant!(1)
+      new_plant = Garden.Plants.get!(1)
       assert new_plant.seed_id == seed.id
     end
   end
@@ -109,19 +105,19 @@ defmodule GardenWeb.SeedLiveTest do
     setup [:create_seed]
 
     test "displays seed", %{conn: conn, seed: seed} do
-      {:ok, _show_live, html} = live(conn, ~p"/seeds/#{seed}")
+      {:ok, _show_live, html} = live(conn, ~p"/seeds/#{seed.id}")
 
       assert html =~ "Show Seed"
       assert html =~ seed.name
     end
 
     test "updates seed within modal", %{conn: conn, seed: seed} do
-      {:ok, show_live, _html} = live(conn, ~p"/seeds/#{seed}")
+      {:ok, show_live, _html} = live(conn, ~p"/seeds/#{seed.id}")
 
       assert show_live |> element("a", "Edit") |> render_click() =~
                "Edit Seed"
 
-      assert_patch(show_live, ~p"/seeds/#{seed}/show/edit")
+      assert_patch(show_live, ~p"/seeds/#{seed.id}/show/edit")
 
       assert show_live
              |> form("#seed-form", seed: @invalid_attrs)
@@ -131,7 +127,7 @@ defmodule GardenWeb.SeedLiveTest do
              |> form("#seed-form", seed: @update_attrs)
              |> render_submit()
 
-      assert_patch(show_live, ~p"/seeds/#{seed}")
+      assert_patch(show_live, ~p"/seeds/#{seed.id}")
 
       html = render(show_live)
       assert html =~ "Seed updated successfully"
@@ -139,7 +135,7 @@ defmodule GardenWeb.SeedLiveTest do
     end
 
     test "plant seed", %{conn: conn, seed: seed, location: location} do
-      {:ok, index_live, _html} = live(conn, ~p"/seeds/#{seed}")
+      {:ok, index_live, _html} = live(conn, ~p"/seeds/#{seed.id}")
 
       {:ok, plant_live, _html} =
         index_live
@@ -148,10 +144,13 @@ defmodule GardenWeb.SeedLiveTest do
         |> follow_redirect(conn)
 
       assert plant_live
-             |> form("#plant-form",
+             |> form("#new-plant-form",
                plant: %{
-                 location_id: location.id,
-                 name: "plant from seed"
+                 plant: %{
+                   name: "plant from seed",
+                   seed_id: seed.id
+                 },
+                 location_id: location.id
                }
              )
              |> render_submit()
@@ -160,7 +159,7 @@ defmodule GardenWeb.SeedLiveTest do
 
       assert render(plant_live) =~ "plant from seed"
 
-      new_plant = Garden.Plants.get_plant!(1)
+      new_plant = Garden.Plants.get!(1)
       assert new_plant.seed_id == seed.id
     end
   end

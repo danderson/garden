@@ -17,6 +17,6 @@ defmodule Garden.LocationsFixtures do
       })
       |> Locations.new()
 
-    Locations.get!(location.id, plants: :current)
+    Locations.get!(location.id)
   end
 end

@@ -12,12 +12,10 @@ defmodule Garden.SeedsFixtures do
       attrs
       |> Enum.into(%{
         name: "some name",
-        year: 2023,
-        front_image_id: "1234",
-        back_image_id: "2345"
+        year: 2023
       })
-      |> Garden.Seeds.create_seed()
+      |> Garden.Seeds.new()
 
-    Garden.Seeds.expand_seed(seed)
+    Garden.Seeds.get!(seed.id)
   end
 end

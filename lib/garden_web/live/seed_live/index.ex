@@ -33,6 +33,6 @@ defmodule GardenWeb.SeedLive.Index do
 
   @impl true
   def handle_info({GardenWeb.SeedLive.FormComponent, {:saved, seed}}, socket) do
-    {:noreply, stream_insert(socket, :seeds, Seeds.get!(seed))}
+    {:noreply, stream_insert(socket, :seeds, Seeds.get!(seed.id))}
   end
 end

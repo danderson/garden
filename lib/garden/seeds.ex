@@ -25,13 +25,7 @@ defmodule Garden.Seeds do
   defp query_plants(q, nil, _), do: q
 
   defp query_plants(q, true, locs) do
-    load_plants = fn ids ->
-      Enum.map(ids, fn id ->
-        Plants.get!(id, locations: locs)
-      end)
-    end
-
-    from(q, preload: [plants: ^load_plants])
+    from(q, preload: [plants: ^(&Plants.list_for_seeds(&1, locations: locs))])
   end
 
   defdelegate upsert_changeset(seed, attrs \\ %{}, private_attrs \\ %{}), to: Seed

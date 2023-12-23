@@ -16,7 +16,7 @@ defmodule Garden.Plants.PlantLocation do
   def new_changeset(attrs \\ %{}) do
     %__MODULE__{}
     |> cast(attrs, [:location_id])
-    |> validate_required([:location_id])
+    |> validate_required([:location_id], message: "plants have to be planted somewhere")
     |> cast_assoc(:plant, with: &Plant.new_changeset/2, required: true)
     |> put_change(:start, DateTime.now!())
   end

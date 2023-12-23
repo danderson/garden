@@ -34,6 +34,6 @@ defmodule GardenWeb.LocationLive.Index do
 
   @impl true
   def handle_info({GardenWeb.LocationLive.FormComponent, {:saved, location}}, socket) do
-    {:noreply, stream_insert(socket, :locations, Locations.get!(location, plants: :current))}
+    {:noreply, stream_insert(socket, :locations, Locations.get!(location.id, plants: :current))}
   end
 end

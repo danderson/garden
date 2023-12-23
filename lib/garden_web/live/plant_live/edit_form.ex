@@ -11,7 +11,7 @@ defmodule GardenWeb.PlantLive.EditForm do
 
       <.simple_form
         for={@form}
-        id="plant-form"
+        id="edit-plant-form"
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"
