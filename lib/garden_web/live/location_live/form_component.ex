@@ -30,7 +30,7 @@ defmodule GardenWeb.LocationLive.FormComponent do
 
   @impl true
   def update(%{location: location} = assigns, socket) do
-    changeset = Locations.change_location(location)
+    changeset = Locations.upsert_changeset(location)
 
     {:ok,
      socket
@@ -39,23 +39,23 @@ defmodule GardenWeb.LocationLive.FormComponent do
   end
 
   @impl true
-  def handle_event("validate", %{"location" => location_params}, socket) do
+  def handle_event("validate", %{"location" => params}, socket) do
     changeset =
       socket.assigns.location
-      |> Locations.change_location(location_params)
+      |> Locations.upsert_changeset(params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
   end
 
-  def handle_event("save", %{"location" => location_params}, socket) do
-    save_location(socket, socket.assigns.action, location_params)
+  def handle_event("save", %{"location" => params}, socket) do
+    save_location(socket, socket.assigns.action, params)
   end
 
-  defp save_location(socket, :edit, location_params) do
-    case Locations.update_location(socket.assigns.location, location_params) do
+  defp save_location(socket, :edit, params) do
+    case Locations.edit(socket.assigns.location, params) do
       {:ok, location} ->
-        notify_parent({:saved, Locations.get_location!(location.id)})
+        notify_parent({:saved, location})
 
         {:noreply,
          socket
@@ -67,10 +67,10 @@ defmodule GardenWeb.LocationLive.FormComponent do
     end
   end
 
-  defp save_location(socket, :new, location_params) do
-    case Locations.create_location(location_params) do
+  defp save_location(socket, :new, params) do
+    case Locations.new(params) do
       {:ok, location} ->
-        notify_parent({:saved, Locations.get_location!(location.id)})
+        notify_parent({:saved, location})
 
         {:noreply,
          socket

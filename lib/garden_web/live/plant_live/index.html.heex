@@ -13,7 +13,7 @@
   row_click={fn {_id, plant} -> JS.navigate(~p"/plants/#{plant}") end}
 >
   <:col :let={{_id, plant}} label="Name"><%= plant.name %></:col>
-  <:col :let={{_id, plant}} label="Location"><%= plant.location.name %></:col>
+  <:col :let={{_id, plant}} label="Location"><%= plant.current_location.name %></:col>
 
   <:action :let={{_id, plant}}>
     <div class="sr-only">
@@ -21,24 +21,22 @@
     </div>
     <.link patch={~p"/plants/#{plant}/edit"}>Edit</.link>
   </:action>
-  <:action :let={{id, plant}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: plant.id}) |> hide("##{id}")}
-      data-confirm="Are you sure?"
-    >
-      Delete
-    </.link>
-  </:action>
 </.table>
 
-<.modal :if={@live_action in [:new, :edit]} id="plant-modal" show on_cancel={JS.patch(~p"/plants")}>
+<.modal :if={@live_action == :new} id="new-plant-modal" show on_cancel={JS.patch(~p"/plants")}>
   <.live_component
-    module={GardenWeb.PlantLive.FormComponent}
-    id={@plant.id || :new}
-    title={@page_title}
-    action={@live_action}
-    plant={@plant}
+    id={:new}
+    module={CreateForm}
     patch={~p"/plants"}
     initial_params={@form_initial_params}
+  />
+</.modal>
+
+<.modal :if={@live_action == :edit} id="edit-plant-modal" show on_cancel={JS.patch(~p"/plants")}>
+  <.live_component
+    id={@plant.id}
+    module={EditForm}
+    plant={@plant}
+    patch={~p"/plants"}
   />
 </.modal>

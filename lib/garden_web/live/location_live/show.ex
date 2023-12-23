@@ -13,7 +13,7 @@ defmodule GardenWeb.LocationLive.Show do
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:location, Locations.get_location!(id))}
+     |> assign(:location, Locations.get!(id, plants: :current))}
   end
 
   defp page_title(:show), do: "Show Location"

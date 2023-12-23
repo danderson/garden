@@ -8,16 +8,17 @@ defmodule Garden.PlantsFixtures do
   Generate a plant.
   """
   def plant_fixture(attrs \\ %{}) do
-    {:ok, plant} =
+    {loc, attrs} =
+      Map.pop_lazy(attrs, :location_id, fn -> Garden.LocationFixtures.location_fixture().id end)
+
+    plant =
       attrs
       |> Enum.into(%{
         name: "some name"
       })
-      |> Map.put_new_lazy(:location_id, fn ->
-        Garden.LocationsFixtures.location_fixture().id
-      end)
-      |> Garden.Plants.create_plant()
 
-    Garden.Plants.expand_plant(plant)
+    {:ok, plant} = Garden.Plants.new(%{location_id: loc, plant: plant})
+
+    Garden.Plants.get!(plant.id, locations: :current)
   end
 end

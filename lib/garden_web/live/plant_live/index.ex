@@ -2,12 +2,14 @@ defmodule GardenWeb.PlantLive.Index do
   use GardenWeb, :live_view
 
   alias Garden.Plants
+  alias GardenWeb.PlantLive.CreateForm
+  alias GardenWeb.PlantLive.EditForm
 
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> stream(:plants, Plants.list_plants())
+     |> stream(:plants, Plants.list(locations: :current))
      |> assign(:form_initial_params, %{})}
   end
 
@@ -19,16 +21,15 @@ defmodule GardenWeb.PlantLive.Index do
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Plant")
-    |> assign(:plant, Plants.get_plant!(id))
+    |> assign(:plant, Plants.get!(id, locations: :current, seed: true))
   end
 
   defp apply_action(socket, :new, params) do
-    {init, _} = new_plant_initial_params(params)
+    plant_params = Map.take(params, [:location_id, :seed_id])
 
     socket
     |> assign(:page_title, "Add Plant")
-    |> assign(:plant, Plants.new_plant())
-    |> assign(:form_initial_params, init)
+    |> assign(:form_initial_params, plant_params)
   end
 
   defp apply_action(socket, :index, _params) do
@@ -38,25 +39,7 @@ defmodule GardenWeb.PlantLive.Index do
   end
 
   @impl true
-  def handle_info({GardenWeb.PlantLive.FormComponent, {:saved, plant}}, socket) do
-    {:noreply, stream_insert(socket, :plants, Plants.expand_plant(plant))}
-  end
-
-  @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
-    plant = Plants.get_plant!(id)
-    {:ok, _} = Plants.delete_plant(plant)
-
-    {:noreply, stream_delete(socket, :plants, plant)}
-  end
-
-  defp new_plant_initial_params(params) do
-    {location, params} = Map.pop(params, "location_id")
-    location = if location != nil, do: %{location_id: String.to_integer(location)}, else: %{}
-
-    {seed, params} = Map.pop(params, "seed_id")
-    seed = if seed != nil, do: %{seed_id: String.to_integer(seed)}, else: %{}
-
-    {Map.merge(location, seed), params}
+  def handle_info({src, {:saved, plant}}, socket) when src in [CreateForm, EditForm] do
+    {:noreply, stream_insert(socket, :plants, Plants.get!(plant.id, locations: :current))}
   end
 end

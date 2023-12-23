@@ -6,41 +6,80 @@ defmodule Garden.Plants do
   import Ecto.Query, warn: false
   alias Garden.Repo
 
+  alias Garden.DateTime
   alias Garden.Plants.Plant
+  alias Garden.Plants.PlantLocation
+  alias Ecto.Multi
+  alias Ecto.Changeset
 
-  defp base_query() do
-    from p in Plant, preload: [:location, :seed], order_by: [:name]
+  defp query(kw) do
+    from(p in Plant)
+    |> query_locations(kw[:locations])
+    |> query_seed(kw[:seed])
   end
 
-  def list_plants do
-    base_query() |> Repo.all()
+  def list(kw \\ []) do
+    query(kw) |> Repo.all() |> Enum.map(&set_current_location/1)
   end
 
-  def get_plant!(id) do
-    base_query() |> Repo.get!(id)
+  def get!(id, kw \\ []), do: query(kw) |> Repo.get!(id) |> set_current_location
+
+  defp query_locations(q, nil), do: q
+  defp query_locations(q, :all), do: from(q, preload: [locations: :location])
+
+  defp query_locations(q, :current) do
+    pl = from(pl in PlantLocation, where: is_nil(pl.end), preload: [:location])
+    from(p in q, preload: [locations: ^pl])
   end
 
-  def expand_plant(plant), do: Repo.preload(plant, [:location, :seed])
+  defp query_seed(q, nil), do: q
+  defp query_seed(q, true), do: from(q, preload: [:seed])
 
-  def new_plant(), do: %Plant{} |> expand_plant()
-
-  def create_plant(attrs \\ %{}) do
-    %Plant{}
-    |> Plant.changeset(attrs)
-    |> Repo.insert()
+  defp set_current_location(%Plant{locations: location} = plant) when is_list(location) do
+    case Enum.find(plant.locations, fn pl -> pl.end == nil end) do
+      %PlantLocation{} = pl -> Map.put(plant, :current_location, pl.location)
+      _ -> plant
+    end
   end
 
-  def update_plant(%Plant{} = plant, attrs) do
-    plant
-    |> Plant.changeset(attrs)
-    |> Repo.update()
+  defp set_current_location(%Plant{} = plant), do: plant
+
+  defdelegate new_changeset(attrs), to: PlantLocation
+
+  def new(attrs \\ %{}) do
+    case new_changeset(attrs) |> Repo.insert() do
+      {:ok, pl} -> {:ok, pl.plant}
+      _ = err -> err
+    end
   end
 
-  def delete_plant(%Plant{} = plant) do
-    Repo.delete(plant)
+  defdelegate edit_changeset(plant, attrs \\ %{}), to: Plant
+
+  def edit(%Plant{} = plant, attrs \\ %{}) do
+    edit_changeset(plant, attrs) |> Repo.update()
   end
 
-  def change_plant(%Plant{} = plant, attrs \\ %{}) do
-    Plant.changeset(plant, attrs)
+  def move(plant_id, location_id) do
+    {:ok, _} =
+      Multi.new()
+      |> Multi.one(
+        :current,
+        from(pl in PlantLocation,
+          where: pl.plant_id == ^plant_id,
+          where: pl.location_id != ^location_id,
+          where: is_nil(pl.end)
+        )
+      )
+      |> Multi.update(:remove_current, fn %{current: current} ->
+        Changeset.change(current, end: DateTime.now!())
+      end)
+      |> Multi.insert(:add_new, %PlantLocation{
+        plant_id: plant_id,
+        location_id: location_id,
+        start: DateTime.now!()
+      })
+      |> Repo.transaction()
+
+    {:ok, plant_id}
   end
 end

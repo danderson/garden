@@ -7,42 +7,40 @@ defmodule Garden.Locations do
   alias Garden.Repo
 
   alias Garden.Locations.Location
+  alias Garden.Plants.PlantLocation
 
-  defp base_query() do
-    from l in Location, order_by: [:name], preload: [:plants]
+  defp query(kw) do
+    from(l in Location)
+    |> query_plants(kw[:plants])
+    |> query_seeds(kw[:seeds])
   end
 
-  def list_locations do
-    base_query() |> Repo.all()
+  def list(kw \\ []) do
+    query(kw) |> Repo.all()
   end
 
-  def get_location!(id) do
-    base_query() |> Repo.get!(id)
+  def get!(id, kw \\ []) do
+    query(kw) |> Repo.get!(id)
   end
 
-  def expand_location(%Location{} = location) do
-    Repo.preload(location, [:plants, plants: :seed])
+  defp query_plants(q, nil), do: q
+  defp query_plants(q, :all), do: from(q, preload: [plants: :plant])
+
+  defp query_plants(q, :current) do
+    pl = from(pl in PlantLocation, where: is_nil(pl.end), preload: [:plant])
+    from(q, preload: [plants: ^pl])
   end
 
-  def new_location(), do: expand_location(%Location{})
+  defp query_seeds(q, nil), do: q
+  defp query_seeds(q, true), do: from(q, preload: [plants: [plant: :seed]])
 
-  def create_location(attrs \\ %{}) do
-    %Location{}
-    |> Location.changeset(attrs)
-    |> Repo.insert()
+  defdelegate upsert_changeset(loc, attrs \\ %{}), to: Location
+
+  def new(attrs \\ %{}) do
+    upsert_changeset(%Location{}, attrs) |> Repo.insert()
   end
 
-  def update_location(%Location{} = location, attrs) do
-    location
-    |> Location.changeset(attrs)
-    |> Repo.update()
-  end
-
-  def delete_location(%Location{} = location) do
-    Repo.delete(location)
-  end
-
-  def change_location(%Location{} = location, attrs \\ %{}) do
-    Location.changeset(location, attrs)
+  def edit(location, attrs \\ %{}) do
+    upsert_changeset(location, attrs) |> Repo.update()
   end
 end

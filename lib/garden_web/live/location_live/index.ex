@@ -6,7 +6,7 @@ defmodule GardenWeb.LocationLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :locations, Locations.list_locations())}
+    {:ok, stream(socket, :locations, Locations.list(plants: :current))}
   end
 
   @impl true
@@ -17,7 +17,7 @@ defmodule GardenWeb.LocationLive.Index do
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Location")
-    |> assign(:location, Locations.get_location!(id))
+    |> assign(:location, Locations.get!(id))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -34,14 +34,6 @@ defmodule GardenWeb.LocationLive.Index do
 
   @impl true
   def handle_info({GardenWeb.LocationLive.FormComponent, {:saved, location}}, socket) do
-    {:noreply, stream_insert(socket, :locations, location)}
-  end
-
-  @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
-    location = Locations.get_location!(id)
-    {:ok, _} = Locations.delete_location(location)
-
-    {:noreply, stream_delete(socket, :locations, location)}
+    {:noreply, stream_insert(socket, :locations, Locations.get!(location, plants: :current))}
   end
 end

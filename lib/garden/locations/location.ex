@@ -5,13 +5,12 @@ defmodule Garden.Locations.Location do
   schema "locations" do
     field :name, :string
     has_many :images, Garden.Locations.Location.LocationImage
-    has_many :plants, Garden.Plants.Plant
+    has_many :plants, Garden.Plants.PlantLocation
 
     timestamps(type: :utc_datetime)
   end
 
-  @doc false
-  def changeset(location, attrs) do
+  def upsert_changeset(location, attrs) do
     location
     |> cast(attrs, [:name])
     |> validate_required([:name])

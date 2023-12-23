@@ -15,10 +15,10 @@
 <.table
   id="plants"
   rows={@location.plants}
-  row_click={fn plant -> JS.navigate(~p"/plants/#{plant.id}") end}>
-  <:col label="Plant" :let={plant}><%= plant.name %></:col>
-  <:action :let={plant}>
-    <.link navigate={~p"/plants/#{plant.id}/edit"}>Edit</.link>
+  row_click={fn pl -> JS.navigate(~p"/plants/#{pl.plant.id}") end}>
+  <:col label="Plant" :let={pl}><%= pl.plant.name %></:col>
+  <:action :let={pl}>
+    <.link navigate={~p"/plants/#{pl.plant.id}/edit"}>Edit</.link>
   </:action>
 </.table>
 

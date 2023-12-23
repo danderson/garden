@@ -4,6 +4,8 @@ defmodule Garden.LocationsFixtures do
   entities via the `Garden.Locations` context.
   """
 
+  alias Garden.Locations
+
   @doc """
   Generate a location.
   """
@@ -13,8 +15,8 @@ defmodule Garden.LocationsFixtures do
       |> Enum.into(%{
         name: "some name"
       })
-      |> Garden.Locations.create_location()
+      |> Locations.new()
 
-    Garden.Locations.expand_location(location)
+    Locations.get!(location.id, plants: :current)
   end
 end

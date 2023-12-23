@@ -2,21 +2,28 @@ defmodule Garden.Plants.Plant do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Garden.Plants.PlantLocation
+  alias Garden.Seeds.Seed
+
   schema "plants" do
     field :name, :string
-    belongs_to :seed, Garden.Seeds.Seed
-    belongs_to :location, Garden.Locations.Location
+    belongs_to :seed, Seed
+    has_many :locations, PlantLocation, preload_order: [desc: :start, desc: :end]
+
+    field :current_location, :any, virtual: true
 
     timestamps(type: :utc_datetime)
   end
 
-  @doc false
-  def changeset(plant, attrs) do
+  def new_changeset(plant, attrs \\ %{}) do
     plant
-    |> cast(attrs, [:name, :seed_id, :location_id])
+    |> cast(attrs, [:name, :seed_id])
     |> validate_required([:name])
-    |> validate_required([:location_id], message: "plants have to be planted somewhere")
-    |> foreign_key_constraint(:seed_id)
-    |> foreign_key_constraint(:location_id)
+  end
+
+  def edit_changeset(plant, attrs \\ %{}) do
+    plant
+    |> cast(attrs, [:name])
+    |> validate_required([:name])
   end
 end

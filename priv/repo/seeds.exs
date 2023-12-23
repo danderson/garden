@@ -14,6 +14,8 @@ alias Garden.Repo
 alias Garden.Seeds.Seed
 alias Garden.Locations.Location
 alias Garden.Plants.Plant
+alias Garden.Plants.PlantLocation
+alias Garden.DateTime
 
 if Mix.env() == :dev do
   seeds = %{
@@ -45,24 +47,28 @@ if Mix.env() == :dev do
     cucumber:
       Repo.insert!(%Plant{
         name: "Cucumber",
-        location_id: locations[:planter_box].id,
-        seed_id: seeds[:cucumber].id
-      }),
-    meadow:
-      Repo.insert!(%Plant{
-        name: "Meadow lawn",
-        location_id: locations[:meadow_left].id,
-        seed_id: seeds[:lawn_mix].id
-      }),
-    broom:
-      Repo.insert!(%Plant{
-        name: "Fucking broom",
-        location_id: locations[:meadow_left].id
-      }),
-    oak:
-      Repo.insert!(%Plant{
-        name: "Oak tree",
-        location_id: locations[:gully_right].id
+        locations: [
+          %PlantLocation{
+            start: DateTime.now!(),
+            location_id: locations[:planter_box].id
+          }
+        ]
       })
+    # meadow:
+    #   Repo.insert!(%Plant{
+    #     name: "Meadow lawn",
+    #     location_id: locations[:meadow_left].id,
+    #     seed_id: seeds[:lawn_mix].id
+    #   }),
+    # broom:
+    #   Repo.insert!(%Plant{
+    #     name: "Fucking broom",
+    #     location_id: locations[:meadow_left].id
+    #   }),
+    # oak:
+    #   Repo.insert!(%Plant{
+    #     name: "Oak tree",
+    #     location_id: locations[:gully_right].id
+    #   })
   }
 end

@@ -9,11 +9,12 @@ defmodule Garden.Seeds do
   alias Garden.Seeds.Seed
 
   defp base_query() do
-    from s in Seed, order_by: [:name], preload: [:plants, plants: :location]
+    plant = fn ids -> Enum.map(ids, fn id -> Garden.Plants.get!(id, locations: :current) end) end
+    from s in Seed, order_by: [:name], preload: [plants: ^plant]
   end
 
   def list_seeds do
-    base_query() |> Repo.all()
+    from(s in Seed) |> Repo.all()
   end
 
   def get_seed!(id) do
