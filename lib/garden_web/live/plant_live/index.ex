@@ -25,7 +25,13 @@ defmodule GardenWeb.PlantLive.Index do
   end
 
   defp apply_action(socket, :new, params) do
-    plant_params = Map.take(params, [:location_id, :seed_id])
+    plant_params = %{
+      plant: %{
+        name: params["name"],
+        seed_id: params["seed_id"]
+      },
+      location_id: params["location_id"]
+    }
 
     socket
     |> assign(:page_title, "Add Plant")

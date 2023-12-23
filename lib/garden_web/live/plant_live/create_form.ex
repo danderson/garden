@@ -38,8 +38,7 @@ defmodule GardenWeb.PlantLive.CreateForm do
 
   @impl true
   def update(assigns, socket) do
-    {init, assigns} = Map.pop(assigns, :initial_params, %{})
-    changeset = Plants.new_changeset(init)
+    changeset = Plants.new_changeset(assigns[:initial_params])
 
     {:ok,
      socket
