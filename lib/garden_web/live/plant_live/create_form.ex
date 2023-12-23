@@ -82,7 +82,7 @@ defmodule GardenWeb.PlantLive.CreateForm do
 
   defp assign_seeds(socket) do
     seeds =
-      Garden.Seeds.list_seeds()
+      Garden.Seeds.list()
       |> Enum.map(fn seed -> {seed.name, seed.id} end)
 
     assign(socket, :seeds, seeds)

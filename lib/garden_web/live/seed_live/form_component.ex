@@ -98,12 +98,12 @@ defmodule GardenWeb.SeedLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign_form(Seeds.new_seed_changeset())}
+     |> assign_form(Seeds.upsert_changeset(%Garden.Seeds.Seed{}))}
   end
 
   @impl true
   def update(%{seed: seed} = assigns, socket) do
-    changeset = Seeds.change_seed(seed)
+    changeset = Seeds.upsert_changeset(seed)
 
     {:ok,
      socket
@@ -120,7 +120,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
   def handle_event("validate", %{"seed" => seed_params}, socket) do
     changeset =
       socket.assigns.seed
-      |> Seeds.change_seed(seed_params)
+      |> Seeds.upsert_changeset(seed_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
@@ -131,7 +131,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
   end
 
   defp save_seed(socket, :edit, seed_params) do
-    case Seeds.update_seed(
+    case Seeds.edit(
            socket.assigns.seed,
            seed_params,
            collect_images(socket)
@@ -150,7 +150,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
   end
 
   defp save_seed(socket, :new, seed_params) do
-    case Seeds.create_seed(
+    case Seeds.new(
            seed_params,
            collect_images(socket)
          ) do

@@ -26,14 +26,6 @@
     </div>
     <.link patch={~p"/seeds/#{seed}/edit"}>Edit</.link>
   </:action>
-  <:action :let={{id, seed}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: seed.id}) |> hide("##{id}")}
-      data-confirm="Are you sure?"
-    >
-      Delete
-    </.link>
-  </:action>
 </.table>
 
 <.modal :if={@live_action in [:new, :edit]} id="seed-modal" show on_cancel={JS.patch(~p"/seeds")}>

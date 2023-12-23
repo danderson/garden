@@ -34,7 +34,7 @@
     id="plants"
     rows={@seed.plants}
     row_click={fn plant -> JS.navigate(~p"/plants/#{plant.id}") end}>
-    <:col :let={plant}><%= plant.location.name %></:col>
+    <:col :let={plant}><%= plant.current_location.name %></:col>
     <:action :let={plant}>
       <.link patch={~p"/plants/#{plant.id}/edit"}>Edit</.link>
     </:action>

@@ -5,7 +5,7 @@ defmodule GardenWeb.SeedLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :seeds, Seeds.list_seeds())}
+    {:ok, stream(socket, :seeds, Seeds.list())}
   end
 
   @impl true
@@ -16,13 +16,13 @@ defmodule GardenWeb.SeedLive.Index do
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Seed")
-    |> assign(:seed, Seeds.get_seed!(id))
+    |> assign(:seed, Seeds.get!(id))
   end
 
   defp apply_action(socket, :new, _params) do
     socket
     |> assign(:page_title, "New Seed")
-    |> assign(:seed, Seeds.new_seed())
+    |> assign(:seed, %Garden.Seeds.Seed{})
   end
 
   defp apply_action(socket, :index, _params) do
@@ -33,14 +33,6 @@ defmodule GardenWeb.SeedLive.Index do
 
   @impl true
   def handle_info({GardenWeb.SeedLive.FormComponent, {:saved, seed}}, socket) do
-    {:noreply, stream_insert(socket, :seeds, Seeds.expand_seed(seed))}
-  end
-
-  @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
-    seed = Seeds.get_seed!(id)
-    {:ok, _} = Seeds.delete_seed(seed)
-
-    {:noreply, stream_delete(socket, :seeds, seed)}
+    {:noreply, stream_insert(socket, :seeds, Seeds.get!(seed))}
   end
 end

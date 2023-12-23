@@ -7,40 +7,43 @@ defmodule Garden.Seeds do
   alias Garden.Repo
 
   alias Garden.Seeds.Seed
+  alias Garden.Plants
 
-  defp base_query() do
-    plant = fn ids -> Enum.map(ids, fn id -> Garden.Plants.get!(id, locations: :current) end) end
-    from s in Seed, order_by: [:name], preload: [plants: ^plant]
+  defp query(kw) do
+    from(s in Seed)
+    |> query_plants(kw[:plants], kw[:locations])
   end
 
-  def list_seeds do
-    from(s in Seed) |> Repo.all()
+  def list(kw \\ []) do
+    query(kw) |> Repo.all()
   end
 
-  def get_seed!(id) do
-    base_query() |> Repo.get!(id)
+  def get!(id, kw \\ []) do
+    query(kw) |> Repo.get!(id)
   end
 
-  def expand_seed(%Seed{} = seed), do: seed |> Repo.preload([:plants, plants: :location])
+  defp query_plants(q, nil, _), do: q
 
-  def new_seed() do
-    expand_seed(%Seed{})
+  defp query_plants(q, true, locs) do
+    load_plants = fn ids ->
+      Enum.map(ids, fn id ->
+        Plants.get!(id, locations: locs)
+      end)
+    end
+
+    from(q, preload: [plants: ^load_plants])
   end
 
-  def new_seed_changeset() do
-    new_seed() |> Seed.changeset(%{year: Date.utc_today().year})
-  end
+  defdelegate upsert_changeset(seed, attrs \\ %{}, private_attrs \\ %{}), to: Seed
 
-  def create_seed(attrs \\ %{}, private_attrs \\ %{}) do
+  def new(attrs \\ %{}, private_attrs \\ %{}) do
     %Seed{}
-    |> Seed.changeset(attrs, private_attrs)
+    |> upsert_changeset(attrs, private_attrs)
     |> Repo.insert()
   end
 
-  def update_seed(%Seed{} = seed, attrs, private_attrs \\ %{}) do
-    change =
-      seed
-      |> Seed.changeset(attrs, private_attrs)
+  def edit(%Seed{} = seed, attrs, private_attrs \\ %{}) do
+    change = upsert_changeset(seed, attrs, private_attrs)
 
     case Repo.update(change) do
       {:ok, _} = res ->
@@ -55,15 +58,4 @@ defmodule Garden.Seeds do
 
   def store_seed_image(src), do: Images.store(:seeds, src)
   def seed_image(id, size), do: Images.url(:seeds, id, size)
-
-  def delete_seed(%Seed{:front_image_id => front_id, :back_image_id => back_id} = seed) do
-    res = Repo.delete(seed)
-    Images.delete(:seeds, front_id)
-    Images.delete(:seeds, back_id)
-    res
-  end
-
-  def change_seed(%Seed{} = seed, attrs \\ %{}) do
-    Seed.changeset(seed, attrs)
-  end
 end

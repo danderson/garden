@@ -13,7 +13,7 @@ defmodule GardenWeb.SeedLive.Show do
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:seed, Seeds.get_seed!(id))}
+     |> assign(:seed, Seeds.get!(id, plants: true, locations: :current))}
   end
 
   defp page_title(:show), do: "Show Seed"

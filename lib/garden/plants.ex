@@ -35,14 +35,14 @@ defmodule Garden.Plants do
   defp query_seed(q, nil), do: q
   defp query_seed(q, true), do: from(q, preload: [:seed])
 
-  defp set_current_location(%Plant{locations: location} = plant) when is_list(location) do
+  def set_current_location(%Plant{locations: location} = plant) when is_list(location) do
     case Enum.find(plant.locations, fn pl -> pl.end == nil end) do
       %PlantLocation{} = pl -> Map.put(plant, :current_location, pl.location)
       _ -> plant
     end
   end
 
-  defp set_current_location(%Plant{} = plant), do: plant
+  def set_current_location(%Plant{} = plant), do: plant
 
   defdelegate new_changeset(attrs), to: PlantLocation
 

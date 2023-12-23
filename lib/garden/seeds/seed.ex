@@ -14,7 +14,7 @@ defmodule Garden.Seeds.Seed do
   end
 
   @doc false
-  def changeset(seed, attrs, private_attrs \\ %{}) do
+  def upsert_changeset(seed, attrs, private_attrs) do
     seed
     |> cast(attrs, [:name, :year])
     |> cast(private_attrs, [:front_image_id, :back_image_id])
