@@ -16,6 +16,8 @@
   <:item title="Packed for">
     <%= @seed.year || "(unknown)" %>
   </:item>
+  <:item title="Family"><%= @seed.family || "Not specified" %></:item>
+  <:item :for={{label, val} <- set_tribools(@seed)} title={"#{label}?"}><%= val %></:item>
   <:item :if={@seed.front_image_id} title="Front">
     <a href={Seeds.seed_image(@seed.front_image_id, :full)}>
       <img src={Seeds.seed_image(@seed.front_image_id, :medium)} />
@@ -26,6 +28,7 @@
       <img src={Seeds.seed_image(@seed.back_image_id, :medium)} />
     </a>
   </:item>
+  <:item :if={unset_tribools(@seed)} title="Unknowns"><%= unset_tribools(@seed) %></:item>
 </.list>
 
 <div :if={@seed.plants}>

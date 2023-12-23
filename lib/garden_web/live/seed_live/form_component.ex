@@ -2,6 +2,8 @@ defmodule GardenWeb.SeedLive.FormComponent do
   use GardenWeb, :live_component
 
   alias Garden.Seeds
+  alias Garden.Seeds.Seed
+  alias GardenWeb.SeedLive.Show
 
   @impl true
   def render(assigns) do
@@ -29,6 +31,12 @@ defmodule GardenWeb.SeedLive.FormComponent do
           placeholder="Year"
         />
 
+        <.input field={@form[:family]} type="select" label="Family" options={family_mappings()} />
+
+        <%= for f <- Show.tribool_fields() do %>
+          <.input field={@form[f]} type="tribool" label={Show.tribool_label(f)} />
+        <% end %>
+
         <.photo_upload
           upload={@uploads.front_image}
           label="Front photo"
@@ -48,6 +56,10 @@ defmodule GardenWeb.SeedLive.FormComponent do
       </.simple_form>
     </div>
     """
+  end
+
+  defp family_mappings() do
+    Keyword.put(Seed.family_mappings(), :"", "")
   end
 
   attr :upload, :any, required: true, doc: "the upload object for the photo"

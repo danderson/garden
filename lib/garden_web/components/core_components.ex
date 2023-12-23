@@ -273,7 +273,7 @@ defmodule GardenWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file hidden month number password
-               range radio search select tel text textarea time url week)
+               range radio search select tel text textarea time tribool url week)
 
   attr :field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
@@ -296,6 +296,13 @@ defmodule GardenWeb.CoreComponents do
     |> assign(:errors, Enum.map(field.errors, &translate_error(&1)))
     |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
     |> assign_new(:value, fn -> field.value end)
+    |> input()
+  end
+
+  def input(%{type: "tribool"} = assigns) do
+    assigns
+    |> assign(type: "select", options: Garden.Tribool.form_options())
+    |> update(:value, &Garden.Tribool.form_value/1)
     |> input()
   end
 
