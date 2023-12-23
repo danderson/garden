@@ -36,6 +36,11 @@ defmodule Garden.Seeds do
     |> Repo.insert()
   end
 
+  def new!(attrs \\ %{}, private_attrs \\ %{}) do
+    {:ok, seed} = new(attrs, private_attrs)
+    seed
+  end
+
   def edit(%Seed{} = seed, attrs, private_attrs \\ %{}) do
     change = upsert_changeset(seed, attrs, private_attrs)
 

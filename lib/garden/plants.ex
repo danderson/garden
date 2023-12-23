@@ -59,6 +59,11 @@ defmodule Garden.Plants do
     end
   end
 
+  def new!(attrs \\ %{}) do
+    {:ok, plant} = new(attrs)
+    plant
+  end
+
   defdelegate edit_changeset(plant, attrs \\ %{}), to: Plant
 
   def edit(%Plant{} = plant, attrs \\ %{}) do

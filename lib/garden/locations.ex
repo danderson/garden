@@ -40,6 +40,11 @@ defmodule Garden.Locations do
     upsert_changeset(%Location{}, attrs) |> Repo.insert()
   end
 
+  def new!(attrs \\ %{}) do
+    {:ok, location} = new(attrs)
+    location
+  end
+
   def edit(location, attrs \\ %{}) do
     upsert_changeset(location, attrs) |> Repo.update()
   end

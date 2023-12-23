@@ -10,65 +10,84 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias Garden.Repo
-alias Garden.Seeds.Seed
-alias Garden.Locations.Location
-alias Garden.Plants.Plant
-alias Garden.Plants.PlantLocation
-alias Garden.DateTime
+alias Garden.{Seeds, Locations, Plants}
 
 if Mix.env() == :dev do
+  image = fn name ->
+    Seeds.store_seed_image(Path.expand("./seed_images/#{name}.jpg", __DIR__))
+  end
+
   seeds = %{
-    cucumber:
-      Repo.insert!(%Seed{
-        name: "Cucumber",
-        year: 2023
-      }),
+    lawn_mix:
+      Seeds.new!(
+        %{
+          name: "Lawn mix",
+          year: 2023
+        },
+        %{
+          front_image_id: image.("lawn_mix_front"),
+          back_image_id: image.("lawn_mix_back")
+        }
+      ),
+    wildflowers:
+      Seeds.new!(
+        %{
+          name: "Wildflowers",
+          year: 2022
+        },
+        %{
+          front_image_id: image.("wildflower_front"),
+          back_image_id: image.("wildflower_back")
+        }
+      ),
     broccoli:
-      Repo.insert!(%Seed{
+      Seeds.new!(%{
         name: "Broccoli",
         year: 2023
       }),
-    lawn_mix:
-      Repo.insert!(%Seed{
-        name: "Lawn mix",
+    cucumber:
+      Seeds.new!(%{
+        name: "Cucumber",
         year: 2022
       })
   }
 
   locations = %{
-    planter_box: Repo.insert!(%Location{name: "Planter box 3"}),
-    coffin: Repo.insert!(%Location{name: "Coffin 1"}),
-    meadow_left: Repo.insert!(%Location{name: "Meadow left of garage"}),
-    gully_right: Repo.insert!(%Location{name: "Gully right of house"})
+    planter_box: Locations.new!(%{name: "Planter box 3"}),
+    coffin: Locations.new!(%{name: "Coffin 1"}),
+    meadow_left: Locations.new!(%{name: "Meadow left of garage"}),
+    gully_right: Locations.new!(%{name: "Gully right of house"})
   }
 
   plants = %{
     cucumber:
-      Repo.insert!(%Plant{
-        name: "Cucumber",
-        locations: [
-          %PlantLocation{
-            start: DateTime.now!(),
-            location_id: locations[:planter_box].id
-          }
-        ]
+      Plants.new(%{
+        plant: %{
+          name: "Cucumber"
+        },
+        location_id: locations[:planter_box].id
+      }),
+    meadow:
+      Plants.new(%{
+        plant: %{
+          name: "Meadow lawn",
+          seed_id: seeds[:lawn_mix].id
+        },
+        location_id: locations[:meadow_left].id
+      }),
+    broom:
+      Plants.new(%{
+        plant: %{
+          name: "Fucking broom"
+        },
+        location_id: locations[:meadow_left].id
+      }),
+    oak:
+      Plants.new(%{
+        plant: %{
+          name: "Oak tree"
+        },
+        location_id: locations[:gully_right].id
       })
-    # meadow:
-    #   Repo.insert!(%Plant{
-    #     name: "Meadow lawn",
-    #     location_id: locations[:meadow_left].id,
-    #     seed_id: seeds[:lawn_mix].id
-    #   }),
-    # broom:
-    #   Repo.insert!(%Plant{
-    #     name: "Fucking broom",
-    #     location_id: locations[:meadow_left].id
-    #   }),
-    # oak:
-    #   Repo.insert!(%Plant{
-    #     name: "Oak tree",
-    #     location_id: locations[:gully_right].id
-    #   })
   }
 end
