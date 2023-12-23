@@ -5,7 +5,7 @@ defmodule GardenWeb.SeedLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :seeds, Seeds.list())}
+    {:ok, stream(socket, :seeds, Seeds.list(plants: true, locations: :current))}
   end
 
   @impl true
@@ -33,6 +33,7 @@ defmodule GardenWeb.SeedLive.Index do
 
   @impl true
   def handle_info({GardenWeb.SeedLive.FormComponent, {:saved, seed}}, socket) do
-    {:noreply, stream_insert(socket, :seeds, Seeds.get!(seed.id))}
+    {:noreply,
+     stream_insert(socket, :seeds, Seeds.get!(seed.id, plants: true, locations: :current))}
   end
 end

@@ -26,6 +26,7 @@ defmodule Garden.Plants do
     query(kw)
     |> where([p], p.seed_id in ^seed_ids)
     |> Repo.all()
+    |> Enum.map(&set_current_location/1)
   end
 
   def get!(id, kw \\ []), do: query(kw) |> Repo.get!(id) |> set_current_location

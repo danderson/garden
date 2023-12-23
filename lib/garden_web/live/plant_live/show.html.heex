@@ -10,11 +10,6 @@
 </.header>
 
 <.list>
-  <:item :if={@plant.current_location} title="Location">
-    <.link navigate={~p"/locations/#{@plant.current_location.id}"}>
-      <%= @plant.current_location.name %>
-    </.link>
-  </:item>
   <:item :if={@plant.seed} title="Seed">
     <.link navigate={~p"/seeds/#{@plant.seed.id}"}>
       <%= @plant.seed.name %>
@@ -22,10 +17,43 @@
   </:item>
 </.list>
 
+<div>
+  <h2>Location history</h2>
+
+  <.table id="locations" rows={@plant.locations}>
+    <:col label="Location" :let={loc}>
+      <%= loc.location.name %>
+    </:col>
+    <:col label="From" :let={loc}>
+      <%= DateTime.to_date(loc.start) %>
+    </:col>
+    <:col label="To" :let={loc}>
+      <%= if loc.end do %>
+        <%= DateTime.to_date(loc.end) %>
+      <% else %>
+      Now
+      <.link patch={~p"/plants/#{@plant}/show/move"} phx-click={JS.push_focus()}>
+        <button class="rounded-lg text-sm font-semibold leading-6 py-1 px-2 text-zinc-900 active:text-black/80 bg-slate-200 hover:bg-slate-300">Transplant</button>
+      </.link>
+      <% end %>
+    </:col>
+  </.table>
+</div>
+
 <.modal :if={@live_action == :edit} id="plant-modal" show on_cancel={JS.patch(~p"/plants/#{@plant}")}>
   <.live_component
     id={@plant.id}
     module={EditForm}
+    plant={@plant}
+    patch={~p"/plants/#{@plant}"}
+  />
+</.modal>
+
+<.modal :if={@live_action == :move} id="move-plant-modal" show on_cancel={JS.patch(~p"/plants/#{@plant}")}>
+  <.live_component
+    id={@plant.id}
+    location_id={@plant.current_location.id}
+    module={MoveForm}
     plant={@plant}
     patch={~p"/plants/#{@plant}"}
   />
