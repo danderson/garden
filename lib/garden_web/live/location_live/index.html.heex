@@ -23,14 +23,6 @@
     </div>
     <.link patch={~p"/locations/#{location}/edit"}>Edit</.link>
   </:action>
-  <:action :let={{id, location}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: location.id}) |> hide("##{id}")}
-      data-confirm="Are you sure?"
-    >
-      Delete
-    </.link>
-  </:action>
 </.table>
 
 <.modal :if={@live_action in [:new, :edit]} id="location-modal" show on_cancel={JS.patch(~p"/locations")}>
