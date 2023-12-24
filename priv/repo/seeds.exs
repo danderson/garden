@@ -13,7 +13,7 @@
 alias Garden.{Repo, Seeds, Locations, Plants}
 alias Garden.Plants.PlantLocation
 
-if Mix.env() == :dev do
+if Mix.env() == :honk do
   image = fn name ->
     Seeds.store_seed_image(Path.expand("./seed_images/#{name}.jpg", __DIR__))
   end

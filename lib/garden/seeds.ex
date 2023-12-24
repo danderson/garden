@@ -10,7 +10,7 @@ defmodule Garden.Seeds do
   alias Garden.Plants
 
   defp query(kw) do
-    from(s in Seed)
+    from(s in Seed, order_by: [asc: :name])
     |> query_plants(kw[:plants], kw[:locations])
   end
 

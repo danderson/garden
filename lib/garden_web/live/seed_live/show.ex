@@ -2,7 +2,6 @@ defmodule GardenWeb.SeedLive.Show do
   use GardenWeb, :live_view
 
   alias Garden.Seeds
-  alias Garden.Tribool
 
   @impl true
   def mount(_params, _session, socket) do
