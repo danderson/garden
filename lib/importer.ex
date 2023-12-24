@@ -1,6 +1,6 @@
 defmodule Importer do
   def sqlite3(sql) do
-    {out, 0} = System.cmd("sqlite3", ["../../garden/db.sqlite3", ".mode json", sql])
+    {out, 0} = System.cmd("sqlite3", [Path.join(__DIR__, "../../../garden/db.sqlite3"), ".mode json", sql])
     Jason.decode!(out, keys: :atoms)
   end
 
