@@ -1,5 +1,5 @@
 defmodule Images do
-  def base_url, do: "/user_images"
+  def base_url, do: "user_images"
 
   def images_dir, do: Application.fetch_env!(:garden, :images_dir)
 
@@ -38,8 +38,8 @@ defmodule Images do
     nil
   end
 
-  def url(kind, id, size), do: Path.join([base_url(), to_string(kind), filename(id, size)])
-  defp disk_dir(kind), do: Path.join(images_dir(), to_string(kind))
+  def url(kind, id, size), do: Path.join(["/", base_url(), to_string(kind), filename(id, size)])
+  def disk_dir(kind), do: Path.join(images_dir(), to_string(kind))
   defp disk(kind, id, size), do: Path.join(disk_dir(kind), filename(id, size))
 
   defp filename(id, :full), do: "#{id}.jpg"
@@ -47,4 +47,20 @@ defmodule Images do
   defp filename(id, :thumbnail), do: "#{id}_thumb.jpg"
 
   defp generate_id, do: Ecto.UUID.generate()
+
+  defmodule ImgPlug do
+    import Plug.Conn
+
+    def init(opts), do: opts
+
+    def call(%Plug.Conn{path_info: ["user_images", kind, file]} = conn, _opts) do
+      path = Path.expand(Path.join([Images.disk_dir(kind), file]))
+      if String.starts_with?(path, Images.images_dir()<>"/") do
+        send_file(conn, 200, path) |> halt
+      else
+        send_resp(conn, 400, "") |> halt
+      end
+    end
+    def call(conn, _opts), do: conn
+  end
 end
