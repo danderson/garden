@@ -158,11 +158,6 @@ defmodule Importer do
     |> Enum.each(&Garden.Repo.insert!/1)
   end
 
-  def test() do
-    content = boxcontent()
-    boxes(content)
-  end
-
   def run() do
     families = families()
     plants(families) |> insert(Garden.Seeds.Seed)
