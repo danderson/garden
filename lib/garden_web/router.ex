@@ -19,6 +19,8 @@ defmodule GardenWeb.Router do
 
     get("/", PageController, :home)
 
+    get("/box/:id", PageController, :legacy_qr)
+
     live "/seeds", SeedLive.Index, :index
     live "/seeds/new", SeedLive.Index, :new
     live "/seeds/:id/edit", SeedLive.Index, :edit

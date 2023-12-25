@@ -23,6 +23,10 @@ defmodule Garden.Locations do
     query(kw) |> Repo.get!(id)
   end
 
+  def get_from_qr(qr_id, kw \\ []) do
+    query(kw) |> where([l], l.qr_id == ^qr_id) |> Repo.one
+  end
+
   defp query_plants(q, nil), do: q
   defp query_plants(q, :all), do: from(q, preload: [plants: :plant])
 
