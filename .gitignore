@@ -41,3 +41,5 @@ npm-debug.log
 
 # Dev mode uploaded images dir
 /images/
+
+/docker-state/
