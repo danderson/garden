@@ -17,6 +17,7 @@ defmodule GardenWeb.PlantLive.EditForm do
         phx-submit="save"
       >
         <.input field={@form[:name]} type="text" label="Name" data-1p-ignore />
+        <.input field={@form[:seed_id]} type="select" label="Seed" prompt="None" options={@seeds} />
 
         <:actions>
           <.button phx-disable-with="Saving...">Save</.button>
@@ -33,6 +34,7 @@ defmodule GardenWeb.PlantLive.EditForm do
     {:ok,
      socket
      |> assign(assigns)
+     |> assign_seeds
      |> assign_form(changeset)}
   end
 
@@ -59,6 +61,14 @@ defmodule GardenWeb.PlantLive.EditForm do
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
     end
+  end
+
+  defp assign_seeds(socket) do
+    seeds =
+      Garden.Seeds.list()
+      |> Enum.map(fn seed -> {seed.name, seed.id} end)
+
+    assign(socket, :seeds, seeds)
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do

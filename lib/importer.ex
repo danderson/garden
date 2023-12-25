@@ -45,6 +45,12 @@ defmodule Importer do
   def drop(map, field) when is_atom(field), do: Map.drop(map, [field])
   def drop(map, fields) when is_list(fields), do: Map.drop(map, fields)
 
+  def add_timestamps(map) do
+    map
+    |> Map.put_new(:inserted_at, DateTime.utc_now() |> DateTime.truncate(:second))
+    |> Map.put_new(:updated_at, DateTime.utc_now() |> DateTime.truncate(:second))
+  end
+
   def adjust_tribool(nil), do: nil
   def adjust_tribool(0), do: false
   def adjust_tribool(1), do: true
@@ -86,22 +92,27 @@ defmodule Importer do
         is_cover: :is_cover_crop
       })
       |> drop(:id)
+      |> add_timestamps()
     end)
-    |> to_id_table(:name)
   end
 
   def adjust_date(nil), do: nil
-  def adjust_date(s), do: Date.from_iso8601!(s)
+
+  def adjust_date(s) do
+    Date.from_iso8601!(s)
+    |> DateTime.new!(Time.from_seconds_after_midnight(0), "America/Vancouver")
+  end
 
   def boxcontent() do
     sqlite3("select * from boxinventory_boxcontent")
     |> Enum.map(fn plant ->
       plant
-      |> adjust(%{
-        planted: &adjust_date/1,
-        removed: &adjust_date/1
-      })
-      |> Map.drop([:latin_name])
+      |> rename(:planted, :start, &adjust_date/1)
+      |> rename(:removed, :end, &adjust_date/1)
+      |> rename(:name, :plant, fn name ->
+        %{name: name} |> add_timestamps()
+      end)
+      |> drop([:id, :latin_name])
       |> then(fn %{box_id: id} = plant ->
         {id, Map.drop(plant, [:box_id])}
       end)
@@ -109,33 +120,52 @@ defmodule Importer do
     |> Enum.group_by(fn {k, _} -> k end, fn {_, v} -> v end)
   end
 
+  def adjust_qr_state(map) do
+    state = qr_state(map)
+
+    map
+    |> Map.drop([:want_qr, :qr_applied])
+    |> Map.put(:qr_state, state)
+  end
+
+  def qr_state(%{name: "Placeholder " <> _, contents: []}), do: :none
+  def qr_state(%{want_qr: false}), do: :none
+  def qr_state(%{want_qr: true, qr_applied: false}), do: :wanted
+  def qr_state(%{want_qr: true, qr_applied: true}), do: :applied
+
   def boxes(content) do
     sqlite3("select * from boxinventory_box")
     |> Enum.map(fn location ->
       location
+      |> rename(:id, :qr_id, & &1)
+      |> Map.put(:plants, Map.get(content, location.id, []))
       |> adjust(%{
+        qr_id: &Integer.to_string/1,
         qr_applied: &adjust_tribool/1,
         want_qr: &adjust_tribool/1
       })
-      |> Map.put(:contents, content[location.id])
-      |> rename(:id, :qr_id, & &1)
+      |> adjust_qr_state()
+      |> add_timestamps()
     end)
-    |> to_id_table(:qr_id)
+    |> Enum.reject(fn location ->
+      Enum.empty?(location.plants) and location.qr_state != :applied
+    end)
   end
 
   def insert(vals, type) do
-    Enum.map(vals, fn val ->
-      val
-      |> Map.put_new(:inserted_at, DateTime.utc_now() |> DateTime.truncate(:second))
-      |> Map.put_new(:updated_at, DateTime.utc_now() |> DateTime.truncate(:second))
-    end)
-    |> then(&Garden.Repo.insert_all(type, &1))
+    vals
+    |> Enum.map(&struct(type, &1))
+    |> Enum.each(&Garden.Repo.insert!/1)
+  end
+
+  def test() do
+    content = boxcontent()
+    boxes(content)
   end
 
   def run() do
-    # families = families()
-    # plants(families) |> insert(Garden.Seeds.Seed)
-    content = boxcontent()
-    boxes(content)
+    families = families()
+    plants(families) |> insert(Garden.Seeds.Seed)
+    boxes(boxcontent()) |> insert(Garden.Locations.Location)
   end
 end

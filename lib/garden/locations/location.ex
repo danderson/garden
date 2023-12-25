@@ -4,6 +4,9 @@ defmodule Garden.Locations.Location do
 
   schema "locations" do
     field :name, :string
+    field :qr_id, :string
+    field :qr_state, Ecto.Enum, values: [:none, :wanted, :applied], default: :wanted
+
     has_many :images, Garden.Locations.Location.LocationImage
     has_many :plants, Garden.Plants.PlantLocation
 
@@ -12,8 +15,8 @@ defmodule Garden.Locations.Location do
 
   def upsert_changeset(location, attrs) do
     location
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :qr_state])
+    |> validate_required([:name, :qr_state])
   end
 
   defmodule LocationImage do

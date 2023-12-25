@@ -14,7 +14,7 @@
 
 <.table
   id="plants"
-  rows={@location.plants}
+  rows={@location.plants |> Enum.sort_by(&(&1.plant.name))}
   row_click={fn pl -> JS.navigate(~p"/plants/#{pl.plant.id}") end}>
   <:col label="Plant" :let={pl}><%= pl.plant.name %></:col>
   <:action :let={pl}>

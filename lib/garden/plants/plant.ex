@@ -23,7 +23,7 @@ defmodule Garden.Plants.Plant do
 
   def edit_changeset(plant, attrs \\ %{}) do
     plant
-    |> cast(attrs, [:name])
+    |> cast(attrs, [:name, :seed_id])
     |> validate_required([:name])
   end
 end

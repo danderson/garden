@@ -59,7 +59,7 @@ defmodule Garden.Seeds.Seed do
 
     field :lifespan, Ecto.Enum, values: [annual: "A", biennial: "B", perennial: "P", unknown: "U"]
 
-    has_many :plants, Garden.Plants.Plant
+    has_many :plants, Garden.Plants.Plant, preload_order: [asc: :name]
 
     timestamps(type: :utc_datetime)
   end

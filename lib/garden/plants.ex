@@ -13,7 +13,7 @@ defmodule Garden.Plants do
   alias Ecto.Changeset
 
   defp query(kw) do
-    from(p in Plant)
+    from(p in Plant, order_by: [asc: :name])
     |> query_locations(kw[:locations])
     |> query_seed(kw[:seed])
   end
@@ -35,8 +35,12 @@ defmodule Garden.Plants do
   defp query_locations(q, :all), do: from(q, preload: [locations: :location])
 
   defp query_locations(q, :current) do
-    pl = from(pl in PlantLocation, where: is_nil(pl.end), preload: [:location])
-    from(p in q, preload: [locations: ^pl])
+    from(
+      p in q,
+      join: pl in assoc(p, :locations),
+      where: is_nil(pl.end),
+      preload: [locations: {pl, [:location]}]
+    )
   end
 
   defp query_seed(q, nil), do: q
