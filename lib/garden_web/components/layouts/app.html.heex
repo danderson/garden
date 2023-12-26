@@ -1,29 +1,22 @@
-<header class="px-4 sm:px-6 lg:px-8">
-  <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
-    <div class="flex items-center gap-4">
-      <a href="/">
-        <img src={~p"/images/logo.svg"} width="36" />
-      </a>
-      <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
-        Garden
-      </p>
-    </div>
-    <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <.link navigate={~p"/plants"} class="hover:text-zinc-700">
-        Plants
-      </.link>
-      <.link navigate={~p"/seeds"} class="hover:text-zinc-700">
-        Seeds
-      </.link>
-      <.link navigate={~p"/locations"} class="hover:text-zinc-700">
-        Locations
-      </.link>
-    </div>
-  </div>
-</header>
-<main class="px-4 py-20 sm:px-6 lg:px-8">
-  <div class="mx-auto max-w-2xl">
+<div>
+<main class="pb-16">
+  <div>
     <.flash_group flash={@flash} />
     <%= @inner_content %>
   </div>
 </main>
+
+<nav class="fixed bottom-0 inset-x-0 z-20 bg-slate-200 text-zinc-900 font-semibold">
+  <div class="flex text-center">
+    <.link navigate={~p"/seeds"} class="basis-0 py-2 flex-grow">
+      Seeds
+    </.link>
+    <.link navigate={~p"/locations"} class="basis-0 py-2 flex-grow">
+      Locations
+    </.link>
+    <.link navigate={~p"/plants"} class="basis-0 py-2 flex-grow">
+      Plants
+    </.link>
+  </div>
+</nav>
+</div>

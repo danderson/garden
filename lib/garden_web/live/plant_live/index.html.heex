@@ -1,11 +1,10 @@
-<.header>
-  My Plants
-  <:actions>
-    <.link patch={~p"/plants/new"}>
-      <.button>Add</.button>
-    </.link>
-  </:actions>
-</.header>
+<header class="sticky top-0 z-50 bg-yellow-300 px-2 py-1 flex">
+  <h1 class="text-2xl font-semibold text-zinc-800 flex-grow">My Plants</h1>
+
+  <.link patch={~p"/plants/new"}>
+    <.icon name="hero-plus" class="w-8 h-8" />
+  </.link>
+</header>
 
 <.table
   id="plants"
