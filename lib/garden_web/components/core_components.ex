@@ -437,16 +437,17 @@ defmodule GardenWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={["sticky top-0 h-min-14 z-50 bg-slate-200 px-2 py-3 flex items-center",
+    <header class={["sticky top-0 h-min-14 z-50 px-2 py-3 flex items-baseline",
+                    "bg-slate-200 text-slate-900 dark:bg-slate-900 dark:text-slate-200",
                     @back_link && "pl-0",
                     @class]}>
       <div :if={@back_link}>
-        <.link href={@back_link}>
+        <.link navigate={@back_link}>
           <Icon.chevron_left class="h-10 stroke-2" />
         </.link>
       </div>
       <div class="flex-grow">
-        <h1 class="text-3xl font-semibold text-slate-900">
+        <h1 class="text-3xl font-semibold">
           <%= render_slot(@inner_block) %>
         </h1>
       </div>
@@ -577,7 +578,9 @@ defmodule GardenWeb.CoreComponents do
         id={id}
         phx-click={@card_click && @card_click.(card)}
         class={[
-          "border border-solid border-slate-300 bg-slate-50 hover:bg-slate-100 active:bg-slate-100 p-2",
+          "p-2 py-3",
+          "bg-slate-100 text-slate-900",
+          "dark:bg-slate-800 dark:text-slate-300 border-slate-600",
           @card_class
         ]}
       >
@@ -642,8 +645,8 @@ defmodule GardenWeb.CoreComponents do
 
   def missing_image(assigns) do
     ~H"""
-    <div class={["rounded-lg border border-2 border-slate-500 bg-slate-100", @class]}>
-      <Icon.camera class="h-full w-16 stroke-1 stroke-slate-500" />
+    <div class={["rounded-lg border border-2 border-slate-500 bg-slate-100 dark:border-slate-600 dark:bg-slate-800", @class]}>
+      <Icon.camera class="h-full w-16 stroke-1 stroke-slate-500 dark:stroke-slate-600" />
     </div>
     """
   end

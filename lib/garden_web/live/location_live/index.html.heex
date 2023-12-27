@@ -15,8 +15,8 @@
   card_class="flex"
   card_click={&JS.navigate(~p"/locations/#{&1.id}")}>
   <div class="flex-grow">
-    <p class="text-xl text-slate-900 font-semibold"><%= location.name %></p>
-    <p class="text-slate-700">
+    <p class="text-xl font-semibold"><%= location.name %></p>
+    <p class="text-slate-700 dark:text-slate-300">
       <Icon.magnifying_glass class="h-4 inline" />
       <%= if length(location.plants) > 0 do %>
       <%= length(location.plants) %> plants

@@ -3,7 +3,7 @@
 
   <:actions>
     <.link patch={~p"/plants/new"}>
-      <button class="text-4xl pr-5 font-semibold text-slate-900">+</button>
+      <button class="text-4xl pr-5 font-semibold">+</button>
     </.link>
   </:actions>
 </.header>
@@ -15,8 +15,8 @@
   card_class="flex"
   card_click={&JS.navigate(~p"/plants/#{&1.id}")}>
   <div class="flex-grow">
-    <p class="text-xl text-slate-900 font-semibold"><%= plant.name %></p>
-    <p class="text-slate-700">
+    <p class="text-xl font-semibold"><%= plant.name %></p>
+    <p class="text-slate-700 dark:text-slate-300">
       <Icon.map_pin class="h-4 inline" />
       <%= plant.current_location.name %>
     </p>
