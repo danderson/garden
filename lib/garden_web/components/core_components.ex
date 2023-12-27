@@ -429,6 +429,7 @@ defmodule GardenWeb.CoreComponents do
   Renders a header with title.
   """
   attr :class, :string, default: nil
+  attr :back_link, :string, default: nil
 
   slot :inner_block, required: true
   slot :subtitle
@@ -436,7 +437,14 @@ defmodule GardenWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={["sticky top-0 h-min-14 z-50 bg-slate-200 px-2 py-3 flex items-center", @class]}>
+    <header class={["sticky top-0 h-min-14 z-50 bg-slate-200 px-2 py-3 flex items-center",
+                    @back_link && "pl-0",
+                    @class]}>
+      <div :if={@back_link}>
+        <.link href={@back_link}>
+          <Icon.chevron_left class="h-10 stroke-2" />
+        </.link>
+      </div>
       <div class="flex-grow">
         <h1 class="text-3xl font-semibold text-slate-900">
           <%= render_slot(@inner_block) %>
