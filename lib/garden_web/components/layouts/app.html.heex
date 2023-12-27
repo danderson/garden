@@ -1,12 +1,5 @@
 <div>
-<main class="pb-16">
-  <div>
-    <.flash_group flash={@flash} />
-    <%= @inner_content %>
-  </div>
-</main>
-
-<nav class="fixed bottom-0 inset-x-0 z-20 bg-slate-200 text-slate-900 font-semibold will-change-scroll">
+<nav class="fixed bottom-0 inset-x-0 pb-6 z-20 bg-slate-200 text-slate-900 font-semibold will-change-scroll">
   <div class="flex text-center">
     <.link navigate={~p"/seeds"} class="basis-0 py-2 flex-grow">
       Seeds
@@ -19,4 +12,12 @@
     </.link>
   </div>
 </nav>
+
+<main class="pb-16">
+  <div>
+    <.flash_group flash={@flash} />
+    <%= @inner_content %>
+  </div>
+</main>
+
 </div>
