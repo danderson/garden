@@ -14,8 +14,8 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
-## Advertising
-
+<!--
 This project is tested with BrowserStack
 
 This is not an endorsement, I just have to say that to get free stuff.
+-->
