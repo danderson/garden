@@ -4,7 +4,7 @@ defmodule Garden.Locations.Location do
 
   schema "locations" do
     field :name, :string
-    field :qr_id, :string
+    field :qr_id, :string, autogenerate: {Ecto.UUID, :generate, []}
     field :qr_state, Ecto.Enum, values: [:none, :wanted, :applied], default: :wanted
 
     has_many :images, Garden.Locations.Location.LocationImage
