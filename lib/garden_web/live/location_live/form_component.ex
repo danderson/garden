@@ -20,7 +20,7 @@ defmodule GardenWeb.LocationLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:name]} type="text" label="Name" />
+        <.input field={@form[:name]} type="text" label="Name" data-1p-ignore />
         <:actions>
           <.button phx-disable-with="Saving...">Save Location</.button>
         </:actions>
