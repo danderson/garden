@@ -17,6 +17,7 @@ defmodule GardenWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
+  alias Heroicons, as: Icon
 
   @doc """
   Renders a modal.
@@ -435,13 +436,13 @@ defmodule GardenWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between", @class]}>
-      <div>
-        <h1 class="text-lg font-semibold text-zinc-800">
+    <header class={["sticky top-0 h-min-14 z-50 bg-slate-200 px-2 py-3 flex items-center", @class]}>
+      <div class="flex-grow">
+        <h1 class="text-3xl font-semibold text-slate-900">
           <%= render_slot(@inner_block) %>
         </h1>
       </div>
-      <div class="flex-none"><%= render_slot(@actions) %></div>
+      <div><%= render_slot(@actions) %></div>
     </header>
     """
   end
@@ -534,19 +535,46 @@ defmodule GardenWeb.CoreComponents do
         <:item title="Views"><%= @post.views %></:item>
       </.list>
   """
+  attr :class, :string, default: nil
+
   slot :item, required: true do
     attr :title, :string, required: true
   end
 
   def list(assigns) do
     ~H"""
-    <div class="mt-14">
+    <div class={["mt-14", @class]}>
       <dl class="-my-4 divide-y divide-zinc-100">
         <div :for={item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
           <dt class="w-1/4 flex-none text-zinc-500"><%= item.title %></dt>
           <dd class="text-zinc-700"><%= render_slot(item) %></dd>
         </div>
       </dl>
+    </div>
+    """
+  end
+
+  attr :id, :string, required: true, doc: "ID for the card stream"
+  attr :cards, :list, default: [], doc: "Card stream to display"
+  attr :class, :string, default: nil, doc: "extra CSS classes for the stream container"
+  attr :card_class, :string, default: nil, doc: "extra CSS classes for individual cards"
+  attr :card_click, :any, default: nil, doc: "function for handling clicks on cards"
+  slot :inner_block, doc: "the contents of each card"
+
+  def card_stream(assigns) do
+    ~H"""
+    <div id={@id} class={["flex flex-col", @class]} phx-update="stream">
+      <div
+        :for={{id, card} <- @cards}
+        id={id}
+        phx-click={@card_click && @card_click.(card)}
+        class={[
+          "border border-solid border-slate-300 bg-slate-50 hover:bg-slate-100 active:bg-slate-100 p-2",
+          @card_class
+        ]}
+      >
+        <%= render_slot(@inner_block, card) %>
+      </div>
     </div>
     """
   end
@@ -599,6 +627,16 @@ defmodule GardenWeb.CoreComponents do
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
     <span class={[@name, @class]} />
+    """
+  end
+
+  attr :class, :string, default: nil
+
+  def missing_image(assigns) do
+    ~H"""
+    <div class={["rounded-lg border border-2 border-slate-500 bg-slate-100", @class]}>
+      <Icon.camera class="h-full w-16 stroke-1 stroke-slate-500" />
+    </div>
     """
   end
 

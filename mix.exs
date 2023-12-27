@@ -49,7 +49,8 @@ defmodule Garden.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:plug_cowboy, "~> 2.5"},
       {:image, "~> 0.37"},
-      {:zoneinfo, "~> 0.1.0"}
+      {:zoneinfo, "~> 0.1.0"},
+      {:heroicons, "~> 0.5.0"}
     ]
   end
 

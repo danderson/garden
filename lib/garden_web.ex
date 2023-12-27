@@ -51,7 +51,7 @@ defmodule GardenWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {GardenWeb.Layouts, :app}
+          layout: {GardenWeb.Layouts, :app}
 
       unquote(html_helpers())
     end
@@ -87,6 +87,8 @@ defmodule GardenWeb do
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
+
+      alias Heroicons, as: Icon
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())

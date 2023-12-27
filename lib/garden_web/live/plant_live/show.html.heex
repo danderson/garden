@@ -1,44 +1,33 @@
-<.back navigate={~p"/plants"}>Back to plants</.back>
-
 <.header>
   <%= @plant.name %>
+
   <:actions>
     <.link patch={~p"/plants/#{@plant}/show/edit"} phx-click={JS.push_focus()}>
-      <.button>Edit</.button>
+      <Icon.pencil  class="h-10"/>
     </.link>
   </:actions>
 </.header>
 
-<.list>
-  <:item :if={@plant.seed} title="Seed">
-    <.link navigate={~p"/seeds/#{@plant.seed.id}"}>
-      <%= @plant.seed.name %>
-    </.link>
-  </:item>
-</.list>
-
-<div>
-  <h2>Location history</h2>
-
-  <.table id="locations" rows={@plant.locations}>
-    <:col label="Location" :let={loc}>
-      <%= loc.location.name %>
-    </:col>
-    <:col label="From" :let={loc}>
-      <%= DateTime.to_date(loc.start) %>
-    </:col>
-    <:col label="To" :let={loc}>
-      <%= if loc.end do %>
-        <%= DateTime.to_date(loc.end) %>
-      <% else %>
-      Now
-      <.link patch={~p"/plants/#{@plant}/show/move"} phx-click={JS.push_focus()}>
-        <button class="rounded-lg text-sm font-semibold leading-6 py-1 px-2 text-zinc-900 active:text-black/80 bg-slate-200 hover:bg-slate-300">Transplant</button>
-      </.link>
-      <% end %>
-    </:col>
-  </.table>
+<div :if={@plant.seed} class="py-4 px-2">
+  <.link navigate={~p"/seeds/#{@plant.seed.id}"} class="font-semibold">
+    Seed: <%= @plant.seed.name %>
+  </.link>
 </div>
+
+<h2 class="text-lg font-semibold px-2">Location history</h2>
+
+<ul class="p-2 pt-4 divide-y">
+  <li :for={pl <- @plant.locations}>
+    <.link navigate={~p"/locations/#{pl.location.id}"}>
+      <%= pl.location.name %>
+      <%= if pl.end != nil do %>
+      from <%= DateTime.to_date(pl.start) %> to <%= DateTime.to_date(pl.end) %>
+      <% else %>
+      since <%= DateTime.to_date(pl.start) %>
+      <% end %>
+    </.link>
+  </li>
+</ul>
 
 <.modal :if={@live_action == :edit} id="plant-modal" show on_cancel={JS.patch(~p"/plants/#{@plant}")}>
   <.live_component

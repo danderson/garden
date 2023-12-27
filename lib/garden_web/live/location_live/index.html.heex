@@ -1,29 +1,32 @@
 <.header>
   Locations
+
   <:actions>
     <.link patch={~p"/locations/new"}>
-      <.button>Add</.button>
+      <button class="text-4xl pr-5 font-semibold text-slate-900">+</button>
     </.link>
   </:actions>
 </.header>
 
-<.table
+<.card_stream
+  :let={location}
+  cards={@streams.locations}
   id="locations"
-  rows={@streams.locations}
-  row_click={fn {_id, location} -> JS.navigate(~p"/locations/#{location}") end}
->
-  <:col :let={{_id, location}} label="Name"><%= location.name %></:col>
-  <:col :let={{_id, location}} label="Plants"><%= length(location.plants) %></:col>
-  <:action :let={{_id, location}}>
-    <.link navigate={~p"/plants/new?location_id=#{location.id}"}>Plant</.link>
-  </:action>
-  <:action :let={{_id, location}}>
-    <div class="sr-only">
-      <.link navigate={~p"/locations/#{location}"}>Show</.link>
-    </div>
-    <.link patch={~p"/locations/#{location}/edit"}>Edit</.link>
-  </:action>
-</.table>
+  card_class="flex"
+  card_click={&JS.navigate(~p"/locations/#{&1.id}")}>
+  <div class="flex-grow">
+    <p class="text-xl text-slate-900 font-semibold"><%= location.name %></p>
+    <p class="text-slate-700">
+      <Icon.magnifying_glass class="h-4 inline" />
+      <%= if length(location.plants) > 0 do %>
+      <%= length(location.plants) %> plants
+      <% else %>
+      Empty
+      <% end %>
+    </p>
+  </div>
+  <.missing_image class="self-center" />
+</.card_stream>
 
 <.modal :if={@live_action in [:new, :edit]} id="location-modal" show on_cancel={JS.patch(~p"/locations")}>
   <.live_component

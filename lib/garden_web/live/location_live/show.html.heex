@@ -1,26 +1,27 @@
-<.back navigate={~p"/locations"}>Back to locations</.back>
-
 <.header>
   <%= @location.name %>
+
   <:actions>
-    <.link navigate={~p"/plants/new?location_id=#{@location.id}"} phx-click={JS.push_focus()}>
-      <.button>Plant</.button>
-    </.link>
-    <.link patch={~p"/locations/#{@location}/show/edit"} phx-click={JS.push_focus()}>
-      <.button>Edit</.button>
-    </.link>
+    <div class="flex gap-3 pr-3">
+      <.link navigate={~p"/plants/new?location_id=#{@location.id}"} phx-click={JS.push_focus()}>
+        <Icon.arrow_down_on_square class="h-10" />
+      </.link>
+      <.link patch={~p"/locations/#{@location}/show/edit"} phx-click={JS.push_focus()}>
+        <Icon.pencil  class="h-10"/>
+      </.link>
+    </div>
   </:actions>
 </.header>
 
-<.table
-  id="plants"
-  rows={@location.plants |> Enum.sort_by(&(&1.plant.name))}
-  row_click={fn pl -> JS.navigate(~p"/plants/#{pl.plant.id}") end}>
-  <:col label="Plant" :let={pl}><%= pl.plant.name %></:col>
-  <:action :let={pl}>
-    <.link navigate={~p"/plants/#{pl.plant.id}/edit"}>Edit</.link>
-  </:action>
-</.table>
+<%= if length(@location.plants) > 0 do %>
+<ul class="p-2 pt-4 divide-y">
+  <li :for={pl <- @location.plants} class="text-lg font-semibold py-2" >
+    <.link navigate={~p"/plants/#{pl.plant.id}"}><%= pl.plant.name %></.link>
+  </li>
+</ul>
+<% else %>
+<p class="text-lg font-semibold">No plants here</p>
+<% end %>
 
 <.modal :if={@live_action == :edit} id="location-modal" show on_cancel={JS.patch(~p"/locations/#{@location}")}>
   <.live_component

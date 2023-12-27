@@ -1,69 +1,35 @@
-<header class="sticky top-0 z-50 bg-slate-200 p-2 flex items-center">
-  <h1 class="text-3xl font-semibold text-slate-900 flex-grow">
-    My Plants
-  </h1>
+<.header>
+  Plants
 
-  <.link patch={~p"/plants/new"}>
-    <button class="text-5xl pr-4 font-semibold text-slate-900">+</button>
-    <!--<.icon name="hero-plus" class="w-10 h-10" />-->
-  </.link>
-</header>
+  <:actions>
+    <.link patch={~p"/plants/new"}>
+      <button class="text-4xl pr-5 font-semibold text-slate-900">+</button>
+    </.link>
+  </:actions>
+</.header>
 
-<div
+<.card_stream
+  :let={plant}
+  cards={@streams.plants}
   id="plants"
-  phx-update="stream"
-  class="flex flex-col gap-2 pt-2 px-2">
-  <div
-    :for={{id, plant} <- @streams.plants}
-    id={id}
-    class="border-solid border border-slate-300 bg-slate-100 p-2 flex gap-2 items-center rounded-lg">
-    <div class="flex-grow">
-      <p class="text-xl font-semibold"><%= plant.name %></p>
-      <p class="text-slate-700">
-        <.icon name="hero-map-pin" />
-        <%= plant.current_location.name %>
-      </p>
-      <div class="flex gap-1 py-2">
+  card_class="flex"
+  card_click={&JS.navigate(~p"/plants/#{&1.id}")}>
+  <div class="flex-grow">
+    <p class="text-xl text-slate-900 font-semibold"><%= plant.name %></p>
+    <p class="text-slate-700">
+      <Icon.map_pin class="h-4 inline" />
+      <%= plant.current_location.name %>
+    </p>
+    <div class="flex gap-1 py-2">
+      <%!--
         <p :if={String.contains?(plant.name, ["ie", "Az"])} class="rounded-xl bg-green-200 border-green-400 border text-sm px-1.5 py-0.5">Native</p>
-        <p :if={String.contains?(plant.name, ["ra", "Az"])} class="rounded-xl bg-red-200 border-red-400 border text-sm px-1.5 py-0.5">Bad for cats</p>
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-1">
-      <div>
-        <.link navigate={~p"/plants/#{plant}"}>
-          <button class="rounded-lg bg-slate-200 hover:bg-sky-200 active:bg-sky-200 py-1.5 px-2 text-sm text-slate-900">
-            <.icon name="hero-magnifying-glass w-8 h-8" />
-          </button>
-        </.link>
-      </div>
-      <div>
-        <.link patch={~p"/plants/#{plant}/edit"}>
-          <button class="rounded-lg bg-slate-200  hover:bg-sky-200 active:bg-sky-200 py-1.5 px-2 text-sm text-slate-900">
-            <.icon name="hero-pencil-solid w-8 h-8" />
-          </button>
-        </.link>
-      </div>
+  <p :if={String.contains?(plant.name, ["ra", "Az"])} class="rounded-xl bg-red-200 border-red-400 border text-sm px-1.5 py-0.5">Bad for cats</p>
+      --%>
     </div>
   </div>
-</div>
-<%!--
-<.table
-  id="plants"
-  rows={@streams.plants}
-  row_click={fn {_id, plant} -> JS.navigate(~p"/plants/#{plant}") end}
->
-  <:col :let={{_id, plant}} label="Name"><%= plant.name %></:col>
-  <:col :let={{_id, plant}} label="Location"><%= plant.current_location.name %></:col>
+  <.missing_image class="self-center" />
+</.card_stream>
 
-  <:action :let={{_id, plant}}>
-    <div class="sr-only">
-      <.link navigate={~p"/plants/#{plant}"}>Show</.link>
-    </div>
-    <.link patch={~p"/plants/#{plant}/edit"}>Edit</.link>
-  </:action>
-</.table>
---%>
 <.modal :if={@live_action == :new} id="new-plant-modal" show on_cancel={JS.patch(~p"/plants")}>
   <.live_component
     id={:new}
