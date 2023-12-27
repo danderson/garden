@@ -14,8 +14,8 @@
 </.header>
 
 <%= if length(@location.plants) > 0 do %>
-<ul class="p-2 pt-4 divide-y">
-  <li :for={pl <- @location.plants} class="text-lg font-semibold py-2" >
+<ul class="p-2 pt-2">
+  <li :for={pl <- @location.plants} class="py-3" >
     <.link navigate={~p"/plants/#{pl.plant.id}"}><%= pl.plant.name %></.link>
   </li>
 </ul>

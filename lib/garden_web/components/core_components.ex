@@ -437,10 +437,12 @@ defmodule GardenWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={["sticky top-0 h-min-14 z-50 px-2 py-3 flex items-baseline",
-                    "bg-slate-200 text-slate-900 dark:bg-slate-900 dark:text-slate-200",
-                    @back_link && "pl-0",
-                    @class]}>
+    <header class={[
+      "sticky top-0 h-min-14 z-50 px-2 py-3 flex items-baseline",
+      "bg-slate-200 text-slate-900 dark:bg-slate-900 dark:text-slate-200",
+      @back_link && "pl-0",
+      @class
+    ]}>
       <div :if={@back_link}>
         <.link navigate={@back_link}>
           <Icon.chevron_left class="h-10 stroke-2" />
@@ -555,8 +557,8 @@ defmodule GardenWeb.CoreComponents do
     <div class={["mt-14", @class]}>
       <dl class="-my-4 divide-y divide-zinc-100">
         <div :for={item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
-          <dt class="w-1/4 flex-none text-zinc-500"><%= item.title %></dt>
-          <dd class="text-zinc-700"><%= render_slot(item) %></dd>
+          <dt class="w-1/4 flex-none text-slate-500 dark:text-slate-400"><%= item.title %></dt>
+          <dd><%= render_slot(item) %></dd>
         </div>
       </dl>
     </div>
@@ -645,7 +647,10 @@ defmodule GardenWeb.CoreComponents do
 
   def missing_image(assigns) do
     ~H"""
-    <div class={["rounded-lg border border-2 border-slate-500 bg-slate-100 dark:border-slate-600 dark:bg-slate-800", @class]}>
+    <div class={[
+      "rounded-lg border border-2 border-slate-500 bg-slate-100 dark:border-slate-600 dark:bg-slate-800",
+      @class
+    ]}>
       <Icon.camera class="h-full w-16 stroke-1 stroke-slate-500 dark:stroke-slate-600" />
     </div>
     """

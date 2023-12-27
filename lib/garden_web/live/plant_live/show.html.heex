@@ -8,13 +8,13 @@
   </:actions>
 </.header>
 
-<div :if={@plant.seed} class="py-4 px-2">
+<div :if={@plant.seed} class="py-2 px-2">
   <.link navigate={~p"/seeds/#{@plant.seed.id}"} class="font-semibold">
     Seed: <%= @plant.seed.name %>
   </.link>
 </div>
 
-<h2 class="text-lg font-semibold px-2">Location history</h2>
+<h2 class="text-lg font-semibold px-2 pt-2">Location history</h2>
 
 <ul class="p-2 pt-4 divide-y">
   <li :for={pl <- @plant.locations}>

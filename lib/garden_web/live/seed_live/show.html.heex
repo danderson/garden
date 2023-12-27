@@ -29,20 +29,18 @@
       <img src={Seeds.seed_image(@seed.back_image_id, :medium)} />
     </a>
   </:item>
-  <:item :if={unset_tribools(@seed)} title="Unknowns"><%= unset_tribools(@seed) %></:item>
+  <:item :if={unset_tribools(@seed) != ""} title="Unknowns"><%= unset_tribools(@seed) %></:item>
 </.list>
 
-<div :if={@seed.plants}>
-  <h2 class="text-lg font-semibold leading-8 text-zinc-800 mt-16">Planted</h2>
-  <.table
-    id="plants"
-    rows={@seed.plants}
-    row_click={fn plant -> JS.navigate(~p"/plants/#{plant.id}") end}>
-    <:col :let={plant}><%= plant.current_location.name %></:col>
-    <:action :let={plant}>
-      <.link patch={~p"/plants/#{plant.id}/edit"}>Edit</.link>
-    </:action>
-  </.table>
+<div :if={length(@seed.plants) > 0}>
+  <h2 class="text-lg font-semibold leading-8 text-slate-800 dark:text-slate-200 mt-16">Planted</h2>
+  <ul>
+    <li :for={plant <- @seed.plants}>
+      <.link navigate={~p"/locations/#{plant.current_location.id}"}>
+        <%= plant.current_location.name %>
+      </.link>
+    </li>
+  </ul>
 </div>
 
 <.modal :if={@live_action == :edit} id="seed-modal" show on_cancel={JS.patch(~p"/seeds/#{@seed}")}>
