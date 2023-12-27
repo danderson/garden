@@ -1,12 +1,13 @@
 <.header back_link={~p"/plants"}>
-  <%= @plant.name %>
-
   <:actions>
     <.link patch={~p"/plants/#{@plant}/show/edit"} phx-click={JS.push_focus()}>
       <Icon.pencil  class="h-10"/>
     </.link>
   </:actions>
 </.header>
+
+<div class="p-2">
+<h1 class="text-xl font-semibold"><%= @plant.name %></h1>
 
 <div :if={@plant.seed} class="py-2 px-2">
   <.link navigate={~p"/seeds/#{@plant.seed.id}"} class="font-semibold">
@@ -28,6 +29,7 @@
     </.link>
   </li>
 </ul>
+</div>
 
 <.modal :if={@live_action == :edit} id="plant-modal" show on_cancel={JS.patch(~p"/plants/#{@plant}")}>
   <.live_component

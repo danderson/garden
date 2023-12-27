@@ -1,6 +1,4 @@
 <.header back_link={~p"/locations"}>
-  <%= @location.name %>
-
   <:actions>
     <div class="flex gap-3 pr-3">
       <.link navigate={~p"/plants/new?location_id=#{@location.id}"} phx-click={JS.push_focus()}>
@@ -13,15 +11,19 @@
   </:actions>
 </.header>
 
+<div class="p-2">
+<h1 class="text-xl font-semibold"><%= @location.name %></h1>
+
 <%= if length(@location.plants) > 0 do %>
-<ul class="p-2 pt-2">
-  <li :for={pl <- @location.plants} class="py-3" >
+<ul class="flex flex-col gap-3 pt-4 pl-2">
+  <li :for={pl <- @location.plants}>
     <.link navigate={~p"/plants/#{pl.plant.id}"}><%= pl.plant.name %></.link>
   </li>
 </ul>
 <% else %>
 <p class="text-lg font-semibold">No plants here</p>
 <% end %>
+</div>
 
 <.modal :if={@live_action == :edit} id="location-modal" show on_cancel={JS.patch(~p"/locations/#{@location}")}>
   <.live_component

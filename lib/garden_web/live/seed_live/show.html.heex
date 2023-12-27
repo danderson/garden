@@ -1,6 +1,4 @@
 <.header back_link={~p"/seeds"}>
-  <%= @seed.name %>
-
   <:actions>
     <div class="flex gap-3 pr-3">
       <.link navigate={~p"/plants/new?seed_id=#{@seed.id}"} phx-click={JS.push_focus()}>
@@ -13,7 +11,10 @@
   </:actions>
 </.header>
 
-<.list class="px-4">
+<div class="p-2">
+  <h1 class="text-xl font-semibold"><%= @seed.name %></h1>
+
+<.list class="p-4">
   <:item title="Packed for">
     <%= @seed.year || "(unknown)" %>
   </:item>
@@ -41,6 +42,7 @@
       </.link>
     </li>
   </ul>
+</div>
 </div>
 
 <.modal :if={@live_action == :edit} id="seed-modal" show on_cancel={JS.patch(~p"/seeds/#{@seed}")}>

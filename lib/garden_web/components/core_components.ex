@@ -421,7 +421,7 @@ defmodule GardenWeb.CoreComponents do
   def header(assigns) do
     ~H"""
     <header class={[
-      "sticky top-0 h-min-14 z-30 px-2 py-3 flex items-baseline",
+      "sticky top-0 h-min-14 z-30 px-2 py-3 flex items-center",
       "bg-slate-200 text-slate-900 dark:bg-slate-900 dark:text-slate-200",
       @back_link && "pl-0",
       @class
@@ -537,10 +537,10 @@ defmodule GardenWeb.CoreComponents do
 
   def list(assigns) do
     ~H"""
-    <div class={["mt-14", @class]}>
-      <dl class="-my-4 divide-y divide-zinc-100">
+    <div class={@class}>
+      <dl>
         <div :for={item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
-          <dt class="w-1/4 flex-none text-slate-500 dark:text-slate-400"><%= item.title %></dt>
+          <dt class="w-1/2 flex-none text-slate-500 dark:text-slate-400"><%= item.title %></dt>
           <dd><%= render_slot(item) %></dd>
         </div>
       </dl>
