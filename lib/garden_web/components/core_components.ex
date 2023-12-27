@@ -48,42 +48,25 @@ defmodule GardenWeb.CoreComponents do
       phx-mounted={@show && show_modal(@id)}
       phx-remove={hide_modal(@id)}
       data-cancel={JS.exec(@on_cancel, "phx-remove")}
-      class="relative z-50 hidden"
+      class="relative z-40 hidden"
     >
-      <div id={"#{@id}-bg"} class="bg-zinc-50/90 fixed inset-0 transition-opacity" aria-hidden="true" />
-      <div
-        class="fixed inset-0 overflow-y-auto"
-        aria-labelledby={"#{@id}-title"}
-        aria-describedby={"#{@id}-description"}
-        role="dialog"
-        aria-modal="true"
-        tabindex="0"
-      >
-        <div class="flex min-h-full items-center justify-center">
-          <div class="w-full max-w-3xl p-4 sm:p-6 lg:py-8">
-            <.focus_wrap
-              id={"#{@id}-container"}
-              phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
-              phx-key="escape"
-              phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-14 shadow-lg ring-1 transition"
-            >
-              <div class="absolute top-6 right-5">
-                <button
-                  phx-click={JS.exec("data-cancel", to: "##{@id}")}
-                  type="button"
-                  class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
-                  aria-label="close"
-                >
-                  <.icon name="hero-x-mark-solid" class="h-5 w-5" />
-                </button>
-              </div>
-              <div id={"#{@id}-content"}>
-                <%= render_slot(@inner_block) %>
-              </div>
-            </.focus_wrap>
+      <div class="fixed inset-0 overflow-y-auto" role="dialog" tabindex="0">
+        <.focus_wrap
+          id={"#{@id}-container"}
+          phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
+          phx-key="escape"
+          phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
+          class="hidden h-screen bg-slate-100"
+        >
+          <div class="absolute top-5 right-6 z-50">
+            <button phx-click={JS.exec("data-cancel", to: "##{@id}")} type="button" class="flex-none">
+              <.icon name="hero-x-mark-solid" class="h-8 w-8" />
+            </button>
           </div>
-        </div>
+          <div id={"#{@id}-content"}>
+            <%= render_slot(@inner_block) %>
+          </div>
+        </.focus_wrap>
       </div>
     </div>
     """
@@ -203,9 +186,9 @@ defmodule GardenWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class="mt-4 space-y-6">
         <%= render_slot(@inner_block, f) %>
-        <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
+        <div :for={action <- @actions} class="flex items-center justify-between">
           <%= render_slot(action, f) %>
         </div>
       </div>
@@ -438,7 +421,7 @@ defmodule GardenWeb.CoreComponents do
   def header(assigns) do
     ~H"""
     <header class={[
-      "sticky top-0 h-min-14 z-50 px-2 py-3 flex items-baseline",
+      "sticky top-0 h-min-14 z-30 px-2 py-3 flex items-baseline",
       "bg-slate-200 text-slate-900 dark:bg-slate-900 dark:text-slate-200",
       @back_link && "pl-0",
       @class

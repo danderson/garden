@@ -14,6 +14,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
       </.header>
 
       <.simple_form
+        class="px-4 pb-4"
         for={@form}
         id="seed-form"
         phx-target={@myself}

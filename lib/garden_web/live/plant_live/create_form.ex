@@ -10,6 +10,7 @@ defmodule GardenWeb.PlantLive.CreateForm do
       <.header>New plant</.header>
 
       <.simple_form
+        class="px-4 pb-4"
         for={@form}
         id="new-plant-form"
         phx-target={@myself}

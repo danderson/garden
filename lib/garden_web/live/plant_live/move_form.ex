@@ -10,6 +10,7 @@ defmodule GardenWeb.PlantLive.MoveForm do
       <.header>Transplant</.header>
 
       <.simple_form
+        class="px-4 pb-4"
         for={@form}
         id="move-plant-form"
         phx-target={@myself}
