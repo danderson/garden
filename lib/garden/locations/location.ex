@@ -15,7 +15,7 @@ defmodule Garden.Locations.Location do
 
   def upsert_changeset(location, attrs) do
     location
-    |> cast(attrs, [:name, :qr_state])
+    |> cast(attrs, [:name, :qr_id, :qr_state])
     |> validate_required([:name, :qr_state])
   end
 

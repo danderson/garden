@@ -9,7 +9,6 @@ defmodule GardenWeb.LocationLive.FormComponent do
     <div>
       <.header>
         <%= @title %>
-        <:subtitle>Use this form to manage location records in your database.</:subtitle>
       </.header>
 
       <.simple_form
@@ -21,6 +20,7 @@ defmodule GardenWeb.LocationLive.FormComponent do
         phx-submit="save"
       >
         <.input field={@form[:name]} type="text" label="Name" data-1p-ignore />
+        <.input field={@form[:qr_id]} type="hidden" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Location</.button>
         </:actions>
@@ -31,7 +31,7 @@ defmodule GardenWeb.LocationLive.FormComponent do
 
   @impl true
   def update(%{location: location} = assigns, socket) do
-    changeset = Locations.upsert_changeset(location)
+    changeset = Locations.upsert_changeset(location, assigns[:initial_params])
 
     {:ok,
      socket

@@ -20,10 +20,15 @@ defmodule GardenWeb.LocationLive.Index do
     |> assign(:location, Locations.get!(id))
   end
 
-  defp apply_action(socket, :new, _params) do
+  defp apply_action(socket, :new, params) do
+    location_params = %{
+      qr_id: params["qr_id"]
+    }
+
     socket
     |> assign(:page_title, "New Location")
     |> assign(:location, %Location{})
+    |> assign(:form_initial_params, location_params)
   end
 
   defp apply_action(socket, :index, _params) do

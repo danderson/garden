@@ -11,7 +11,7 @@ defmodule GardenWeb.PageController do
 
   def legacy_qr(conn, %{"id" => id}) do
     case Locations.get_from_qr(id) do
-      nil -> GardenWeb.ErrorHTML.render("404.html", %{})
+      nil -> redirect(conn, to: ~p"/locations/new?qr_id=#{id}")
       location -> redirect(conn, to: ~p"/locations/#{location.id}")
     end
   end
