@@ -13,7 +13,6 @@ defmodule Garden.Locations.Location do
     timestamps(type: :utc_datetime)
   end
 
-  def upsert_changeset(location, nil), do: upsert_changeset(location, %{})
   def upsert_changeset(location, attrs) do
     location
     |> cast(attrs, [:name, :qr_id, :qr_state])

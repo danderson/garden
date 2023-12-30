@@ -31,7 +31,7 @@ defmodule GardenWeb.LocationLive.FormComponent do
 
   @impl true
   def update(%{location: location} = assigns, socket) do
-    changeset = Locations.upsert_changeset(location, assigns[:initial_params])
+    changeset = Locations.upsert_changeset(location, assigns[:initial_params] || %{})
 
     {:ok,
      socket
