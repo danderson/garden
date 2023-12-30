@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"tailscale.com/tsnet"
 )
@@ -34,8 +35,12 @@ func main() {
 		},
 	}
 
+	mux := http.NewServeMux()
+	mux.Handle("/", p)
+	mux.HandleFunc("/.magic/backup", serveBackup)
+
 	if *dev {
-		if err := http.ListenAndServe(":8080", p); err != nil {
+		if err := http.ListenAndServe(":8080", mux); err != nil {
 			log.Fatal(err)
 		}
 		os.Exit(0)
@@ -65,13 +70,37 @@ func main() {
 	}
 
 	go func() {
-		if err := http.Serve(lns, p); err != nil {
+		if err := http.Serve(lns, mux); err != nil {
 			log.Fatal(err)
 		}
 	}()
-	if err := http.Serve(ln, p); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := http.Serve(ln, mux); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
+}
+
+func serveBackup(w http.ResponseWriter, r *http.Request) {
+	db := os.Getenv("DATABASE_PATH")
+	if db == "" {
+		http.Error(w, "no database known", http.StatusInternalServerError)
+		return
+	}
+
+	d, err := os.MkdirTemp("", "backup")
+	if err != nil {
+		http.Error(w, "couldn't make tempdir", http.StatusInternalServerError)
+		return
+	}
+	defer os.RemoveAll(d)
+
+	backup := filepath.Join(d, "garden_backup.db")
+	out, err := exec.Command("sqlite3", db, ".backup "+backup).CombinedOutput()
+	if err != nil {
+		http.Error(w, string(out), http.StatusInternalServerError)
+		return
+	}
+
+	http.ServeFile(w, r, backup)
 }
 
 // type debugListener struct {
