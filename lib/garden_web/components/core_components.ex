@@ -56,7 +56,7 @@ defmodule GardenWeb.CoreComponents do
           phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
           phx-key="escape"
           phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-          class="hidden h-screen bg-slate-100 dark:bg-slate-800"
+          class="hidden h-min-screen bg-slate-100 dark:bg-slate-800"
         >
           <div class="absolute top-5 right-6 z-50">
             <button phx-click={JS.exec("data-cancel", to: "##{@id}")} type="button" class="flex-none">

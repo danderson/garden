@@ -71,7 +71,7 @@ defmodule GardenWeb.SeedLive.FormComponent do
   def photo_upload(assigns) do
     ~H"""
     <div>
-      <div class="block text-sm font-semibold leading-6 text-zinc-800"><%= @label %></div>
+      <div class="block text-sm font-semibold leading-6 text-zinc-800 dark:text-zinc-300"><%= @label %></div>
       <%= if @upload.entries == [] do %>
         <img :if={@existing_id} src={Seeds.seed_image(@existing_id, :medium)} />
       <% else %>
