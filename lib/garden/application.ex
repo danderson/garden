@@ -11,8 +11,7 @@ defmodule Garden.Application do
       GardenWeb.Telemetry,
       Garden.Repo,
       {Ecto.Migrator,
-        repos: Application.fetch_env!(:garden, :ecto_repos),
-        skip: skip_migrations?()},
+       repos: Application.fetch_env!(:garden, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:garden, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Garden.PubSub},
       # Start a worker by calling: Garden.Worker.start_link(arg)

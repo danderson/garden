@@ -144,7 +144,7 @@ func serveImages(w http.ResponseWriter, r *http.Request) {
 			return err
 		}
 
-		hdr.Name = filepath.Join(rel, hdr.Name)
+		hdr.Name = rel
 
 		if err := t.WriteHeader(hdr); err != nil {
 			return err

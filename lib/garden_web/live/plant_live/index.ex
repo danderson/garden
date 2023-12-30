@@ -45,7 +45,8 @@ defmodule GardenWeb.PlantLive.Index do
   end
 
   @impl true
-  def handle_info({src, {:saved, plant}}, socket) when src in [CreateForm, EditForm] do
-    {:noreply, stream_insert(socket, :plants, Plants.get!(plant.id, locations: :current))}
+  def handle_info({src, {:saved, _plant}}, socket) when src in [CreateForm, EditForm] do
+    {:noreply, socket
+     |> stream(:plants, Plants.list(locations: :current), reset: true)}
   end
 end

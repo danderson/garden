@@ -11,22 +11,28 @@
   cards={@streams.locations}
   id="locations"
   card_class="flex"
-  card_click={&JS.navigate(~p"/locations/#{&1.id}")}>
+  card_click={&JS.navigate(~p"/locations/#{&1.id}")}
+>
   <div class="flex-grow">
     <p class="text-xl font-semibold"><%= location.name %></p>
     <p class="text-slate-700 dark:text-slate-300">
       <Icon.magnifying_glass class="h-4 inline" />
       <%= if length(location.plants) > 0 do %>
-      <%= length(location.plants) %> plants
+        <%= length(location.plants) %> plants
       <% else %>
-      Empty
+        Empty
       <% end %>
     </p>
   </div>
   <.missing_image class="self-center" />
 </.card_stream>
 
-<.modal :if={@live_action in [:new, :edit]} id="location-modal" show on_cancel={JS.patch(~p"/locations")}>
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="location-modal"
+  show
+  on_cancel={JS.patch(~p"/locations")}
+>
   <.live_component
     module={GardenWeb.LocationLive.FormComponent}
     id={@location.id || :new}

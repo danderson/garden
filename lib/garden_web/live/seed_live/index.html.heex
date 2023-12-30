@@ -11,13 +11,18 @@
   cards={@streams.seeds}
   id="seeds"
   card_class="flex"
-  card_click={&JS.navigate(~p"/seeds/#{&1.id}")}>
+  card_click={&JS.navigate(~p"/seeds/#{&1.id}")}
+>
   <div class="flex-grow">
     <p class="text-xl font-semibold"><%= seed.name %></p>
   </div>
 
   <div class="self-center">
-    <img :if={seed.front_image_id} src={Seeds.seed_image(seed.front_image_id, :thumbnail)} class="w-16" />
+    <img
+      :if={seed.front_image_id}
+      src={Seeds.seed_image(seed.front_image_id, :thumbnail)}
+      class="w-16"
+    />
     <.missing_image :if={!seed.front_image_id} />
   </div>
 </.card_stream>

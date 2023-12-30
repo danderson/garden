@@ -24,7 +24,7 @@ defmodule Garden.Locations do
   end
 
   def get_from_qr(qr_id, kw \\ []) do
-    query(kw) |> where([l], l.qr_id == ^qr_id) |> Repo.one
+    query(kw) |> where([l], l.qr_id == ^qr_id) |> Repo.one()
   end
 
   defp query_plants(q, nil), do: q

@@ -7,6 +7,7 @@ defmodule Garden.Plants.Plant do
 
   schema "plants" do
     field :name, :string
+    field :name_from_seed, :boolean
     belongs_to :seed, Seed
     has_many :locations, PlantLocation, preload_order: [desc: :start, desc: :end]
 
@@ -18,12 +19,20 @@ defmodule Garden.Plants.Plant do
   def new_changeset(plant, attrs \\ %{}) do
     plant
     |> cast(attrs, [:name, :seed_id])
-    |> validate_required([:name])
+    |> validate_name_or_seed
   end
 
   def edit_changeset(plant, attrs \\ %{}) do
     plant
     |> cast(attrs, [:name, :seed_id])
-    |> validate_required([:name])
+    |> validate_name_or_seed
+  end
+
+  defp validate_name_or_seed(change) do
+    if fetch_field!(change, :seed_id) == nil do
+      validate_required(change, [:name], message: "must provide name or link to a seed")
+    else
+      change
+    end
   end
 end

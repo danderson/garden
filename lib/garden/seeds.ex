@@ -31,9 +31,7 @@ defmodule Garden.Seeds do
   defdelegate upsert_changeset(seed, attrs \\ %{}, private_attrs \\ %{}), to: Seed
 
   def new(attrs \\ %{}, private_attrs \\ %{}) do
-    %Seed{}
-    |> upsert_changeset(attrs, private_attrs)
-    |> Repo.insert()
+    upsert_changeset(%Seed{}, attrs, private_attrs) |> Repo.insert()
   end
 
   def new!(attrs \\ %{}, private_attrs \\ %{}) do
@@ -45,8 +43,9 @@ defmodule Garden.Seeds do
     change = upsert_changeset(seed, attrs, private_attrs)
 
     case Repo.update(change) do
-      {:ok, _} = res ->
+      {:ok, seed} = res ->
         Seed.replaced_images(change) |> Enum.each(&Images.delete(:seed, &1))
+        Plants.update_names_from_seed(seed.id, seed.name)
         res
 
       {:error, _} = res ->

@@ -55,12 +55,14 @@ defmodule Images do
 
     def call(%Plug.Conn{path_info: ["user_images", kind, file]} = conn, _opts) do
       path = Path.expand(Path.join([Images.disk_dir(kind), file]))
-      if String.starts_with?(path, Images.images_dir()<>"/") do
+
+      if String.starts_with?(path, Images.images_dir() <> "/") do
         send_file(conn, 200, path) |> halt
       else
         send_resp(conn, 400, "") |> halt
       end
     end
+
     def call(conn, _opts), do: conn
   end
 end

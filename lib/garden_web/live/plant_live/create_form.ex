@@ -17,10 +17,6 @@ defmodule GardenWeb.PlantLive.CreateForm do
         phx-change="validate"
         phx-submit="save"
       >
-        <.inputs_for :let={p} field={@form[:plant]}>
-          <.input field={p[:name]} type="text" label="Name" data-1p-ignore />
-          <.input field={p[:seed_id]} type="select" label="Seed" prompt="None" options={@seeds} />
-        </.inputs_for>
         <.input
           field={@form[:location_id]}
           type="select"
@@ -28,6 +24,10 @@ defmodule GardenWeb.PlantLive.CreateForm do
           prompt=""
           options={@locations}
         />
+        <.inputs_for :let={p} field={@form[:plant]}>
+          <.input field={p[:seed_id]} type="select" label="Seed" prompt="None" options={@seeds} />
+          <.input field={p[:name]} type="text" label="Name" data-1p-ignore />
+        </.inputs_for>
 
         <:actions>
           <.button phx-disable-with="Saving...">Add</.button>
