@@ -1,8 +1,12 @@
 package main
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"errors"
 	"flag"
+	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -38,6 +42,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", p)
 	mux.HandleFunc("/.magic/backup", serveBackup)
+	mux.HandleFunc("/.magic/images", serveImages)
 
 	if *dev {
 		if err := http.ListenAndServe(":8080", mux); err != nil {
@@ -101,6 +106,67 @@ func serveBackup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.ServeFile(w, r, backup)
+}
+
+func serveImages(w http.ResponseWriter, r *http.Request) {
+	imgs := os.Getenv("IMAGES_PATH")
+	if imgs == "" {
+		http.Error(w, "no image dir known", http.StatusInternalServerError)
+		return
+	}
+
+	g := gzip.NewWriter(w)
+	defer g.Close()
+
+	t := tar.NewWriter(g)
+	defer t.Close()
+	base := filepath.Dir(imgs)
+
+	w.Header().Set("Content-Type", "application/tar+gzip")
+
+	err := filepath.WalkDir(imgs, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		rel, err := filepath.Rel(base, path)
+		if err != nil {
+			return err
+		}
+
+		fi, err := d.Info()
+		if err != nil {
+			return err
+		}
+
+		hdr, err := tar.FileInfoHeader(fi, "")
+		if err != nil {
+			return err
+		}
+
+		hdr.Name = filepath.Join(rel, hdr.Name)
+
+		if err := t.WriteHeader(hdr); err != nil {
+			return err
+		}
+
+		if fi.IsDir() {
+			return nil
+		}
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		if _, err := io.Copy(t, f); err != nil {
+			return err
+		}
+		f.Close()
+		return nil
+	})
+	if err != nil {
+		log.Print(err)
+	}
 }
 
 // type debugListener struct {
