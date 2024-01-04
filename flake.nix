@@ -1,7 +1,13 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    templ = {
+      url = github:a-h/templ;
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
-  outputs = { self, nixpkgs }: {
+  outputs = { self, nixpkgs, templ }: {
     devShell.x86_64-linux = with nixpkgs.legacyPackages.x86_64-linux; mkShell {
       buildInputs = [
         elixir
@@ -12,6 +18,9 @@
 	      sqlite
         flyctl
         go
+        gopls
+        sqlc
+        templ.packages.x86_64-linux.templ
       ];
     };
 

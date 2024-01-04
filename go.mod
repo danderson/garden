@@ -1,10 +1,16 @@
-module go.universe.tf/proxy
+module go.universe.tf/garden
 
 go 1.21.1
 
 toolchain go1.21.4
 
-require tailscale.com v1.54.0
+require (
+	github.com/go-chi/chi/v5 v5.0.11
+	github.com/jmoiron/sqlx v1.3.5
+	github.com/mattn/go-sqlite3 v1.14.19
+	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
+	tailscale.com v1.54.0
+)
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
@@ -72,7 +78,6 @@ require (
 	go4.org/mem v0.0.0-20220726221520-4f986261bf13 // indirect
 	go4.org/netipx v0.0.0-20230824141953-6213f710f925 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
