@@ -1,23 +1,33 @@
-.PHONY: migrate
-dev:
-	sqlc generate
-	go run .
-
-.PHONY: devreset
-devreset:
-	cp -f db.sqlite3.2 garden.db
-	sqlc generate
-	go run .
-
 .PHONY: fromprod
 fromprod:
-	rm -f db.sqlite3.2
-	fly sftp get /state/garden/db.sqlite3 db.sqlite3.2
-	sqlite3 db.sqlite3.2 "PRAGMA user_version=1;"
-	cp -f db.sqlite3.2 garden.db
+	curl -o garden_prod.db http://garden/.magic/backup
+	curl -o images_prod.tgz http://garden/.magic/images
+	rm -f garden_dev.db*
+	cp -f garden_prod.db garden_dev.db
+	rm -rf images
+	tar xf images_prod.tgz
+	sqlc generate
+	go run .
+
+.PHONY: reset
+reset:
+	rm -f garden_dev.db*
+	cp -f garden_prod.db garden_dev.db
+	sqlite3 garden_dev.db "pragma user_version=1"
+	rm -rf images
+	tar xf images_prod.tgz
+	sqlc generate
+	go run .
+
+.PHONY: dev
+dev:
 	sqlc generate
 	go run .
 
 .PHONY: schema
 schema:
-	sqlite3 garden.db ".schema"
+	sqlite3 garden_dev.db ".schema"
+
+.PHONY: sqlite
+sqlite:
+	sqlite3 garden_dev.db

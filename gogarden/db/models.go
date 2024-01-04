@@ -10,64 +10,64 @@ import (
 	"go.universe.tf/garden/gogarden/types"
 )
 
-type HerbariumFamily struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-}
-
-type HerbariumPlant struct {
-	ID               int64        `json:"id"`
-	Edible           sql.NullBool `json:"edible"`
-	NeedsTrellis     sql.NullBool `json:"needs_trellis"`
-	NeedsBirdNetting sql.NullBool `json:"needs_bird_netting"`
-	IsKeto           sql.NullBool `json:"is_keto"`
-	Native           sql.NullBool `json:"native"`
-	Invasive         sql.NullBool `json:"invasive"`
-	IsCover          sql.NullBool `json:"is_cover"`
-	GrowFromSeed     sql.NullBool `json:"grow_from_seed"`
-	Type             string       `json:"type"`
-	Lifespan         string       `json:"lifespan"`
-	BadForCats       sql.NullBool `json:"bad_for_cats"`
-	DeerResistant    sql.NullBool `json:"deer_resistant"`
-	FamilyID         int64        `json:"family_id"`
-	Name             string       `json:"name"`
-}
-
-type HerbariumPlantTag struct {
-	ID      int64 `json:"id"`
-	PlantID int64 `json:"plant_id"`
-	TagID   int64 `json:"tag_id"`
-}
-
-type HerbariumPlantingwindow struct {
-	ID      int64  `json:"id"`
-	Type    string `json:"type"`
-	End     int64  `json:"end"`
-	Start   int64  `json:"start"`
-	PlantID int64  `json:"plant_id"`
-}
-
-type HerbariumPlantname struct {
-	ID      int64  `json:"id"`
-	Name    string `json:"name"`
-	PlantID int64  `json:"plant_id"`
-}
-
-type HerbariumTag struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-}
-
 type Location struct {
-	ID      int64         `json:"id"`
-	Name    string        `json:"name"`
-	QRState types.QRState `json:"qr_state"`
+	ID         int64          `json:"id"`
+	Name       sql.NullString `json:"name"`
+	InsertedAt types.Time     `json:"inserted_at"`
+	UpdatedAt  types.Time     `json:"updated_at"`
+	QrID       string         `json:"qr_id"`
+	QRState    types.QRState  `json:"qr_state"`
 }
 
-type Planted struct {
-	ID       int64      `json:"id"`
-	Name     string     `json:"name"`
-	Location int64      `json:"location"`
-	Planted  types.Time `json:"planted"`
-	Removed  types.Time `json:"removed"`
+type LocationsImage struct {
+	ID         int64          `json:"id"`
+	ImageID    sql.NullString `json:"image_id"`
+	LocationID sql.NullInt64  `json:"location_id"`
+	InsertedAt string         `json:"inserted_at"`
+	UpdatedAt  string         `json:"updated_at"`
+}
+
+type Plant struct {
+	ID           int64          `json:"id"`
+	Name         sql.NullString `json:"name"`
+	SeedID       sql.NullInt64  `json:"seed_id"`
+	InsertedAt   string         `json:"inserted_at"`
+	UpdatedAt    string         `json:"updated_at"`
+	NameFromSeed sql.NullInt64  `json:"name_from_seed"`
+}
+
+type PlantLocation struct {
+	ID         int64         `json:"id"`
+	PlantID    sql.NullInt64 `json:"plant_id"`
+	LocationID sql.NullInt64 `json:"location_id"`
+	Start      string        `json:"start"`
+	End        interface{}   `json:"end"`
+}
+
+type SchemaMigration struct {
+	Version    int64          `json:"version"`
+	InsertedAt sql.NullString `json:"inserted_at"`
+}
+
+type Seed struct {
+	ID                int64          `json:"id"`
+	Name              sql.NullString `json:"name"`
+	InsertedAt        string         `json:"inserted_at"`
+	UpdatedAt         string         `json:"updated_at"`
+	FrontImageID      sql.NullString `json:"front_image_id"`
+	BackImageID       sql.NullString `json:"back_image_id"`
+	Year              sql.NullInt64  `json:"year"`
+	Edible            interface{}    `json:"edible"`
+	NeedsTrellis      interface{}    `json:"needs_trellis"`
+	NeedsBirdNetting  interface{}    `json:"needs_bird_netting"`
+	IsKeto            interface{}    `json:"is_keto"`
+	IsNative          interface{}    `json:"is_native"`
+	IsInvasive        interface{}    `json:"is_invasive"`
+	IsCoverCrop       interface{}    `json:"is_cover_crop"`
+	GrowsWellFromSeed interface{}    `json:"grows_well_from_seed"`
+	IsBadForCats      interface{}    `json:"is_bad_for_cats"`
+	IsDeerResistant   interface{}    `json:"is_deer_resistant"`
+	Type              sql.NullString `json:"type"`
+	Lifespan          sql.NullString `json:"lifespan"`
+	Family            sql.NullString `json:"family"`
 }

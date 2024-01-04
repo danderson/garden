@@ -2,19 +2,19 @@ version: 2
 sql:
   - engine: sqlite
     schema: migrations
-    queries: query.sql
+    queries: db/query.sql
     gen:
       go:
         package: db
         out: db
         emit_json_tags: true
-        emit_result_struct_pointers: true
+        #emit_result_struct_pointers: true
         rename:
           qr_state: QRState
         overrides:
-          - column: main.planted.planted
+          - column: main.locations.inserted_at
             go_type: go.universe.tf/garden/gogarden/types.Time
-          - column: main.planted.removed
+          - column: main.locations.updated_at
             go_type: go.universe.tf/garden/gogarden/types.Time
           - column: main.locations.qr_state
             go_type: go.universe.tf/garden/gogarden/types.QRState

@@ -7,12 +7,13 @@ package db
 
 import (
 	"context"
+	"database/sql"
 
 	"go.universe.tf/garden/gogarden/types"
 )
 
 const getLocations = `-- name: GetLocations :many
-select id, name, qr_state from locations
+select id, name, inserted_at, updated_at, qr_id, qr_state from locations
 `
 
 func (q *Queries) GetLocations(ctx context.Context) ([]*Location, error) {
@@ -24,7 +25,14 @@ func (q *Queries) GetLocations(ctx context.Context) ([]*Location, error) {
 	var items []*Location
 	for rows.Next() {
 		var i Location
-		if err := rows.Scan(&i.ID, &i.Name, &i.QRState); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.QrID,
+			&i.QRState,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -43,9 +51,9 @@ update locations set name=?,qr_state=? where id=?
 `
 
 type UpdateLocationParams struct {
-	Name    string        `json:"name"`
-	QRState types.QRState `json:"qr_state"`
-	ID      int64         `json:"id"`
+	Name    sql.NullString `json:"name"`
+	QRState types.QRState  `json:"qr_state"`
+	ID      int64          `json:"id"`
 }
 
 func (q *Queries) UpdateLocation(ctx context.Context, arg UpdateLocationParams) error {

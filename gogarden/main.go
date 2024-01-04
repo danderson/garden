@@ -15,7 +15,7 @@ import (
 
 func main() {
 	logger := slog.Default()
-	db, err := db.Open(logger, "garden.db", migrations.FileMigrations(), migrations.GoMigrations())
+	db, err := db.Open(logger, "garden_dev.db", migrations.FileMigrations(), migrations.GoMigrations())
 	if err != nil {
 		log.Fatalf("opening database: %v", err)
 	}
