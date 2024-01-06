@@ -1,0 +1,43 @@
+package views
+
+import "sync"
+import "crypto/rand"
+import "encoding/hex"
+import "fmt"
+
+var (
+    staticSlug string
+    staticOnce sync.Once
+)
+
+func static(filename string) string {
+    staticOnce.Do(func() {
+        var slug [8]byte
+        if _, err := io.ReadFull(rand.Reader, slug[:]); err != nil {
+            panic("no random bytes available")
+        }
+        staticSlug = hex.EncodeToString(slug[:])
+    })
+
+    return fmt.Sprintf("/static/%s/%s", staticSlug, filename)
+}
+
+templ root() {
+    <html lang="en" class="[scrollbar-gutter:stable]">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href={ static("app.css") } />
+        <!-- <script defer type="text/javascript" src="/assets/app.js"></script> -->
+      </head>
+      <body>
+        { children... }
+      </body>
+    </html>
+}
+
+templ Seeds() {
+    @root() {
+        <h1>Hello</h1>
+    }
+}

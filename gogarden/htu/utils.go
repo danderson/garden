@@ -26,7 +26,7 @@ func ErrHandler(h func(http.ResponseWriter, *http.Request) error) http.HandlerFu
 			slog.Error("Handler error", "err", hErr.err, "usermsg", hErr.userMsg, "code", hErr.code)
 		} else {
 			w.WriteHeader(500)
-			slog.Error("Handler error", "err", hErr.err, "code", 500)
+			slog.Error("Handler error", "err", err, "code", 500)
 		}
 	})
 }

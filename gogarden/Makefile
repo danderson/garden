@@ -6,8 +6,7 @@ fromprod:
 	cp -f garden_prod.db garden_dev.db
 	rm -rf images
 	tar xf images_prod.tgz
-	sqlc generate
-	go run .
+	make dev
 
 .PHONY: reset
 reset:
@@ -16,13 +15,18 @@ reset:
 	sqlite3 garden_dev.db "pragma user_version=1"
 	rm -rf images
 	tar xf images_prod.tgz
-	sqlc generate
-	go run .
+	make dev
 
 .PHONY: dev
 dev:
 	sqlc generate
+	templ generate
+	tailwindcss -i style.css -o static/app.css
 	go run .
+
+.PHONY: live
+live:
+	wgo -file=.go -file=.templ -file=.sql -xfile=db/db.go -xfile=db/models.go -xfile=db/query.sql.go -xfile=_templ.go make dev
 
 .PHONY: schema
 schema:
