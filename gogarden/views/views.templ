@@ -4,6 +4,7 @@ import "sync"
 import "crypto/rand"
 import "encoding/hex"
 import "fmt"
+import "go.universe.tf/garden/gogarden/db"
 
 var (
     staticSlug string
@@ -36,8 +37,13 @@ templ root() {
     </html>
 }
 
-templ Seeds() {
+templ Seeds(seeds []db.Seed) {
     @root() {
         <h1>Hello</h1>
+        <ul>
+        for _, seed := range seeds {
+            <li>{ *seed.Name }</li>
+        }
+        </ul>
     }
 }

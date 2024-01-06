@@ -12,7 +12,7 @@ import (
 )
 
 const listLocations = `-- name: ListLocations :many
-select id, name, inserted_at, updated_at, qr_id, qr_state from locations
+select id, name, inserted_at, updated_at, qr_id, qr_state from locations order by name
 `
 
 func (q *Queries) ListLocations(ctx context.Context) ([]Location, error) {
@@ -46,7 +46,7 @@ func (q *Queries) ListLocations(ctx context.Context) ([]Location, error) {
 }
 
 const listSeeds = `-- name: ListSeeds :many
-select id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family from seeds
+select id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family from seeds order by name
 `
 
 func (q *Queries) ListSeeds(ctx context.Context) ([]Seed, error) {

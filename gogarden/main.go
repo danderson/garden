@@ -70,51 +70,9 @@ func (s *Server) static(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) listSeeds(w http.ResponseWriter, r *http.Request) {
-	views.Seeds().Render(r.Context(), w)
+	seeds, err := s.db.ListSeeds(r.Context())
+	if err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+	}
+	views.Seeds(seeds).Render(r.Context(), w)
 }
-
-// func (s *Server) listLocations(w http.ResponseWriter, r *http.Request) error {
-// 	ctx := r.Context()
-// 	tx, err := s.db.ReadTx(ctx)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	locs, err := tx.GetLocations(ctx)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	htu.RespondJSON(w, locs)
-// 	return nil
-// }
-
-// func (s *Server) updateLocation(w http.ResponseWriter, r *http.Request) error {
-// 	ctx := r.Context()
-// 	id, err := htu.Int64Param(r, "id")
-// 	if err != nil {
-// 		return htu.BadRequest("invalid id", err)
-// 	}
-// 	var args struct {
-// 		Name    string        `json:"name"`
-// 		QRState types.QRState `json:"qr_state"`
-// 	}
-// 	if err := htu.JSONBody(r, &args); err != nil {
-// 		return htu.BadRequest("failed to parse body", err)
-// 	}
-
-// 	tx, err := s.db.ReadTx(ctx)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = tx.UpdateLocation(ctx, db.UpdateLocationParams{
-// 		ID:      id,
-// 		Name:    &args.Name,
-// 		QRState: args.QRState,
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if err := tx.Commit(); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
