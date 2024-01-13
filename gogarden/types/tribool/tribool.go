@@ -1,4 +1,4 @@
-package types
+package tribool
 
 import (
 	"database/sql/driver"
@@ -7,24 +7,24 @@ import (
 
 type Tribool int
 
-//go:generate stringer -type=Tribool -trimprefix=Tribool
+//go:generate stringer -type=Tribool
 
 const (
-	TriboolUnknown Tribool = iota
-	TriboolTrue
-	TriboolFalse
+	Unknown Tribool = iota
+	True
+	False
 )
 
 func (b *Tribool) Scan(value any) error {
 	if value == nil {
-		*b = TriboolUnknown
+		*b = Unknown
 		return nil
 	}
 	if v, ok := value.(int64); ok {
 		if v == 0 {
-			*b = TriboolFalse
+			*b = False
 		} else {
-			*b = TriboolTrue
+			*b = True
 		}
 		return nil
 	}
@@ -33,11 +33,11 @@ func (b *Tribool) Scan(value any) error {
 
 func (b Tribool) Value() (driver.Value, error) {
 	switch b {
-	case TriboolUnknown:
+	case Unknown:
 		return nil, nil
-	case TriboolTrue:
+	case True:
 		return int64(1), nil
-	case TriboolFalse:
+	case False:
 		return int64(0), nil
 	default:
 		return nil, errors.New("no conversion")
@@ -51,11 +51,11 @@ func (b Tribool) MarshalText() ([]byte, error) {
 func (b *Tribool) UnmarshalText(bs []byte) error {
 	switch string(bs) {
 	case "Unknown":
-		*b = TriboolUnknown
+		*b = Unknown
 	case "True":
-		*b = TriboolTrue
+		*b = True
 	case "False":
-		*b = TriboolFalse
+		*b = False
 	default:
 		return errors.New("no conversion")
 	}
