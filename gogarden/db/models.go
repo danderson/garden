@@ -48,24 +48,24 @@ type SchemaMigration struct {
 }
 
 type Seed struct {
-	ID                int64       `json:"id"`
-	Name              *string     `json:"name"`
-	InsertedAt        string      `json:"inserted_at"`
-	UpdatedAt         string      `json:"updated_at"`
-	FrontImageID      *string     `json:"front_image_id"`
-	BackImageID       *string     `json:"back_image_id"`
-	Year              *int64      `json:"year"`
-	Edible            interface{} `json:"edible"`
-	NeedsTrellis      interface{} `json:"needs_trellis"`
-	NeedsBirdNetting  interface{} `json:"needs_bird_netting"`
-	IsKeto            interface{} `json:"is_keto"`
-	IsNative          interface{} `json:"is_native"`
-	IsInvasive        interface{} `json:"is_invasive"`
-	IsCoverCrop       interface{} `json:"is_cover_crop"`
-	GrowsWellFromSeed interface{} `json:"grows_well_from_seed"`
-	IsBadForCats      interface{} `json:"is_bad_for_cats"`
-	IsDeerResistant   interface{} `json:"is_deer_resistant"`
-	Type              *string     `json:"type"`
-	Lifespan          *string     `json:"lifespan"`
-	Family            *string     `json:"family"`
+	ID                int64   `json:"id"`
+	Name              *string `json:"name"`
+	InsertedAt        string  `json:"inserted_at"`
+	UpdatedAt         string  `json:"updated_at"`
+	FrontImageID      *string `json:"front_image_id"`
+	BackImageID       *string `json:"back_image_id"`
+	Year              *int64  `json:"year"`
+	Edible            *int64  `json:"edible"`
+	NeedsTrellis      *int64  `json:"needs_trellis"`
+	NeedsBirdNetting  *int64  `json:"needs_bird_netting"`
+	IsKeto            *int64  `json:"is_keto"`
+	IsNative          *int64  `json:"is_native"`
+	IsInvasive        *int64  `json:"is_invasive"`
+	IsCoverCrop       *int64  `json:"is_cover_crop"`
+	GrowsWellFromSeed *int64  `json:"grows_well_from_seed"`
+	IsBadForCats      *int64  `json:"is_bad_for_cats"`
+	IsDeerResistant   *int64  `json:"is_deer_resistant"`
+	Type              *string `json:"type"`
+	Lifespan          *string `json:"lifespan"`
+	Family            *string `json:"family"`
 }

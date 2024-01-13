@@ -87,6 +87,7 @@ func (s *Server) listSeeds(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) showSeed(w http.ResponseWriter, r *http.Request) {
+	log.Printf("show seed")
 	id, err := htu.Int64Param(r, "id")
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)

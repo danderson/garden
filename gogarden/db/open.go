@@ -41,28 +41,29 @@ func Open(logger *slog.Logger, path string, fileMigrations fs.FS, goMigrations m
 
 	if migration_version != len(migrations) {
 		logger.Info("running migrations", "old_db_version", migration_version, "new_db_version", len(migrations))
-		tx, err := db.Beginx()
-		if err != nil {
-			db.Close()
-			return nil, fmt.Errorf("starting DB migration transaction: %w", err)
-		}
-		defer tx.Rollback()
+		for i, m := range migrations[migration_version:] {
+			tx, err := db.Beginx()
+			if err != nil {
+				db.Close()
+				return nil, fmt.Errorf("starting DB migration transaction: %w", err)
+			}
+			defer tx.Rollback()
 
-		for _, m := range migrations[migration_version:] {
 			if err := m(tx); err != nil {
 				db.Close()
 				return nil, err
 			}
-		}
-		// Setting pragmas in sqlite with '?' substitutions apparently
-		// doesn't work, so do scary sql-injecty formatting by hand.
-		if _, err := tx.Exec(fmt.Sprintf("PRAGMA user_version=%d", len(migrations))); err != nil {
-			db.Close()
-			return nil, fmt.Errorf("updating database migration version: %w", err)
-		}
-		if err := tx.Commit(); err != nil {
-			db.Close()
-			return nil, fmt.Errorf("committing schema migrations: %w", err)
+
+			// Setting pragmas in sqlite with '?' substitutions apparently
+			// doesn't work, so do scary sql-injecty formatting by hand.
+			if _, err := tx.Exec(fmt.Sprintf("PRAGMA user_version=%d", migration_version+i+1)); err != nil {
+				db.Close()
+				return nil, fmt.Errorf("updating database migration version: %w", err)
+			}
+			if err := tx.Commit(); err != nil {
+				db.Close()
+				return nil, fmt.Errorf("committing schema migrations: %w", err)
+			}
 		}
 	}
 
