@@ -103,6 +103,6 @@ func (s *Server) showSeed(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) newSeed(w http.ResponseWriter, r *http.Request) {
-	form := forms.FromStruct(db.Seed{})
+	form := forms.FromStruct(db.CreateSeedParams{})
 	s.render(w, r, views.NewSeed(form))
 }

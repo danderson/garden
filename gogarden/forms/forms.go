@@ -1,6 +1,7 @@
 package forms
 
 import (
+	"encoding"
 	"errors"
 	"fmt"
 	"net/http"
@@ -18,6 +19,7 @@ type Form[T any] struct {
 
 // Field is a struct field and its validation errors, if any.
 type Field struct {
+	ID     string
 	Value  any
 	Errors []string
 }
@@ -31,6 +33,7 @@ func FromStruct[T any](st T) *Form[T] {
 	}
 	err := eachStructField(st, func(fi reflect.StructField, fv reflect.Value) error {
 		ret.Fields[fi.Name] = Field{
+			ID:    fi.Name,
 			Value: fv.Interface(),
 		}
 		return nil
@@ -61,6 +64,7 @@ func FromForm[T any](st T, r *http.Request) (*Form[T], error) {
 		val := r.Form.Get(name)
 		err := castValue(val, fv)
 		ret.Fields[fi.Name] = Field{
+			ID:     fi.Name,
 			Value:  fv.Interface(),
 			Errors: []string{err.Error()},
 		}
@@ -95,9 +99,27 @@ func eachStructField[T any](st T, fn func(fi reflect.StructField, fv reflect.Val
 }
 
 func castValue(raw string, dest reflect.Value) error {
-	switch dest.Kind() {
-	// TODO: cast stuff
-	default:
-		return fmt.Errorf("unhandled form kind %v", dest.Kind())
+	if um, ok := dest.Interface().(encoding.TextUnmarshaler); ok {
+		return um.UnmarshalText([]byte(raw))
 	}
+
+	// Otherwise, handle the basic Go types.
+	switch dest.Kind() {
+	case reflect.Pointer:
+		switch dest.Elem().Kind() {
+		case reflect.String:
+			if raw == "" {
+				dest.Set(reflect.Zero(dest.Type()))
+			} else {
+				dest.Set(reflect.ValueOf(raw).Addr())
+			}
+			return nil
+		default:
+		}
+	case reflect.String:
+		dest.Set(reflect.ValueOf(raw))
+		return nil
+	default:
+	}
+	return fmt.Errorf("unhandled form kind %v", dest.Kind())
 }

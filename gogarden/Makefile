@@ -22,7 +22,7 @@ dev:
 
 .PHONY: live
 live:
-	wgo -file=.go -file=.templ -file=.sql -xfile=db/db.go -xfile=db/models.go -xfile=db/query.sql.go -xfile=_templ.go make dev
+	wgo -file=.go -file=.templ -file=.sql -file=sqlc.yaml -xfile=db/db.go -xfile=db/models.go -xfile=db/query.sql.go -xfile=_templ.go make dev
 
 .PHONY: schema
 schema:

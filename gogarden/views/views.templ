@@ -9,6 +9,7 @@ import (
 
 	"go.universe.tf/garden/gogarden/db"
 	"go.universe.tf/garden/gogarden/forms"
+	"go.universe.tf/garden/gogarden/types"
 )
 
 var (
@@ -16,9 +17,8 @@ var (
 	staticOnce sync.Once
 )
 
-var (
-	f = fmt.Sprintf
-)
+var s = fmt.Sprint
+var f = fmt.Sprintf
 
 type signed interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64
@@ -38,6 +38,21 @@ func static(filename string) string {
 	})
 
 	return fmt.Sprintf("/static/%s/%s", staticSlug, filename)
+}
+
+func i64True(b *int64) bool {
+	return b != nil && *b > 0
+}
+
+func i64False(b *int64) bool {
+	return b != nil && *b == 0
+}
+
+func def(s, def string) string {
+	if s != "" {
+		return s
+	}
+	return def
 }
 
 templ Root(contents templ.Component) {
@@ -60,11 +75,11 @@ templ Root(contents templ.Component) {
 templ Seeds(seeds []db.Seed) {
 	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex">
 		<div class="flex-grow"></div>
-		<button class="py-1 px-2 rounded-lg border-2" hx-get="/seeds/new" hx-target="#body">Add</button>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get="/seeds/new" hx-push-url="true" hx-target="#body">Add</button>
 	</div>
 	<div id="seeds" class="flex flex-col">
 		for _, seed := range seeds {
-			<div hx-get={ fmt.Sprintf("/seeds/%d", seed.ID) }
+			<div hx-get={ f("/seeds/%d", seed.ID) }
 				 hx-target="#body"
 				 hx-push-url="true"
 				 class="px-2 py-3 font-semibold">
@@ -95,68 +110,103 @@ templ Seed(seed db.Seed) {
 	<div id="seed" class="px-2 py-3">
 		<h1 class="text-lg font-semibold">{ seed.Name }</h1>
 		<p class="text-sm">
-			if seed.Family.Valid {
-				{ seed.Family.String }
+			if seed.Family != nil {
+				{ *seed.Family }
 			}
-			if seed.Year.Valid && seed.Family.Valid {
+			if seed.Year != nil && seed.Family != nil {
 				{ ", " }
 			}
-			if seed.Year.Valid {
-				{ atoi(seed.Year.Int64) }
+			if seed.Year != nil {
+				{ atoi(*seed.Year) }
 			}
 		</p>
 		<div class="pt-1 flex flex-wrap gap-1">
-		if seed.Edible.Int64 > 0 {
-			@goodBadge("edible")
-		}
-		if seed.NeedsTrellis.Int64 > 0 {
-			@infoBadge("trellis")
-		}
-		if seed.NeedsBirdNetting.Int64 > 0 {
-			@infoBadge("bird net")
-		}
-		if seed.IsKeto.Int64 > 0 {
-			@goodBadge("keto")
-		}
-		if seed.IsNative.Int64 > 0 {
-			@goodBadge("native")
-		}
-		if seed.IsInvasive.Int64 > 0 {
-			@badBadge("invasive")
-		}
-		if seed.IsCoverCrop.Int64 > 0 {
-			@infoBadge("cover crop")
-		}
-		if seed.GrowsWellFromSeed.Int64 > 0 {
-			@infoBadge("good from seed")
-		}
-		if seed.IsBadForCats.Int64 > 0 {
-			@badBadge("not cat safe")
-		} else if seed.IsBadForCats.Valid {
-			@goodBadge("cat safe")
-		}
-		if seed.IsDeerResistant.Int64 > 0 {
-			@infoBadge("deer resistant")
-		}
+			if seed.Edible == types.TriboolTrue {
+				@goodBadge("edible")
+			}
+			if seed.NeedsTrellis == types.TriboolTrue {
+				@infoBadge("trellis")
+			}
+			if seed.NeedsBirdNetting == types.TriboolTrue {
+				@infoBadge("bird net")
+			}
+			if seed.IsKeto == types.TriboolTrue {
+				@goodBadge("keto")
+			}
+			if seed.IsNative == types.TriboolTrue {
+				@goodBadge("native")
+			}
+			if seed.IsInvasive == types.TriboolTrue {
+				@badBadge("invasive")
+			}
+			if seed.IsCoverCrop == types.TriboolTrue {
+				@infoBadge("cover crop")
+			}
+			if seed.GrowsWellFromSeed == types.TriboolTrue {
+				@infoBadge("good from seed")
+			}
+			if seed.IsBadForCats == types.TriboolTrue {
+				@badBadge("not cat safe")
+			} else if seed.IsBadForCats == types.TriboolFalse {
+				@goodBadge("cat safe")
+			}
+			if seed.IsDeerResistant == types.TriboolTrue {
+				@infoBadge("deer resistant")
+			}
 		</div>
 	</div>
 }
 
-templ textInput(id, label string, field forms.Field) {
-	<label for={id}>{label}</label>
+templ textInput(field forms.Field, label string) {
+	<label for={field.ID}>{def(label, field.ID)}</label>
 	for _, err := range field.Errors {
 		<p class="text-red-400">{err}</p>
 	}
-	<input name={id} value={field.Value.(string)} />
+	<input class="text-slate-900" name={field.ID} value={s(field.Value)} />
 }
 
-templ NewSeed(form *forms.Form[db.Seed]) {
+templ selectInput(field forms.Field, label string, options []string) {
+	<label for={field.ID}>{def(label, field.ID)}</label>
+	for _, err := range field.Errors {
+		<p class="text-red-400">{err}</p>
+	}
+	<select class="text-slate-900" name={field.ID} value={s(field.Value)}>
+		for _, opt := range options {
+			<option value={opt}>{opt}</option>
+		}
+	</select>
+}
+
+templ triboolInput(field forms.Field, label string) {
+	<label for={field.ID}>{def(label, field.ID)}</label>
+	for _, err := range field.Errors {
+		<p class="text-red-400">{err}</p>
+	}
+	<select class="text-slate-900" name={field.ID} value={s(field.Value)}>
+		<option value="Unknown">Unknown</option>
+		<option value="True">Yes</option>
+		<option value="False">No</option>
+	</select>
+}
+
+templ NewSeed(form *forms.Form[db.CreateSeedParams]) {
 	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
 		<div class="flex-grow"></div>
 		<button class="py-1 px-2 rounded-lg border-2" hx-get="/seeds" hx-target="#body">Cancel</button>
 		<button class="py-1 px-2 rounded-lg border-2">Save</button>
 	</div>
 	<form hx-post="/seeds/new">
-		@textInput("name", "Name", form.Fields["Name"])
+		@textInput(form.Fields["Name"], "")
+		@selectInput(form.Fields["Family"], "", types.PlantFamilyStrings())
+		@triboolInput(form.Fields["Edible"], "Edible?")
+		@triboolInput(form.Fields["NeedsTrellis"], "Needs trellis?")
+		@triboolInput(form.Fields["NeedsBirdNetting"], "Needs bird netting?")
+		@triboolInput(form.Fields["IsKeto"], "Keto?")
+		@triboolInput(form.Fields["IsNative"], "Native?")
+		@triboolInput(form.Fields["IsInvasive"], "Invasive?")
+		@triboolInput(form.Fields["IsCoverCrop"], "Cover crop?")
+		@triboolInput(form.Fields["GrowsWellFromSeed"], "Grows well from seed?")
+		@triboolInput(form.Fields["IsBadForCats"], "Bad for cats?")
+		@triboolInput(form.Fields["IsDeerResistant"], "Deer resistant?")
 	</form>
 }

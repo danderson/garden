@@ -5,14 +5,12 @@
 package db
 
 import (
-	"database/sql"
-
 	"go.universe.tf/garden/gogarden/types"
 )
 
 type Location struct {
 	ID         int64          `json:"id"`
-	Name       sql.NullString `json:"name"`
+	Name       *string        `json:"name"`
 	InsertedAt types.TextTime `json:"inserted_at"`
 	UpdatedAt  types.TextTime `json:"updated_at"`
 	QrID       string         `json:"qr_id"`
@@ -20,54 +18,54 @@ type Location struct {
 }
 
 type LocationsImage struct {
-	ID         int64          `json:"id"`
-	ImageID    sql.NullString `json:"image_id"`
-	LocationID sql.NullInt64  `json:"location_id"`
-	InsertedAt string         `json:"inserted_at"`
-	UpdatedAt  string         `json:"updated_at"`
+	ID         int64   `json:"id"`
+	ImageID    *string `json:"image_id"`
+	LocationID *int64  `json:"location_id"`
+	InsertedAt string  `json:"inserted_at"`
+	UpdatedAt  string  `json:"updated_at"`
 }
 
 type Plant struct {
-	ID           int64          `json:"id"`
-	Name         sql.NullString `json:"name"`
-	SeedID       sql.NullInt64  `json:"seed_id"`
-	InsertedAt   string         `json:"inserted_at"`
-	UpdatedAt    string         `json:"updated_at"`
-	NameFromSeed sql.NullInt64  `json:"name_from_seed"`
+	ID           int64   `json:"id"`
+	Name         *string `json:"name"`
+	SeedID       *int64  `json:"seed_id"`
+	InsertedAt   string  `json:"inserted_at"`
+	UpdatedAt    string  `json:"updated_at"`
+	NameFromSeed *int64  `json:"name_from_seed"`
 }
 
 type PlantLocation struct {
-	ID         int64         `json:"id"`
-	PlantID    sql.NullInt64 `json:"plant_id"`
-	LocationID sql.NullInt64 `json:"location_id"`
-	Start      string        `json:"start"`
-	End        interface{}   `json:"end"`
+	ID         int64       `json:"id"`
+	PlantID    *int64      `json:"plant_id"`
+	LocationID *int64      `json:"location_id"`
+	Start      string      `json:"start"`
+	End        interface{} `json:"end"`
 }
 
 type SchemaMigration struct {
-	Version    int64          `json:"version"`
-	InsertedAt sql.NullString `json:"inserted_at"`
+	Version    int64   `json:"version"`
+	InsertedAt *string `json:"inserted_at"`
 }
 
 type Seed struct {
-	ID                int64          `json:"id"`
-	Name              string         `json:"name"`
-	InsertedAt        string         `json:"inserted_at"`
-	UpdatedAt         string         `json:"updated_at"`
-	FrontImageID      sql.NullString `json:"front_image_id"`
-	BackImageID       sql.NullString `json:"back_image_id"`
-	Year              sql.NullInt64  `json:"year"`
-	Edible            sql.NullInt64  `json:"edible"`
-	NeedsTrellis      sql.NullInt64  `json:"needs_trellis"`
-	NeedsBirdNetting  sql.NullInt64  `json:"needs_bird_netting"`
-	IsKeto            sql.NullInt64  `json:"is_keto"`
-	IsNative          sql.NullInt64  `json:"is_native"`
-	IsInvasive        sql.NullInt64  `json:"is_invasive"`
-	IsCoverCrop       sql.NullInt64  `json:"is_cover_crop"`
-	GrowsWellFromSeed sql.NullInt64  `json:"grows_well_from_seed"`
-	IsBadForCats      sql.NullInt64  `json:"is_bad_for_cats"`
-	IsDeerResistant   sql.NullInt64  `json:"is_deer_resistant"`
-	Type              sql.NullString `json:"type"`
-	Lifespan          sql.NullString `json:"lifespan"`
-	Family            sql.NullString `json:"family"`
+	ID                int64         `json:"id"`
+	Name              string        `json:"name"`
+	InsertedAt        string        `json:"inserted_at"`
+	UpdatedAt         string        `json:"updated_at"`
+	FrontImageID      *string       `json:"front_image_id"`
+	BackImageID       *string       `json:"back_image_id"`
+	Year              *int64        `json:"year"`
+	Edible            types.Tribool `json:"edible"`
+	NeedsTrellis      types.Tribool `json:"needs_trellis"`
+	NeedsBirdNetting  types.Tribool `json:"needs_bird_netting"`
+	IsKeto            types.Tribool `json:"is_keto"`
+	IsNative          types.Tribool `json:"is_native"`
+	IsInvasive        types.Tribool `json:"is_invasive"`
+	IsCoverCrop       types.Tribool `json:"is_cover_crop"`
+	GrowsWellFromSeed types.Tribool `json:"grows_well_from_seed"`
+	IsBadForCats      types.Tribool `json:"is_bad_for_cats"`
+	IsDeerResistant   types.Tribool `json:"is_deer_resistant"`
+	Type              *string       `json:"type"`
+	Lifespan          *string       `json:"lifespan"`
+	Family            *string       `json:"family"`
 }

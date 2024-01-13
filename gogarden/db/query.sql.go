@@ -7,10 +7,52 @@ package db
 
 import (
 	"context"
-	"database/sql"
 
 	"go.universe.tf/garden/gogarden/types"
 )
+
+const createSeed = `-- name: CreateSeed :exec
+insert into seeds (name, family, inserted_at, updated_at, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+`
+
+type CreateSeedParams struct {
+	Name              string        `json:"name"`
+	Family            *string       `json:"family"`
+	InsertedAt        string        `json:"inserted_at"`
+	UpdatedAt         string        `json:"updated_at"`
+	Year              *int64        `json:"year"`
+	Edible            types.Tribool `json:"edible"`
+	NeedsTrellis      types.Tribool `json:"needs_trellis"`
+	NeedsBirdNetting  types.Tribool `json:"needs_bird_netting"`
+	IsKeto            types.Tribool `json:"is_keto"`
+	IsNative          types.Tribool `json:"is_native"`
+	IsInvasive        types.Tribool `json:"is_invasive"`
+	IsCoverCrop       types.Tribool `json:"is_cover_crop"`
+	GrowsWellFromSeed types.Tribool `json:"grows_well_from_seed"`
+	IsBadForCats      types.Tribool `json:"is_bad_for_cats"`
+	IsDeerResistant   types.Tribool `json:"is_deer_resistant"`
+}
+
+func (q *Queries) CreateSeed(ctx context.Context, arg CreateSeedParams) error {
+	_, err := q.db.ExecContext(ctx, createSeed,
+		arg.Name,
+		arg.Family,
+		arg.InsertedAt,
+		arg.UpdatedAt,
+		arg.Year,
+		arg.Edible,
+		arg.NeedsTrellis,
+		arg.NeedsBirdNetting,
+		arg.IsKeto,
+		arg.IsNative,
+		arg.IsInvasive,
+		arg.IsCoverCrop,
+		arg.GrowsWellFromSeed,
+		arg.IsBadForCats,
+		arg.IsDeerResistant,
+	)
+	return err
+}
 
 const getSeed = `-- name: GetSeed :one
 select id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family from seeds where id=?
@@ -131,9 +173,9 @@ update locations set name=?,qr_state=? where id=?
 `
 
 type UpdateLocationParams struct {
-	Name    sql.NullString `json:"name"`
-	QRState types.QRState  `json:"qr_state"`
-	ID      int64          `json:"id"`
+	Name    *string       `json:"name"`
+	QRState types.QRState `json:"qr_state"`
+	ID      int64         `json:"id"`
 }
 
 func (q *Queries) UpdateLocation(ctx context.Context, arg UpdateLocationParams) error {
