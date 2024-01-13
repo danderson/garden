@@ -18,6 +18,9 @@ sql:
             go_type: go.universe.tf/garden/gogarden/types.TextTime
           - column: locations.qr_state
             go_type: go.universe.tf/garden/gogarden/types.QRState
+
+          - column: seeds.family
+            go_type: go.universe.tf/garden/gogarden/types/plantfamily.PlantFamily
           - column: seeds.edible
             go_type: go.universe.tf/garden/gogarden/types/tribool.Tribool
           - column: seeds.needs_trellis

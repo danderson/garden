@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"go.universe.tf/garden/gogarden/types"
+	"go.universe.tf/garden/gogarden/types/plantfamily"
 	"go.universe.tf/garden/gogarden/types/tribool"
 )
 
@@ -17,21 +18,21 @@ insert into seeds (name, family, inserted_at, updated_at, year, edible, needs_tr
 `
 
 type CreateSeedParams struct {
-	Name              string          `json:"name"`
-	Family            *string         `json:"family"`
-	InsertedAt        string          `json:"inserted_at"`
-	UpdatedAt         string          `json:"updated_at"`
-	Year              *int64          `json:"year"`
-	Edible            tribool.Tribool `json:"edible"`
-	NeedsTrellis      tribool.Tribool `json:"needs_trellis"`
-	NeedsBirdNetting  tribool.Tribool `json:"needs_bird_netting"`
-	IsKeto            tribool.Tribool `json:"is_keto"`
-	IsNative          tribool.Tribool `json:"is_native"`
-	IsInvasive        tribool.Tribool `json:"is_invasive"`
-	IsCoverCrop       tribool.Tribool `json:"is_cover_crop"`
-	GrowsWellFromSeed tribool.Tribool `json:"grows_well_from_seed"`
-	IsBadForCats      tribool.Tribool `json:"is_bad_for_cats"`
-	IsDeerResistant   tribool.Tribool `json:"is_deer_resistant"`
+	Name              string                  `json:"name"`
+	Family            plantfamily.PlantFamily `json:"family"`
+	InsertedAt        string                  `json:"inserted_at"`
+	UpdatedAt         string                  `json:"updated_at"`
+	Year              *int64                  `json:"year"`
+	Edible            tribool.Tribool         `json:"edible"`
+	NeedsTrellis      tribool.Tribool         `json:"needs_trellis"`
+	NeedsBirdNetting  tribool.Tribool         `json:"needs_bird_netting"`
+	IsKeto            tribool.Tribool         `json:"is_keto"`
+	IsNative          tribool.Tribool         `json:"is_native"`
+	IsInvasive        tribool.Tribool         `json:"is_invasive"`
+	IsCoverCrop       tribool.Tribool         `json:"is_cover_crop"`
+	GrowsWellFromSeed tribool.Tribool         `json:"grows_well_from_seed"`
+	IsBadForCats      tribool.Tribool         `json:"is_bad_for_cats"`
+	IsDeerResistant   tribool.Tribool         `json:"is_deer_resistant"`
 }
 
 func (q *Queries) CreateSeed(ctx context.Context, arg CreateSeedParams) error {

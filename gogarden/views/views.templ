@@ -9,8 +9,8 @@ import (
 
 	"go.universe.tf/garden/gogarden/db"
 	"go.universe.tf/garden/gogarden/forms"
-	"go.universe.tf/garden/gogarden/types"
 	"go.universe.tf/garden/gogarden/types/tribool"
+	"go.universe.tf/garden/gogarden/types/plantfamily"
 )
 
 var (
@@ -111,10 +111,10 @@ templ Seed(seed db.Seed) {
 	<div id="seed" class="px-2 py-3">
 		<h1 class="text-lg font-semibold">{ seed.Name }</h1>
 		<p class="text-sm">
-			if seed.Family != nil {
-				{ *seed.Family }
+			if seed.Family != plantfamily.Unknown {
+				{ s(seed.Family) }
 			}
-			if seed.Year != nil && seed.Family != nil {
+			if seed.Year != nil && seed.Family != plantfamily.Unknown {
 				{ ", " }
 			}
 			if seed.Year != nil {
@@ -198,7 +198,7 @@ templ NewSeed(form *forms.Form[db.CreateSeedParams]) {
 	</div>
 	<form hx-post="/seeds/new">
 		@textInput(form.Fields["Name"], "")
-		@selectInput(form.Fields["Family"], "", types.PlantFamilyStrings())
+		@selectInput(form.Fields["Family"], "", plantfamily.Strings())
 		@triboolInput(form.Fields["Edible"], "Edible?")
 		@triboolInput(form.Fields["NeedsTrellis"], "Needs trellis?")
 		@triboolInput(form.Fields["NeedsBirdNetting"], "Needs bird netting?")

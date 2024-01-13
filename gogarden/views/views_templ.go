@@ -19,7 +19,7 @@ import (
 
 	"go.universe.tf/garden/gogarden/db"
 	"go.universe.tf/garden/gogarden/forms"
-	"go.universe.tf/garden/gogarden/types"
+	"go.universe.tf/garden/gogarden/types/plantfamily"
 	"go.universe.tf/garden/gogarden/types/tribool"
 )
 
@@ -364,18 +364,18 @@ func Seed(seed db.Seed) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if seed.Family != nil {
+		if seed.Family != plantfamily.Unknown {
 			var templ_7745c5c3_Var18 string
-			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(*seed.Family)
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(s(seed.Family))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views.templ`, Line: 114, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views.templ`, Line: 114, Col: 20}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		if seed.Year != nil && seed.Family != nil {
+		if seed.Year != nil && seed.Family != plantfamily.Unknown {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(", ")
 			if templ_7745c5c3_Err != nil {
@@ -826,7 +826,7 @@ func NewSeed(form *forms.Form[db.CreateSeedParams]) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = selectInput(form.Fields["Family"], "", types.PlantFamilyStrings()).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = selectInput(form.Fields["Family"], "", plantfamily.Strings()).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
