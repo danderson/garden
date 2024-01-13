@@ -1,49 +1,91 @@
 package views
 
-import "sync"
-import "crypto/rand"
-import "encoding/hex"
-import "fmt"
-import "go.universe.tf/garden/gogarden/db"
-
-var (
-    staticSlug string
-    staticOnce sync.Once
+import (
+	"sync"
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
+	"go.universe.tf/garden/gogarden/db"
+	"strconv"
 )
 
-func static(filename string) string {
-    staticOnce.Do(func() {
-        var slug [8]byte
-        if _, err := io.ReadFull(rand.Reader, slug[:]); err != nil {
-            panic("no random bytes available")
-        }
-        staticSlug = hex.EncodeToString(slug[:])
-    })
+var (
+	staticSlug string
+	staticOnce sync.Once
+)
 
-    return fmt.Sprintf("/static/%s/%s", staticSlug, filename)
+var (
+	f = fmt.Sprintf
+)
+
+type signed interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64
 }
 
-templ root() {
-    <html lang="en" class="[scrollbar-gutter:stable]">
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href={ static("app.css") } />
-        <!-- <script defer type="text/javascript" src="/assets/app.js"></script> -->
-      </head>
-      <body>
-        { children... }
-      </body>
-    </html>
+func atoi[T signed](i T) string {
+	return strconv.FormatInt(int64(i), 10)
+}
+
+func static(filename string) string {
+	staticOnce.Do(func() {
+		var slug [8]byte
+		if _, err := io.ReadFull(rand.Reader, slug[:]); err != nil {
+			panic("no random bytes available")
+		}
+		staticSlug = hex.EncodeToString(slug[:])
+	})
+
+	return fmt.Sprintf("/static/%s/%s", staticSlug, filename)
+}
+
+templ Root(contents templ.Component) {
+	<!DOCTYPE html>
+	<html lang="en" class="[scrollbar-gutter:stable]">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<link rel="stylesheet" href={ static("app.css") }/>
+			<script type="text/javascript" src="/.live"></script>
+			<!-- <script defer type="text/javascript" src="/assets/app.js"></script> -->
+		</head>
+		<body class="bg-slate-900 text-slate-100">
+			@contents
+		</body>
+	</html>
 }
 
 templ Seeds(seeds []db.Seed) {
-    @root() {
-        <h1>Hello</h1>
-        <ul>
-        for _, seed := range seeds {
-            <li>{ *seed.Name }</li>
-        }
-        </ul>
-    }
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex">
+		<div class="flex-grow"></div>
+		<button class="py-1 px-2 rounded-lg border-2">Add</button>
+	</div>
+	<div id="seeds" class="flex flex-col">
+		for _, seed := range seeds {
+			<div class="px-2 py-3 font-semibold">
+				{ *seed.Name }
+			</div>
+		}
+	</div>
+}
+
+templ Seed(seed db.Seed) {
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+		<div class="flex-grow"></div>
+		<button class="py-1 px-2 rounded-lg border-2">Edit</button>
+		<button class="py-1 px-2 rounded-lg border-2">Plant</button>
+	</div>
+	<div id="seed" class="px-2 py-3">
+		<h1 class="text-lg font-semibold">{ *seed.Name }</h1>
+		<p class="text-sm">
+			if seed.Family != nil {
+				{ *seed.Family }
+			}
+			if seed.Year != nil && seed.Family != nil {
+				{ ", " }
+			}
+			if seed.Year != nil {
+				{ atoi(*seed.Year) }
+			}
+		</p>
+	</div>
 }

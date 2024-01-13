@@ -8,9 +8,12 @@ import (
 	"os"
 
 	"go.universe.tf/garden/gogarden/db"
+	"go.universe.tf/garden/gogarden/htu"
 	"go.universe.tf/garden/gogarden/migrations"
 	"go.universe.tf/garden/gogarden/views"
 
+	"github.com/a-h/templ"
+	"github.com/danderson/reload"
 	"github.com/go-chi/chi/v5"
 	"golang.org/x/exp/slog"
 
@@ -50,9 +53,11 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Get("/seeds", s.listSeeds)
+	r.Get("/seeds/{id}", s.showSeed)
 	// r.Get("/api/locations", htu.ErrHandler(s.listLocations))
 	// r.Post("/api/locations/{id}", htu.ErrHandler(s.updateLocation))
 	r.Handle("/static/{hash}/*", http.HandlerFunc(s.static))
+	r.Handle("/.live", &reload.Reloader{})
 	log.Print("Server running")
 	http.ListenAndServe(":8000", r)
 }
@@ -69,10 +74,28 @@ func (s *Server) static(w http.ResponseWriter, r *http.Request) {
 	s.assets.ServeHTTP(w, r)
 }
 
+func (s *Server) render(w http.ResponseWriter, r *http.Request, page templ.Component) {
+	views.Root(page).Render(r.Context(), w)
+}
+
 func (s *Server) listSeeds(w http.ResponseWriter, r *http.Request) {
 	seeds, err := s.db.ListSeeds(r.Context())
 	if err != nil {
 		http.Error(w, "database error", http.StatusInternalServerError)
 	}
-	views.Seeds(seeds).Render(r.Context(), w)
+	s.render(w, r, views.Seeds(seeds))
+}
+
+func (s *Server) showSeed(w http.ResponseWriter, r *http.Request) {
+	id, err := htu.Int64Param(r, "id")
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+	seed, err := s.db.GetSeed(r.Context(), id)
+	if err != nil {
+		http.Error(w, "seed not found", http.StatusNotFound)
+		return
+	}
+	s.render(w, r, views.Seed(seed))
 }

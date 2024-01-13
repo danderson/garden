@@ -11,6 +11,38 @@ import (
 	"go.universe.tf/garden/gogarden/types"
 )
 
+const getSeed = `-- name: GetSeed :one
+select id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family from seeds where id=?
+`
+
+func (q *Queries) GetSeed(ctx context.Context, id int64) (Seed, error) {
+	row := q.db.QueryRowContext(ctx, getSeed, id)
+	var i Seed
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.FrontImageID,
+		&i.BackImageID,
+		&i.Year,
+		&i.Edible,
+		&i.NeedsTrellis,
+		&i.NeedsBirdNetting,
+		&i.IsKeto,
+		&i.IsNative,
+		&i.IsInvasive,
+		&i.IsCoverCrop,
+		&i.GrowsWellFromSeed,
+		&i.IsBadForCats,
+		&i.IsDeerResistant,
+		&i.Type,
+		&i.Lifespan,
+		&i.Family,
+	)
+	return i, err
+}
+
 const listLocations = `-- name: ListLocations :many
 select id, name, inserted_at, updated_at, qr_id, qr_state from locations order by name
 `

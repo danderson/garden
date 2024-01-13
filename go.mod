@@ -1,6 +1,6 @@
 module go.universe.tf/garden
 
-go 1.21
+go 1.21.5
 
 require (
 	github.com/a-h/templ v0.2.513
@@ -31,6 +31,7 @@ require (
 	github.com/aws/smithy-go v1.17.0 // indirect
 	github.com/coreos/go-iptables v0.7.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
+	github.com/danderson/reload v0.0.0-20240107015751-faa1c9a33bbb // indirect
 	github.com/dblohm7/wingoes v0.0.0-20231025182615-65d8b4b5428f // indirect
 	github.com/digitalocean/go-smbios v0.0.0-20180907143718-390a4f403a8e // indirect
 	github.com/fxamacker/cbor/v2 v2.5.0 // indirect
@@ -43,6 +44,7 @@ require (
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/gorilla/csrf v1.7.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
+	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
 	github.com/illarion/gonotify v1.0.1 // indirect
 	github.com/insomniacslk/dhcp v0.0.0-20231016090811-6a2c8fbdcc1c // indirect
