@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"go.universe.tf/garden/gogarden/db"
+	"go.universe.tf/garden/gogarden/forms"
 	"go.universe.tf/garden/gogarden/htu"
 	"go.universe.tf/garden/gogarden/migrations"
 	"go.universe.tf/garden/gogarden/views"
@@ -54,6 +55,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Get("/seeds", s.listSeeds)
 	r.Get("/seeds/{id}", s.showSeed)
+	r.Get("/seeds/new", s.newSeed)
 	// r.Get("/api/locations", htu.ErrHandler(s.listLocations))
 	// r.Post("/api/locations/{id}", htu.ErrHandler(s.updateLocation))
 	r.Handle("/static/{hash}/*", http.HandlerFunc(s.static))
@@ -87,7 +89,6 @@ func (s *Server) listSeeds(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) showSeed(w http.ResponseWriter, r *http.Request) {
-	log.Printf("show seed")
 	id, err := htu.Int64Param(r, "id")
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)
@@ -99,4 +100,9 @@ func (s *Server) showSeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.render(w, r, views.Seed(seed))
+}
+
+func (s *Server) newSeed(w http.ResponseWriter, r *http.Request) {
+	form := forms.FromStruct(db.Seed{})
+	s.render(w, r, views.NewSeed(form))
 }

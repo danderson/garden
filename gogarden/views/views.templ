@@ -5,8 +5,10 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"go.universe.tf/garden/gogarden/db"
 	"strconv"
+
+	"go.universe.tf/garden/gogarden/db"
+	"go.universe.tf/garden/gogarden/forms"
 )
 
 var (
@@ -58,7 +60,7 @@ templ Root(contents templ.Component) {
 templ Seeds(seeds []db.Seed) {
 	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex">
 		<div class="flex-grow"></div>
-		<button class="py-1 px-2 rounded-lg border-2">Add</button>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get="/seeds/new" hx-target="#body">Add</button>
 	</div>
 	<div id="seeds" class="flex flex-col">
 		for _, seed := range seeds {
@@ -138,4 +140,25 @@ templ Seed(seed db.Seed) {
 		}
 		</div>
 	</div>
+}
+
+templ Input(name string, label string, field forms.Field) {
+	<label for={name}>{label}</label>
+	for _, err := range field.Errors {
+		<p class="text-red-400">{err}</p>
+	}
+	{ children... }
+}
+
+templ NewSeed(form *forms.Form[db.Seed]) {
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+		<div class="flex-grow"></div>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get="/seeds" hx-target="#body">Cancel</button>
+		<button class="py-1 px-2 rounded-lg border-2">Save</button>
+	</div>
+	<form hx-post="/seeds/new">
+		@Input("name", "Name", form.Fields["Name"]) {
+			<input name="name" value={form.Fields["Name"].Value.(string)}></input>
+		}
+	</form>
 }
