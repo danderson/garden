@@ -142,12 +142,12 @@ templ Seed(seed db.Seed) {
 	</div>
 }
 
-templ Input(name string, label string, field forms.Field) {
-	<label for={name}>{label}</label>
+templ textInput(id, label string, field forms.Field) {
+	<label for={id}>{label}</label>
 	for _, err := range field.Errors {
 		<p class="text-red-400">{err}</p>
 	}
-	{ children... }
+	<input name={id} value={field.Value.(string)} />
 }
 
 templ NewSeed(form *forms.Form[db.Seed]) {
@@ -157,8 +157,6 @@ templ NewSeed(form *forms.Form[db.Seed]) {
 		<button class="py-1 px-2 rounded-lg border-2">Save</button>
 	</div>
 	<form hx-post="/seeds/new">
-		@Input("name", "Name", form.Fields["Name"]) {
-			<input name="name" value={form.Fields["Name"].Value.(string)}></input>
-		}
+		@textInput("name", "Name", form.Fields["Name"])
 	</form>
 }
