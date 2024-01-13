@@ -7,7 +7,7 @@ sql:
       go:
         package: db
         out: db
-        emit_pointers_for_null_types: true
+        #emit_pointers_for_null_types: true
         emit_json_tags: true
         rename:
           qr_state: QRState
@@ -18,6 +18,3 @@ sql:
             go_type: go.universe.tf/garden/gogarden/types.TextTime
           - column: locations.qr_state
             go_type: go.universe.tf/garden/gogarden/types.QRState
-          - db_type: "integer null"
-            go_type: "int64"
-            nullable: true

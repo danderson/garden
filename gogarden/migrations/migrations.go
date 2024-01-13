@@ -34,7 +34,13 @@ func dropExplicitNulls(tx *sqlx.Tx) error {
 	if err := tx.Get(&schema, "select sql from sqlite_schema where type='table' and name='seeds'"); err != nil {
 		return err
 	}
-	schema = strings.ReplaceAll(schema, "INTEGER NULL", "INTEGER")
+	replacements := map[string]string{
+		"INTEGER NULL": "INTEGER",
+		`"name" TEXT`:  `"name" TEXT NOT NULL`,
+	}
+	for from, to := range replacements {
+		schema = strings.ReplaceAll(schema, from, to)
+	}
 	if _, err := tx.Exec("update sqlite_schema set sql=? where type='table' and name='seeds'", schema); err != nil {
 		return err
 	}

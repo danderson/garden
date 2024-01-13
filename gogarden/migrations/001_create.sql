@@ -5,7 +5,7 @@ create table schema_migrations (
 
 create table seeds (
   id integer primary key autoincrement,
-  name text,
+  name text not null,
   inserted_at text not null,
   updated_at text not null,
   front_image_id text,

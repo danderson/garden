@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 
 	"go.universe.tf/garden/gogarden/types"
 )
@@ -130,9 +131,9 @@ update locations set name=?,qr_state=? where id=?
 `
 
 type UpdateLocationParams struct {
-	Name    *string       `json:"name"`
-	QRState types.QRState `json:"qr_state"`
-	ID      int64         `json:"id"`
+	Name    sql.NullString `json:"name"`
+	QRState types.QRState  `json:"qr_state"`
+	ID      int64          `json:"id"`
 }
 
 func (q *Queries) UpdateLocation(ctx context.Context, arg UpdateLocationParams) error {

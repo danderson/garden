@@ -66,10 +66,22 @@ templ Seeds(seeds []db.Seed) {
 				 hx-target="#body"
 				 hx-push-url="true"
 				 class="px-2 py-3 font-semibold">
-				{ *seed.Name }
+				{ seed.Name }
 			</div>
 		}
 	</div>
+}
+
+templ goodBadge(label string) {
+	<span class="rounded-xl border-1 bg-green-200 text-green-900 px-2">{ label }</span>
+}
+
+templ infoBadge(label string) {
+	<span class="rounded-xl border-1 bg-blue-200 text-blue-900 px-2">{ label }</span>
+}
+
+templ badBadge(label string) {
+	<span class="rounded-xl border-1 bg-red-200 text-red-900 px-2">{ label }</span>
 }
 
 templ Seed(seed db.Seed) {
@@ -79,17 +91,51 @@ templ Seed(seed db.Seed) {
 		<button class="py-1 px-2 rounded-lg border-2">Plant</button>
 	</div>
 	<div id="seed" class="px-2 py-3">
-		<h1 class="text-lg font-semibold">{ *seed.Name }</h1>
+		<h1 class="text-lg font-semibold">{ seed.Name }</h1>
 		<p class="text-sm">
-			if seed.Family != nil {
-				{ *seed.Family }
+			if seed.Family.Valid {
+				{ seed.Family.String }
 			}
-			if seed.Year != nil && seed.Family != nil {
+			if seed.Year.Valid && seed.Family.Valid {
 				{ ", " }
 			}
-			if seed.Year != nil {
-				{ atoi(*seed.Year) }
+			if seed.Year.Valid {
+				{ atoi(seed.Year.Int64) }
 			}
 		</p>
+		<div class="pt-1 flex flex-wrap gap-1">
+		if seed.Edible.Int64 > 0 {
+			@goodBadge("edible")
+		}
+		if seed.NeedsTrellis.Int64 > 0 {
+			@infoBadge("trellis")
+		}
+		if seed.NeedsBirdNetting.Int64 > 0 {
+			@infoBadge("bird net")
+		}
+		if seed.IsKeto.Int64 > 0 {
+			@goodBadge("keto")
+		}
+		if seed.IsNative.Int64 > 0 {
+			@goodBadge("native")
+		}
+		if seed.IsInvasive.Int64 > 0 {
+			@badBadge("invasive")
+		}
+		if seed.IsCoverCrop.Int64 > 0 {
+			@infoBadge("cover crop")
+		}
+		if seed.GrowsWellFromSeed.Int64 > 0 {
+			@infoBadge("good from seed")
+		}
+		if seed.IsBadForCats.Int64 > 0 {
+			@badBadge("not cat safe")
+		} else if seed.IsBadForCats.Valid {
+			@goodBadge("cat safe")
+		}
+		if seed.IsDeerResistant.Int64 > 0 {
+			@infoBadge("deer resistant")
+		}
+		</div>
 	</div>
 }
