@@ -211,22 +211,20 @@ func (q *Queries) GetPlant(ctx context.Context, id int64) (Plant, error) {
 }
 
 const getPlantForUpdate = `-- name: GetPlantForUpdate :one
-select pl.location_id,p.seed_id,p.name
-  from plants as p inner join plant_locations as pl on pl.plant_id=p.id
- order by pl.start desc
- limit 1
+select p.seed_id, p.name
+  from plants as p
+ where p.id=?
 `
 
 type GetPlantForUpdateRow struct {
-	LocationID int64  `json:"location_id"`
-	SeedID     *int64 `json:"seed_id"`
-	Name       string `json:"name"`
+	SeedID *int64 `json:"seed_id"`
+	Name   string `json:"name"`
 }
 
-func (q *Queries) GetPlantForUpdate(ctx context.Context) (GetPlantForUpdateRow, error) {
-	row := q.db.QueryRowContext(ctx, getPlantForUpdate)
+func (q *Queries) GetPlantForUpdate(ctx context.Context, id int64) (GetPlantForUpdateRow, error) {
+	row := q.db.QueryRowContext(ctx, getPlantForUpdate, id)
 	var i GetPlantForUpdateRow
-	err := row.Scan(&i.LocationID, &i.SeedID, &i.Name)
+	err := row.Scan(&i.SeedID, &i.Name)
 	return i, err
 }
 
@@ -299,6 +297,17 @@ func (q *Queries) GetSeed(ctx context.Context, id int64) (Seed, error) {
 		&i.Family,
 	)
 	return i, err
+}
+
+const getSeedName = `-- name: GetSeedName :one
+select name from seeds where id=?
+`
+
+func (q *Queries) GetSeedName(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, getSeedName, id)
+	var name string
+	err := row.Scan(&name)
+	return name, err
 }
 
 const listLocations = `-- name: ListLocations :many

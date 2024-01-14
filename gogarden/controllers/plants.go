@@ -20,36 +20,35 @@ type plants struct {
 
 func Plants(r *chi.Mux, db *db.DB) {
 	s := plants{db}
-	r.Get("/plants", s.listPlants)
-	r.Get("/plants/new", s.newPlant)
-	r.Post("/plants/new", s.newPlant)
-	r.Get("/plants/{id}", s.showPlant)
-	r.Get("/plants/{id}/edit", s.editPlant)
-	r.Post("/plants/{id}/edit", s.editPlant)
+	r.Get("/plants", chiFn(s.listPlants))
+	r.Get("/plants/new", chiFn(s.newPlant))
+	r.Post("/plants/new", chiFn(s.newPlant))
+	r.Get("/plants/{id}", chiFn(s.showPlant))
+	r.Get("/plants/{id}/edit", chiFn(s.editPlant))
+	r.Post("/plants/{id}/edit", chiFn(s.editPlant))
 }
 
-func (s *plants) listPlants(w http.ResponseWriter, r *http.Request) {
+func (s *plants) listPlants(w http.ResponseWriter, r *http.Request) error {
 	plants, err := s.db.ListPlants(r.Context())
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return internalErrorf("listing plants: %w", err)
 	}
 	render(w, r, views.Plants(plants))
+	return nil
 }
 
-func (s *plants) showPlant(w http.ResponseWriter, r *http.Request) {
+func (s *plants) showPlant(w http.ResponseWriter, r *http.Request) error {
 	id, err := htu.Int64Param(r, "id")
 	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
-		return
+		return badRequest(err)
 	}
 	plant, err := s.db.GetPlant(r.Context(), id)
 	if err != nil {
-		http.Error(w, "plant not found", http.StatusNotFound)
-		return
+		return dbGetErrorf("getting plant: %w", err)
 	}
 
 	render(w, r, views.Plant(plant))
+	return nil
 }
 
 func (s *plants) selectors(ctx context.Context) (seeds []forms.SelectOption, locations []forms.SelectOption, err error) {
@@ -90,21 +89,25 @@ func (s *plants) formSelectors(ctx context.Context, form *forms.Form) error {
 	return nil
 }
 
-func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		form := forms.New[db.GetPlantForUpdateRow]()
-		if err := s.formSelectors(r.Context(), form); err != nil {
-			http.Error(w, "error", http.StatusInternalServerError)
-			return
-		}
-		render(w, r, views.NewPlant(form))
-		return
+func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
+	type createParams struct {
+		Name       string
+		LocationID int64
+		SeedID     *int64
 	}
 
-	np, form, err := forms.FromRequest(&db.GetPlantForUpdateRow{}, r)
+	if r.Method == "GET" {
+		form := forms.New[createParams]()
+		if err := s.formSelectors(r.Context(), form); err != nil {
+			return internalErrorf("adding form selectors: %w", err)
+		}
+		render(w, r, views.NewPlant(form))
+		return nil
+	}
+
+	np, form, err := forms.FromRequest(&createParams{}, r)
 	if err != nil {
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
+		return internalErrorf("parsing form: %w", err)
 	}
 	if np.LocationID == 0 {
 		form.AddError("LocationID", "required")
@@ -114,17 +117,15 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) {
 	}
 	if form.HasErrors() {
 		if err := s.formSelectors(r.Context(), form); err != nil {
-			http.Error(w, "database error", http.StatusInternalServerError)
-			return
+			return internalErrorf("adding form selectors: %w", err)
 		}
 		render(w, r, views.NewPlant(form))
-		return
+		return nil
 	}
 
 	tx, err := s.db.Tx(r.Context())
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return internalErrorf("starting transaction: %w", err)
 	}
 	defer tx.Rollback()
 
@@ -132,8 +133,7 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) {
 	if np.Name == "" {
 		seed, err := tx.GetSeed(r.Context(), *np.SeedID)
 		if err != nil {
-			http.Error(w, "database error", http.StatusInternalServerError)
-			return
+			return dbGetErrorf("getting seed: %w", err)
 		}
 		np.Name = seed.Name
 		nameFromSeed = 1
@@ -145,8 +145,7 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) {
 		NameFromSeed: nameFromSeed,
 	})
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return internalErrorf("creating plant: %w", err)
 	}
 	_, err = s.db.CreatePlantLocation(r.Context(), db.CreatePlantLocationParams{
 		PlantID:    p.ID,
@@ -154,69 +153,80 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) {
 		Start:      types.TextTime{Time: time.Now()},
 	})
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return internalErrorf("creating plant location: %w", err)
 	}
 
 	if err := tx.Commit(); err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return internalErrorf("commit: %w", err)
 	}
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/plants/%d", p.ID))
 	render(w, r, views.Plant(p))
+	return nil
 }
 
-func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) {
-	// id, err := htu.Int64Param(r, "id")
-	// if err != nil {
-	// 	http.Error(w, "invalid id", http.StatusBadRequest)
-	// 	return
-	// }
+func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
+	id, err := htu.Int64Param(r, "id")
+	if err != nil {
+		return badRequest(err)
+	}
 
-	// if r.Method == "GET" {
-	// 	plant, err := s.db.GetPlant(r.Context(), id)
-	// 	if err != nil {
-	// 		http.Error(w, "seed not found", http.StatusNotFound)
-	// 		return
-	// 	}
-	// 	form := forms.FromStruct(&plant)
-	// 	if err := s.formSelectors(r.Context(), form); err != nil {
-	// 		http.Error(w, "database error", http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	render(w, r, views.EditPlant(plant.ID, form))
-	// 	return
-	// }
+	if r.Method == "GET" {
+		plant, err := s.db.GetPlantForUpdate(r.Context(), id)
+		if err != nil {
+			return dbGetErrorf("getting plant: %w", err)
+		}
+		form := forms.FromStruct(&plant)
+		if err := s.formSelectors(r.Context(), form); err != nil {
+			return internalErrorf("adding form selectors: %w", err)
+		}
+		render(w, r, views.EditPlant(id, form))
+		return nil
+	}
 
-	// ulp, form, err := forms.FromRequest(&db.UpdatePlantParams{ID: id}, r)
-	// if err != nil {
-	// 	http.Error(w, "invalid input", http.StatusBadRequest)
-	// 	return
-	// }
-	// if ulp.Name == "" {
-	// 	form.AddError("Name", "required")
-	// }
-	// if form.HasErrors() {
-	// 	if err := s.formSelectors(r.Context(), form); err != nil {
-	// 		http.Error(w, "database error", http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	render(w, r, views.EditPlant(id, form))
-	// 	return
-	// }
+	params, form, err := forms.FromRequest(&db.GetPlantForUpdateRow{}, r)
+	if err != nil {
+		return internalErrorf("parsing form: %w", err)
+	}
+	if params.SeedID == nil && params.Name == "" {
+		form.AddFormError("One of seed or name is required")
+	}
+	if form.HasErrors() {
+		if err := s.formSelectors(r.Context(), form); err != nil {
+			return internalErrorf("adding form selectors: %w", err)
+		}
+		render(w, r, views.EditPlant(id, form))
+		return nil
+	}
 
-	// plant, err := s.db.UpdatePlant(r.Context(), *ulp)
-	// if err != nil {
-	// 	form.AddFormError("Internal error, please try again")
-	// 	if err := s.formSelectors(r.Context(), form); err != nil {
-	// 		http.Error(w, "database error", http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	render(w, r, views.NewPlant(form))
-	// 	return
-	// }
+	up := db.UpdatePlantParams{
+		ID:     id,
+		Name:   params.Name,
+		SeedID: params.SeedID,
+	}
 
-	// w.Header().Set("HX-Replace-Url", fmt.Sprintf("/plants/%d", plant.ID))
-	// render(w, r, views.Plant(plant))
+	tx, err := s.db.Tx(r.Context())
+	if err != nil {
+		return internalErrorf("starting transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	if up.Name == "" {
+		up.Name, err = tx.GetSeedName(r.Context(), *up.SeedID)
+		if err != nil {
+			return internalErrorf("getting seed name: %w", err)
+		}
+		up.NameFromSeed = 1
+	} else {
+		up.NameFromSeed = 0
+	}
+
+	plant, err := s.db.UpdatePlant(r.Context(), up)
+	if err != nil {
+		return internalErrorf("updating plant: %w", err)
+	}
+
+	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/plants/%d", plant.ID))
+	render(w, r, views.Plant(plant))
+	return nil
 }

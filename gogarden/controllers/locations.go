@@ -18,21 +18,21 @@ type locations struct {
 
 func Locations(r *chi.Mux, db *db.DB) {
 	s := locations{db}
-	r.Get("/locations", s.listLocations)
-	r.Get("/locations/new", s.newLocation)
-	r.Post("/locations/new", s.newLocation)
-	r.Get("/locations/{id}", s.showLocation)
-	r.Get("/locations/{id}/edit", s.editLocation)
-	r.Post("/locations/{id}/edit", s.editLocation)
+	r.Get("/locations", chiFn(s.listLocations))
+	r.Get("/locations/new", chiFn(s.newLocation))
+	r.Post("/locations/new", chiFn(s.newLocation))
+	r.Get("/locations/{id}", chiFn(s.showLocation))
+	r.Get("/locations/{id}/edit", chiFn(s.editLocation))
+	r.Post("/locations/{id}/edit", chiFn(s.editLocation))
 }
 
-func (s *locations) listLocations(w http.ResponseWriter, r *http.Request) {
+func (s *locations) listLocations(w http.ResponseWriter, r *http.Request) error {
 	locations, err := s.db.ListLocations(r.Context())
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return internalErrorf("listing locations: %w", err)
 	}
 	render(w, r, views.Locations(locations))
+	return nil
 }
 
 func (s *locations) plantsInLocation(ctx context.Context, id int64) (current, old []db.GetPlantsInLocationRow, err error) {
@@ -51,105 +51,95 @@ func (s *locations) plantsInLocation(ctx context.Context, id int64) (current, ol
 	return current, old, nil
 }
 
-func (s *locations) showLocation(w http.ResponseWriter, r *http.Request) {
+func (s *locations) showLocation(w http.ResponseWriter, r *http.Request) error {
 	id, err := htu.Int64Param(r, "id")
 	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
-		return
+		return badRequest(err)
 	}
 	location, err := s.db.GetLocation(r.Context(), id)
 	if err != nil {
-		http.Error(w, "location not found", http.StatusNotFound)
-		return
+		return dbGetErrorf("getting location: %w", err)
 	}
 	current, old, err := s.plantsInLocation(r.Context(), id)
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return dbGetErrorf("getting plants in location: %w", err)
 	}
 
 	render(w, r, views.Location(location, current, old))
+	return nil
 }
 
-func (s *locations) newLocation(w http.ResponseWriter, r *http.Request) {
+func (s *locations) newLocation(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
 		form := forms.New[db.CreateLocationParams]()
 		render(w, r, views.NewLocation(form))
-		return
+		return nil
 	}
 
 	csp, form, err := forms.FromRequest(&db.CreateLocationParams{}, r)
 	if err != nil {
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
+		return internalErrorf("parsing form: %w", err)
 	}
 	if csp.Name == "" {
 		form.AddError("Name", "required")
 	}
 	if form.HasErrors() {
 		render(w, r, views.NewLocation(form))
-		return
+		return nil
 	}
 
 	location, err := s.db.CreateLocation(r.Context(), *csp)
 	if err != nil {
-		form.AddFormError("Internal error, please try again")
-		render(w, r, views.NewLocation(form))
-		return
+		return internalErrorf("creating location: %w", err)
 	}
 	current, old, err := s.plantsInLocation(r.Context(), location.ID)
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return internalErrorf("getting plants in location: %w", err)
 	}
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/locations/%d", location.ID))
 	render(w, r, views.Location(location, current, old))
+	return nil
 }
 
-func (s *locations) editLocation(w http.ResponseWriter, r *http.Request) {
+func (s *locations) editLocation(w http.ResponseWriter, r *http.Request) error {
 	id, err := htu.Int64Param(r, "id")
 	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
-		return
+		return badRequest(err)
 	}
 
 	if r.Method == "GET" {
 		location, err := s.db.GetLocation(r.Context(), id)
 		if err != nil {
-			http.Error(w, "seed not found", http.StatusNotFound)
-			return
+			return dbGetErrorf("getting location: %w", err)
 		}
 		form := forms.FromStruct(&location)
 		render(w, r, views.EditLocation(location.ID, form))
-		return
+		return nil
 	}
 
 	ulp, form, err := forms.FromRequest(&db.UpdateLocationParams{ID: id}, r)
 	if err != nil {
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
+		return internalErrorf("parsing form: %w", err)
 	}
 	if ulp.Name == "" {
 		form.AddError("Name", "required")
 	}
 	if form.HasErrors() {
 		render(w, r, views.EditLocation(id, form))
-		return
+		return nil
 	}
 
 	location, err := s.db.UpdateLocation(r.Context(), *ulp)
 	if err != nil {
-		form.AddFormError("Internal error, please try again")
-		render(w, r, views.NewLocation(form))
-		return
+		return internalErrorf("updating location: %w", err)
 	}
 	current, old, err := s.plantsInLocation(r.Context(), location.ID)
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return internalErrorf("getting plants in location: %w", err)
 	}
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/locations/%d", location.ID))
 	render(w, r, views.Location(location, current, old))
+	return nil
 }

@@ -82,10 +82,12 @@ insert into plant_locations (
   start) values (?,?,?) returning *;
 
 -- name: GetPlantForUpdate :one
-select pl.location_id,p.seed_id,p.name
-  from plants as p inner join plant_locations as pl on pl.plant_id=p.id
- order by pl.start desc
- limit 1;
+select p.seed_id, p.name
+  from plants as p
+ where p.id=?;
 
 -- name: UpdatePlant :one
 update plants set name=?,seed_id=?,name_from_seed=?,updated_at=CURRENT_TIMESTAMP where id=? returning *;
+
+-- name: GetSeedName :one
+select name from seeds where id=?;

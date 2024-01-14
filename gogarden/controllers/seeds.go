@@ -17,103 +17,98 @@ type seeds struct {
 
 func Seeds(r *chi.Mux, db *db.DB) {
 	s := &seeds{db}
-	r.Get("/seeds", s.listSeeds)
-	r.Get("/seeds/{id}", s.showSeed)
-	r.Get("/seeds/new", s.newSeed)
-	r.Post("/seeds/new", s.newSeed)
-	r.Get("/seeds/{id}/edit", s.editSeed)
-	r.Post("/seeds/{id}/edit", s.editSeed)
+	r.Get("/seeds", chiFn(s.listSeeds))
+	r.Get("/seeds/{id}", chiFn(s.showSeed))
+	r.Get("/seeds/new", chiFn(s.newSeed))
+	r.Post("/seeds/new", chiFn(s.newSeed))
+	r.Get("/seeds/{id}/edit", chiFn(s.editSeed))
+	r.Post("/seeds/{id}/edit", chiFn(s.editSeed))
 }
 
-func (s *seeds) listSeeds(w http.ResponseWriter, r *http.Request) {
+func (s *seeds) listSeeds(w http.ResponseWriter, r *http.Request) error {
 	seeds, err := s.db.ListSeeds(r.Context())
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return internalErrorf("listing seeds: %w", err)
 	}
 	render(w, r, views.Seeds(seeds))
+	return nil
 }
 
-func (s *seeds) showSeed(w http.ResponseWriter, r *http.Request) {
+func (s *seeds) showSeed(w http.ResponseWriter, r *http.Request) error {
 	id, err := htu.Int64Param(r, "id")
 	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
-		return
+		return badRequest(err)
 	}
 	seed, err := s.db.GetSeed(r.Context(), id)
 	if err != nil {
-		http.Error(w, "seed not found", http.StatusNotFound)
-		return
+		return dbGetErrorf("getting seed: %w", err)
 	}
 	render(w, r, views.Seed(seed))
+	return nil
 }
 
-func (s *seeds) newSeed(w http.ResponseWriter, r *http.Request) {
+func (s *seeds) newSeed(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
 		form := forms.New[db.CreateSeedParams]()
 		render(w, r, views.NewSeed(form))
-		return
+		return nil
 	}
 
 	csp, form, err := forms.FromRequest(&db.CreateSeedParams{}, r)
 	if err != nil {
-		http.Error(w, "invalid input", http.StatusBadRequest)
+		return internalErrorf("parsing form: %w", err)
 	}
 	if csp.Name == "" {
 		form.AddError("Name", "required")
 	}
 	if form.HasErrors() {
 		render(w, r, views.NewSeed(form))
-		return
+		return nil
 	}
 
 	seed, err := s.db.CreateSeed(r.Context(), *csp)
 	if err != nil {
-		form.AddFormError("Internal error, please try again")
-		render(w, r, views.NewSeed(form))
-		return
+		return internalErrorf("creating seed: %w", err)
 	}
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/seeds/%d", seed.ID))
 	render(w, r, views.Seed(seed))
+	return nil
 }
 
-func (s *seeds) editSeed(w http.ResponseWriter, r *http.Request) {
+func (s *seeds) editSeed(w http.ResponseWriter, r *http.Request) error {
 	id, err := htu.Int64Param(r, "id")
 	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
-		return
+		return badRequest(err)
 	}
 	if r.Method == "GET" {
 		seed, err := s.db.GetSeed(r.Context(), id)
 		if err != nil {
-			http.Error(w, "seed not found", http.StatusNotFound)
-			return
+			return dbGetErrorf("getting seed: %w", err)
 		}
 		form := forms.FromStruct(&seed)
 		render(w, r, views.EditSeed(seed.ID, form))
-		return
+		return nil
 	}
 
 	csp, form, err := forms.FromRequest(&db.UpdateSeedParams{ID: id}, r)
 	if err != nil {
-		http.Error(w, "invalid input", http.StatusBadRequest)
+		return internalErrorf("parsing form: %w", err)
 	}
 	if csp.Name == "" {
 		form.AddError("Name", "required")
 	}
 	if form.HasErrors() {
 		render(w, r, views.EditSeed(id, form))
-		return
+		return nil
 	}
 
 	seed, err := s.db.UpdateSeed(r.Context(), *csp)
 	if err != nil {
-		form.AddFormError("Internal error, please try again")
-		render(w, r, views.EditSeed(id, form))
-		return
+		return internalErrorf("updating seed: %w", err)
 	}
 
 	w.Header().Set("Hx-Replace-Url", fmt.Sprintf("/seeds/%d", seed.ID))
 	render(w, r, views.Seed(seed))
+	return nil
 }
