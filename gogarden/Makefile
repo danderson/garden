@@ -11,7 +11,7 @@ reset:
 	sqlite3 garden_dev.db "pragma user_version=1"
 	rm -rf images
 	tar xf images_prod.tgz
-	make dev
+	make live
 
 .PHONY: dev
 dev:

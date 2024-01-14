@@ -13,15 +13,28 @@ import (
 	"go.universe.tf/garden/gogarden/types/tribool"
 )
 
-const createSeed = `-- name: CreateSeed :exec
-insert into seeds (name, family, inserted_at, updated_at, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+const createSeed = `-- name: CreateSeed :one
+insert into seeds (
+  name,
+  family,
+  inserted_at,
+  updated_at,
+  year,
+  edible,
+  needs_trellis,
+  needs_bird_netting,
+  is_keto,
+  is_native,
+  is_invasive,
+  is_cover_crop,
+  grows_well_from_seed,
+  is_bad_for_cats,
+  is_deer_resistant) values (?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?,?) returning id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family
 `
 
 type CreateSeedParams struct {
 	Name              string                  `json:"name"`
 	Family            plantfamily.PlantFamily `json:"family"`
-	InsertedAt        string                  `json:"inserted_at"`
-	UpdatedAt         string                  `json:"updated_at"`
 	Year              *int64                  `json:"year"`
 	Edible            tribool.Tribool         `json:"edible"`
 	NeedsTrellis      tribool.Tribool         `json:"needs_trellis"`
@@ -35,12 +48,10 @@ type CreateSeedParams struct {
 	IsDeerResistant   tribool.Tribool         `json:"is_deer_resistant"`
 }
 
-func (q *Queries) CreateSeed(ctx context.Context, arg CreateSeedParams) error {
-	_, err := q.db.ExecContext(ctx, createSeed,
+func (q *Queries) CreateSeed(ctx context.Context, arg CreateSeedParams) (Seed, error) {
+	row := q.db.QueryRowContext(ctx, createSeed,
 		arg.Name,
 		arg.Family,
-		arg.InsertedAt,
-		arg.UpdatedAt,
 		arg.Year,
 		arg.Edible,
 		arg.NeedsTrellis,
@@ -53,7 +64,30 @@ func (q *Queries) CreateSeed(ctx context.Context, arg CreateSeedParams) error {
 		arg.IsBadForCats,
 		arg.IsDeerResistant,
 	)
-	return err
+	var i Seed
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.FrontImageID,
+		&i.BackImageID,
+		&i.Year,
+		&i.Edible,
+		&i.NeedsTrellis,
+		&i.NeedsBirdNetting,
+		&i.IsKeto,
+		&i.IsNative,
+		&i.IsInvasive,
+		&i.IsCoverCrop,
+		&i.GrowsWellFromSeed,
+		&i.IsBadForCats,
+		&i.IsDeerResistant,
+		&i.Type,
+		&i.Lifespan,
+		&i.Family,
+	)
+	return i, err
 }
 
 const getSeed = `-- name: GetSeed :one
@@ -89,7 +123,7 @@ func (q *Queries) GetSeed(ctx context.Context, id int64) (Seed, error) {
 }
 
 const listLocations = `-- name: ListLocations :many
-select id, name, inserted_at, updated_at, qr_id, qr_state from locations order by name
+select id, name, inserted_at, updated_at, qr_id, qr_state from locations order by name collate nocase
 `
 
 func (q *Queries) ListLocations(ctx context.Context) ([]Location, error) {
@@ -123,7 +157,7 @@ func (q *Queries) ListLocations(ctx context.Context) ([]Location, error) {
 }
 
 const listSeeds = `-- name: ListSeeds :many
-select id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family from seeds order by name
+select id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family from seeds order by name collate nocase
 `
 
 func (q *Queries) ListSeeds(ctx context.Context) ([]Seed, error) {
@@ -175,7 +209,7 @@ update locations set name=?,qr_state=? where id=?
 `
 
 type UpdateLocationParams struct {
-	Name    *string       `json:"name"`
+	Name    string        `json:"name"`
 	QRState types.QRState `json:"qr_state"`
 	ID      int64         `json:"id"`
 }
@@ -183,4 +217,68 @@ type UpdateLocationParams struct {
 func (q *Queries) UpdateLocation(ctx context.Context, arg UpdateLocationParams) error {
 	_, err := q.db.ExecContext(ctx, updateLocation, arg.Name, arg.QRState, arg.ID)
 	return err
+}
+
+const updateSeed = `-- name: UpdateSeed :one
+update seeds set name=?,family=?,updated_at=CURRENT_TIMESTAMP,year=?,edible=?,needs_trellis=?,needs_bird_netting=?,is_keto=?,is_native=?,is_invasive=?,is_cover_crop=?,grows_well_from_seed=?,is_bad_for_cats=?,is_deer_resistant=? where id=? returning id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family
+`
+
+type UpdateSeedParams struct {
+	Name              string                  `json:"name"`
+	Family            plantfamily.PlantFamily `json:"family"`
+	Year              *int64                  `json:"year"`
+	Edible            tribool.Tribool         `json:"edible"`
+	NeedsTrellis      tribool.Tribool         `json:"needs_trellis"`
+	NeedsBirdNetting  tribool.Tribool         `json:"needs_bird_netting"`
+	IsKeto            tribool.Tribool         `json:"is_keto"`
+	IsNative          tribool.Tribool         `json:"is_native"`
+	IsInvasive        tribool.Tribool         `json:"is_invasive"`
+	IsCoverCrop       tribool.Tribool         `json:"is_cover_crop"`
+	GrowsWellFromSeed tribool.Tribool         `json:"grows_well_from_seed"`
+	IsBadForCats      tribool.Tribool         `json:"is_bad_for_cats"`
+	IsDeerResistant   tribool.Tribool         `json:"is_deer_resistant"`
+	ID                int64                   `json:"id"`
+}
+
+func (q *Queries) UpdateSeed(ctx context.Context, arg UpdateSeedParams) (Seed, error) {
+	row := q.db.QueryRowContext(ctx, updateSeed,
+		arg.Name,
+		arg.Family,
+		arg.Year,
+		arg.Edible,
+		arg.NeedsTrellis,
+		arg.NeedsBirdNetting,
+		arg.IsKeto,
+		arg.IsNative,
+		arg.IsInvasive,
+		arg.IsCoverCrop,
+		arg.GrowsWellFromSeed,
+		arg.IsBadForCats,
+		arg.IsDeerResistant,
+		arg.ID,
+	)
+	var i Seed
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.FrontImageID,
+		&i.BackImageID,
+		&i.Year,
+		&i.Edible,
+		&i.NeedsTrellis,
+		&i.NeedsBirdNetting,
+		&i.IsKeto,
+		&i.IsNative,
+		&i.IsInvasive,
+		&i.IsCoverCrop,
+		&i.GrowsWellFromSeed,
+		&i.IsBadForCats,
+		&i.IsDeerResistant,
+		&i.Type,
+		&i.Lifespan,
+		&i.Family,
+	)
+	return i, err
 }

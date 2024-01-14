@@ -48,6 +48,10 @@ func (n *TextTime) Scan(value any) error {
 			*n = TextTime{t}
 			return nil
 		}
+		if t, err := time.Parse("2006-01-02 15:04:05", v); err == nil {
+			*n = TextTime{t}
+			return nil
+		}
 		return fmt.Errorf("Unparseable time %q", v)
 	}
 

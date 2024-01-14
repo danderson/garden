@@ -1,0 +1,22 @@
+package views
+
+import (
+	"go.universe.tf/garden/gogarden/db"
+)
+
+templ Locations(locations []db.Location) {
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex">
+		<div class="flex-grow"></div>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get="/locations/new" hx-push-url="true" hx-target="body">Add</button>
+	</div>
+	<div class="flex flex-col">
+		for _, loc := range locations {
+			<div hx-get={ f("/locations/%d", loc.ID) }
+				 hx-target="body"
+				 hx-push-url="true"
+				 class="px-2 py-3 font-semibold">
+				{ loc.Name }
+			</div>
+		}
+	</div>
+}

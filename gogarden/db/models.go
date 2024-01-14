@@ -12,7 +12,7 @@ import (
 
 type Location struct {
 	ID         int64          `json:"id"`
-	Name       *string        `json:"name"`
+	Name       string         `json:"name"`
 	InsertedAt types.TextTime `json:"inserted_at"`
 	UpdatedAt  types.TextTime `json:"updated_at"`
 	QrID       string         `json:"qr_id"`

@@ -61,3 +61,7 @@ func (b *Tribool) UnmarshalText(bs []byte) error {
 	}
 	return nil
 }
+
+func (Tribool) SelectOptions() []string {
+	return []string{"Unknown", "True", "False"}
+}

@@ -7,9 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"go.universe.tf/garden/gogarden/controllers"
 	"go.universe.tf/garden/gogarden/db"
-	"go.universe.tf/garden/gogarden/forms"
-	"go.universe.tf/garden/gogarden/htu"
 	"go.universe.tf/garden/gogarden/migrations"
 	"go.universe.tf/garden/gogarden/views"
 
@@ -53,9 +52,8 @@ func main() {
 	}
 
 	r := chi.NewRouter()
-	r.Get("/seeds", s.listSeeds)
-	r.Get("/seeds/{id}", s.showSeed)
-	r.Get("/seeds/new", s.newSeed)
+	controllers.Seeds(r, db)
+	controllers.Locations(r, db)
 	// r.Get("/api/locations", htu.ErrHandler(s.listLocations))
 	// r.Post("/api/locations/{id}", htu.ErrHandler(s.updateLocation))
 	r.Handle("/static/{hash}/*", http.HandlerFunc(s.static))
@@ -78,31 +76,4 @@ func (s *Server) static(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) render(w http.ResponseWriter, r *http.Request, page templ.Component) {
 	views.Root(page).Render(r.Context(), w)
-}
-
-func (s *Server) listSeeds(w http.ResponseWriter, r *http.Request) {
-	seeds, err := s.db.ListSeeds(r.Context())
-	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-	}
-	s.render(w, r, views.Seeds(seeds))
-}
-
-func (s *Server) showSeed(w http.ResponseWriter, r *http.Request) {
-	id, err := htu.Int64Param(r, "id")
-	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
-		return
-	}
-	seed, err := s.db.GetSeed(r.Context(), id)
-	if err != nil {
-		http.Error(w, "seed not found", http.StatusNotFound)
-		return
-	}
-	s.render(w, r, views.Seed(seed))
-}
-
-func (s *Server) newSeed(w http.ResponseWriter, r *http.Request) {
-	form := forms.FromStruct(db.CreateSeedParams{})
-	s.render(w, r, views.NewSeed(form))
 }

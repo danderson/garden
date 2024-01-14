@@ -1,0 +1,17 @@
+package views
+
+templ Root(contents templ.Component) {
+	<!DOCTYPE html>
+	<html lang="en" class="[scrollbar-gutter:stable]">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<link rel="stylesheet" href={ static("app.css") }/>
+			<script type="text/javascript" src="/.live"></script>
+			<script defer type="text/javascript" src={ static("htmx.min.js") }></script>
+		</head>
+		<body id="body" class="bg-slate-900 text-slate-100">
+			@contents
+		</body>
+	</html>
+}

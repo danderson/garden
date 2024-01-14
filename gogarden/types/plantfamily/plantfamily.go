@@ -72,6 +72,22 @@ func (f PlantFamily) Value() (driver.Value, error) {
 	return f.String(), nil
 }
 
+func (f PlantFamily) MarshalText() ([]byte, error) {
+	return []byte(f.String()), nil
+}
+
+func (f *PlantFamily) UnmarshalText(bs []byte) error {
+	if v, ok := stringToPlantFamily[string(bs)]; ok {
+		*f = v
+		return nil
+	}
+	return errors.New("no conversion")
+}
+
+func (PlantFamily) SelectOptions() []string {
+	return plantFamilyStrings
+}
+
 func Strings() []string {
 	return plantFamilyStrings
 }

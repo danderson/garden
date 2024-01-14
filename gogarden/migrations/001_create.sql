@@ -28,7 +28,7 @@ create table seeds (
 
 create table locations (
   id integer primary key autoincrement,
-  name text,
+  name text not null,
   inserted_at text not null,
   updated_at text not null,
   qr_id text not null,
