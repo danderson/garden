@@ -3,6 +3,8 @@ package tribool
 import (
 	"database/sql/driver"
 	"errors"
+
+	"go.universe.tf/garden/gogarden/forms"
 )
 
 type Tribool int
@@ -62,6 +64,19 @@ func (b *Tribool) UnmarshalText(bs []byte) error {
 	return nil
 }
 
-func (Tribool) SelectOptions() []string {
-	return []string{"Unknown", "True", "False"}
+func (Tribool) SelectOptions() []forms.SelectOption {
+	return []forms.SelectOption{
+		{
+			Value: "Unknown",
+			Label: "Unknown",
+		},
+		{
+			Value: "True",
+			Label: "True",
+		},
+		{
+			Value: "False",
+			Label: "False",
+		},
+	}
 }

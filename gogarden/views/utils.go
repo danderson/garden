@@ -7,6 +7,7 @@ import (
 	"io"
 	"strconv"
 	"sync"
+	"time"
 )
 
 var (
@@ -50,4 +51,24 @@ func def(s, def string) string {
 		return s
 	}
 	return def
+}
+
+func date(t time.Time) string {
+	return t.Format("2006-01-02")
+}
+
+func daysAgo(t time.Time) string {
+	d := time.Since(t) / (24 * time.Hour)
+	switch {
+	case d == 0:
+		return "today"
+	case d == 1:
+		return "yesterday"
+	case d < 365:
+		return fmt.Sprintf("%d days ago", d)
+	case d < 2*365:
+		return "1 year ago"
+	default:
+		return fmt.Sprintf("%d years ago", d/365)
+	}
 }

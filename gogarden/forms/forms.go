@@ -4,7 +4,6 @@ import (
 	"encoding"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -23,7 +22,7 @@ type Field struct {
 	ID      string
 	Value   any
 	Errors  []string
-	Options []string // for <select>
+	Options []SelectOption // for <select>
 }
 
 // FromStruct returns a Form initialized with st's data, and no
@@ -112,6 +111,15 @@ func (f *Form) AddFormError(msg string, args ...any) {
 	f.Errors = append(f.Errors, fmt.Sprintf(msg, args...))
 }
 
+func (f *Form) SetSelectOptions(field string, options []SelectOption) {
+	fd, ok := f.Fields[field]
+	if !ok {
+		panic(fmt.Sprintf("added options on unknown form field %q", field))
+	}
+	fd.Options = options
+	f.Fields[field] = fd
+}
+
 // eachStructField calls fn for every field in st, which must be a
 // pointer to a struct. If fn returns an error, eachStructField
 // returns immediately with that error.
@@ -143,11 +151,11 @@ func castValue(raw string, dest reflect.Value) error {
 			dest.Set(reflect.Zero(dest.Type()))
 			return nil
 		}
-		destp := reflect.New(dest.Elem().Elem().Type())
-		if err := castValue(raw, destp); err != nil {
+		destp := reflect.New(dest.Type().Elem())
+		if err := castValue(raw, destp.Elem()); err != nil {
 			return err
 		}
-		dest.Set(destp.Addr())
+		dest.Set(destp)
 		return nil
 	case reflect.Int64:
 		i, err := strconv.ParseInt(raw, 10, 64)
@@ -155,6 +163,7 @@ func castValue(raw string, dest reflect.Value) error {
 			return err
 		}
 		dest.SetInt(i)
+		return nil
 	case reflect.String:
 		dest.Set(reflect.ValueOf(raw))
 		return nil
@@ -163,14 +172,18 @@ func castValue(raw string, dest reflect.Value) error {
 	return fmt.Errorf("unhandled form kind %v", dest.Kind())
 }
 
+type SelectOption struct {
+	Value string
+	Label string
+}
+
 // A Selecter can provide a list of available options for a <select>
 // HTML form input.
 type Selecter interface {
-	SelectOptions() []string
+	SelectOptions() []SelectOption
 }
 
-func selectOptions(v reflect.Value) []string {
-	log.Printf("selectOption %s", v.Type().Name())
+func selectOptions(v reflect.Value) []SelectOption {
 	if s, ok := v.Interface().(Selecter); ok {
 		return s.SelectOptions()
 	}

@@ -11,6 +11,7 @@ sql:
         emit_json_tags: true
         rename:
           qr_state: QRState
+          qr_id: QRID
         overrides:
           - column: locations.inserted_at
             go_type: go.universe.tf/garden/gogarden/types.TextTime
@@ -41,3 +42,8 @@ sql:
             go_type: go.universe.tf/garden/gogarden/types/tribool.Tribool
           - column: seeds.is_deer_resistant
             go_type: go.universe.tf/garden/gogarden/types/tribool.Tribool
+
+          - column: plant_locations.end
+            go_type: go.universe.tf/garden/gogarden/types.TextTime
+          - column: plant_locations.start
+            go_type: go.universe.tf/garden/gogarden/types.TextTime

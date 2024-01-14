@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -52,7 +51,6 @@ func (s *seeds) showSeed(w http.ResponseWriter, r *http.Request) {
 func (s *seeds) newSeed(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		form := forms.New[db.CreateSeedParams]()
-		log.Print(form)
 		render(w, r, views.NewSeed(form))
 		return
 	}

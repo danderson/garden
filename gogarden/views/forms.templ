@@ -1,0 +1,32 @@
+package views
+
+import (
+	"go.universe.tf/garden/gogarden/forms"
+)
+
+templ textInput(field forms.Field, label string) {
+	<label for={field.ID}>{def(label, field.ID)}</label>
+	for _, err := range field.Errors {
+		<p class="text-red-400">{err}</p>
+	}
+	<input class="text-slate-900" name={field.ID} value={s(field.Value)} />
+}
+
+templ selectInput(field forms.Field, label string) {
+	<label for={field.ID}>{def(label, field.ID)}</label>
+	for _, err := range field.Errors {
+		<p class="text-red-400">{err}</p>
+	}
+	<select class="text-slate-900" name={field.ID} value={s(field.Value)}>
+		for _, opt := range field.Options {
+			<option value={opt.Value} selected?={s(field.Value) == opt.Value}>{opt.Label}</option>
+		}
+	</select>
+}
+
+templ hiddenInput(field forms.Field) {
+	for _, err := range field.Errors {
+		<p class="text-red-400">Hidden input {field.ID} error: {err}</p>
+	}
+	<input type="hidden" name={field.ID} value={s(field.Value)} />
+}

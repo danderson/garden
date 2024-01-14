@@ -54,6 +54,7 @@ func main() {
 	r := chi.NewRouter()
 	controllers.Seeds(r, db)
 	controllers.Locations(r, db)
+	controllers.Plants(r, db)
 	// r.Get("/api/locations", htu.ErrHandler(s.listLocations))
 	// r.Post("/api/locations/{id}", htu.ErrHandler(s.updateLocation))
 	r.Handle("/static/{hash}/*", http.HandlerFunc(s.static))

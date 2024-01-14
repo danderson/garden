@@ -45,11 +45,11 @@ create table locations_images (
 
 create table plants (
   id integer primary key autoincrement,
-  name text,
+  name text not null,
   seed_id integer constraint plants_seed_id_fkey references seeds(id) on delete restrict,
   inserted_at text not null,
   updated_at text not null,
-  name_from_seed integer
+  name_from_seed integer not null
 );
 
 create index plants_seed_id_index on plants (
@@ -58,8 +58,8 @@ create index plants_seed_id_index on plants (
 
 create table plant_locations (
   id integer primary key autoincrement,
-  plant_id integer constraint plant_locations_plant_id_fkey references plants(id) on delete restrict,
-  location_id integer constraint plant_locations_location_id_fkey references locations(id) on delete restrict,
+  plant_id integer not null constraint plant_locations_plant_id_fkey references plants(id) on delete restrict,
+  location_id integer not null constraint plant_locations_location_id_fkey references locations(id) on delete restrict,
   start text not null,
   end text null);
 

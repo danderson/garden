@@ -58,7 +58,7 @@ func (n *TextTime) Scan(value any) error {
 	return errors.New("no conversion")
 }
 
-func (n *TextTime) Value() (driver.Value, error) {
+func (n TextTime) Value() (driver.Value, error) {
 	if n.IsZero() {
 		return "", nil
 	}

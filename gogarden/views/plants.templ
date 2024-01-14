@@ -1,0 +1,57 @@
+package views
+
+import (
+	"go.universe.tf/garden/gogarden/db"
+	"go.universe.tf/garden/gogarden/forms"
+)
+
+templ Plants(plants []db.Plant) {
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex">
+		<div class="flex-grow"></div>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get="/plants/new" hx-push-url="true" hx-target="body">Add</button>
+	</div>
+	<div class="flex flex-col">
+		for _, plant := range plants {
+			<div hx-get={ f("/plants/%d", plant.ID) }
+				 hx-target="body"
+				 hx-push-url="true"
+				 class="px-2 py-3">
+				<p class="font-semibold">{ plant.Name }</p>
+			</div>
+		}
+	</div>
+}
+
+templ Plant(plant db.Plant) {
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+		<button class="py-1 px-2 font-semibold" hx-get="/plants" hx-target="body" hx-push-url="true">X</button>
+		<div class="flex-grow"></div>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get={ f("/plants/%d/edit", plant.ID) } hx-target="body" hx-push-url="true">Edit</button>
+		<button class="py-1 px-2 rounded-lg border-2">Plant</button>
+	</div>
+	<div class="px-2 py-3">
+		<h1 class="text-lg font-semibold mb-2">{ plant.Name }</h1>
+	</div>
+}
+
+templ plantForm(form *forms.Form, cancelURL string) {
+	<form>
+		<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+			<div class="flex-grow"></div>
+			<button class="py-1 px-2 rounded-lg border-2" hx-get={cancelURL} hx-target="body" hx-push-url="true">Cancel</button>
+			<button class="py-1 px-2 rounded-lg border-2" hx-post hx-target="body">Save</button>
+		</div>
+		@selectInput(form.Fields["SeedID"], "Seed")
+		@selectInput(form.Fields["LocationID"], "Location")
+		@textInput(form.Fields["Name"], "Name")
+	</form>
+}
+
+templ NewPlant(form *forms.Form) {
+	@plantForm(form, "/plants")
+}
+
+
+templ EditPlant(id int64, form *forms.Form) {
+	@plantForm(form, f("/plants/%d", id))
+}

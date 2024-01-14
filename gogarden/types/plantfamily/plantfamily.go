@@ -3,6 +3,8 @@ package plantfamily
 import (
 	"database/sql/driver"
 	"errors"
+
+	"go.universe.tf/garden/gogarden/forms"
 )
 
 //go:generate stringer -type=PlantFamily
@@ -43,13 +45,16 @@ const (
 
 var (
 	stringToPlantFamily = map[string]PlantFamily{}
-	plantFamilyStrings  []string
+	plantFamilyOptions  []forms.SelectOption
 )
 
 func init() {
 	for i := Unknown; i <= Wildflower; i++ {
 		stringToPlantFamily[i.String()] = i
-		plantFamilyStrings = append(plantFamilyStrings, i.String())
+		plantFamilyOptions = append(plantFamilyOptions, forms.SelectOption{
+			Value: i.String(),
+			Label: i.String(),
+		})
 	}
 }
 
@@ -84,10 +89,6 @@ func (f *PlantFamily) UnmarshalText(bs []byte) error {
 	return errors.New("no conversion")
 }
 
-func (PlantFamily) SelectOptions() []string {
-	return plantFamilyStrings
-}
-
-func Strings() []string {
-	return plantFamilyStrings
+func (PlantFamily) SelectOptions() []forms.SelectOption {
+	return plantFamilyOptions
 }

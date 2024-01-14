@@ -15,7 +15,7 @@ type Location struct {
 	Name       string         `json:"name"`
 	InsertedAt types.TextTime `json:"inserted_at"`
 	UpdatedAt  types.TextTime `json:"updated_at"`
-	QrID       string         `json:"qr_id"`
+	QRID       string         `json:"qr_id"`
 	QRState    types.QRState  `json:"qr_state"`
 }
 
@@ -28,20 +28,20 @@ type LocationsImage struct {
 }
 
 type Plant struct {
-	ID           int64   `json:"id"`
-	Name         *string `json:"name"`
-	SeedID       *int64  `json:"seed_id"`
-	InsertedAt   string  `json:"inserted_at"`
-	UpdatedAt    string  `json:"updated_at"`
-	NameFromSeed *int64  `json:"name_from_seed"`
+	ID           int64  `json:"id"`
+	Name         string `json:"name"`
+	SeedID       *int64 `json:"seed_id"`
+	InsertedAt   string `json:"inserted_at"`
+	UpdatedAt    string `json:"updated_at"`
+	NameFromSeed int64  `json:"name_from_seed"`
 }
 
 type PlantLocation struct {
-	ID         int64       `json:"id"`
-	PlantID    *int64      `json:"plant_id"`
-	LocationID *int64      `json:"location_id"`
-	Start      string      `json:"start"`
-	End        interface{} `json:"end"`
+	ID         int64          `json:"id"`
+	PlantID    int64          `json:"plant_id"`
+	LocationID int64          `json:"location_id"`
+	Start      types.TextTime `json:"start"`
+	End        types.TextTime `json:"end"`
 }
 
 type SchemaMigration struct {

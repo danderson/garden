@@ -15,7 +15,7 @@
         inotify-tools
         nodejs
         erlang
-	      sqlite
+	      sqlite-interactive
         flyctl
         go
         gopls
