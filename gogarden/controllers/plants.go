@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -186,6 +187,7 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 			return dbGetErrorf("getting plant: %w", err)
 		}
 		form := forms.FromStruct(&plant)
+		log.Print(form)
 		if err := s.editPlantFormSelectors(r.Context(), form); err != nil {
 			return internalErrorf("adding form selectors: %w", err)
 		}
@@ -230,9 +232,13 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 		up.NameFromSeed = 0
 	}
 
-	plant, err := s.db.UpdatePlant(r.Context(), up)
+	plant, err := tx.UpdatePlant(r.Context(), up)
 	if err != nil {
 		return internalErrorf("updating plant: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return internalErrorf("committing transaction: %w", err)
 	}
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/plants/%d", plant.ID))

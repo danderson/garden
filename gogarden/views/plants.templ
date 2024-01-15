@@ -54,6 +54,9 @@ templ EditPlant(id int64, form *forms.Form) {
 			<button class="py-1 px-2 rounded-lg border-2" hx-get={f("/plants/%d", id)} hx-target="body" hx-push-url="true">Cancel</button>
 			<button class="py-1 px-2 rounded-lg border-2" hx-post hx-target="body">Save</button>
 		</div>
+		for _, err := range form.Errors {
+			<p class="text-red-400">{err}</p>
+		}
 		@selectInput(form.Fields["SeedID"], "Seed")
 		@textInput(form.Fields["Name"], "Name")
 	</form>
