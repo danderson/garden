@@ -96,7 +96,6 @@ func (r *Runner) runOnce() error {
 		return nil
 	}
 	r.cmd.WaitDelay = 2 * time.Second
-	log.Print("starting command")
 	if err := r.cmd.Run(); errors.Is(err, fs.ErrNotExist) {
 		log.Printf("Command %s not found, waiting for notification", r.command[0])
 		<-ctx.Done()
