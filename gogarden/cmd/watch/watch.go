@@ -1,14 +1,13 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	"go.universe.tf/garden/gogarden/reload"
 )
 
 func main() {
-	r, err := reload.NewRunner(context.Background(), "./garden.tmp")
+	r, err := reload.NewRunner("./garden.tmp")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -13,24 +13,29 @@ import (
 )
 
 type Runner struct {
-	command  []string
-	ctx      context.Context
-	shutdown context.CancelFunc
+	command []string
 
-	cmd *exec.Cmd
+	cmd  *exec.Cmd
+	done chan struct{}
 
 	mu     sync.Mutex
+	stop   bool
 	cancel context.CancelFunc
 }
 
-func NewRunner(ctx context.Context, command ...string) (*Runner, error) {
+func NewRunner(command ...string) (*Runner, error) {
 	ret := &Runner{
 		command: command,
-		ctx:     ctx,
+		done:    make(chan struct{}),
 	}
 
 	go ret.run()
 	return ret, nil
+}
+
+func (r *Runner) Stop() {
+	r.requestStop()
+	<-r.done
 }
 
 func (r *Runner) Restart() {
@@ -41,13 +46,28 @@ func (r *Runner) Restart() {
 	}
 }
 
+func (r *Runner) requestStop() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.cancel != nil {
+		r.cancel()
+	}
+	r.stop = true
+}
+
+func (r *Runner) stopRequested() bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.stop
+}
+
 func (r *Runner) resetCancel() context.Context {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.cancel != nil {
 		r.cancel()
 	}
-	ctx, cancel := context.WithCancel(r.ctx)
+	ctx, cancel := context.WithCancel(context.Background())
 	r.cancel = cancel
 	return ctx
 }
@@ -57,7 +77,7 @@ func (r *Runner) run() {
 		if err := r.runOnce(); err != nil {
 			log.Print(err)
 		}
-		if r.ctx.Err() != nil {
+		if r.stopRequested() {
 			return
 		}
 	}
@@ -79,7 +99,7 @@ func (r *Runner) runOnce() error {
 	log.Print("starting command")
 	if err := r.cmd.Run(); errors.Is(err, fs.ErrNotExist) {
 		log.Printf("Command %s not found, waiting for notification", r.command[0])
-		<-r.ctx.Done()
+		<-ctx.Done()
 	} else if err != nil {
 		return err
 	}
