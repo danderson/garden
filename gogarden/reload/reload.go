@@ -45,8 +45,7 @@ func (r *Reloader) run() {
 			if task.needsRun {
 				if err := task.run(); err != nil {
 					log.Printf("%s: %v", task.Name, err)
-				}
-				if n := task.Notify; n != nil {
+				} else if n := task.Notify; n != nil {
 					notify = append(notify, n)
 				}
 			}

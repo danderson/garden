@@ -79,7 +79,7 @@ func (s *plants) selectors(ctx context.Context) (seeds []forms.SelectOption, loc
 	return seeds, locations, nil
 }
 
-func (s *plants) formSelectors(ctx context.Context, form *forms.Form) error {
+func (s *plants) newPlantFormSelectors(ctx context.Context, form *forms.Form) error {
 	seeds, locations, err := s.selectors(ctx)
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
 
 	if r.Method == "GET" {
 		form := forms.New[createParams]()
-		if err := s.formSelectors(r.Context(), form); err != nil {
+		if err := s.newPlantFormSelectors(r.Context(), form); err != nil {
 			return internalErrorf("adding form selectors: %w", err)
 		}
 		render(w, r, views.NewPlant(form))
@@ -116,7 +116,7 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
 		form.AddFormError("One of seed or name is required")
 	}
 	if form.HasErrors() {
-		if err := s.formSelectors(r.Context(), form); err != nil {
+		if err := s.newPlantFormSelectors(r.Context(), form); err != nil {
 			return internalErrorf("adding form selectors: %w", err)
 		}
 		render(w, r, views.NewPlant(form))
@@ -165,6 +165,15 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+func (s *plants) editPlantFormSelectors(ctx context.Context, form *forms.Form) error {
+	seeds, _, err := s.selectors(ctx)
+	if err != nil {
+		return err
+	}
+	form.SetSelectOptions("SeedID", seeds)
+	return nil
+}
+
 func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 	id, err := htu.Int64Param(r, "id")
 	if err != nil {
@@ -177,7 +186,7 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 			return dbGetErrorf("getting plant: %w", err)
 		}
 		form := forms.FromStruct(&plant)
-		if err := s.formSelectors(r.Context(), form); err != nil {
+		if err := s.editPlantFormSelectors(r.Context(), form); err != nil {
 			return internalErrorf("adding form selectors: %w", err)
 		}
 		render(w, r, views.EditPlant(id, form))
@@ -192,7 +201,7 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 		form.AddFormError("One of seed or name is required")
 	}
 	if form.HasErrors() {
-		if err := s.formSelectors(r.Context(), form); err != nil {
+		if err := s.editPlantFormSelectors(r.Context(), form); err != nil {
 			return internalErrorf("adding form selectors: %w", err)
 		}
 		render(w, r, views.EditPlant(id, form))

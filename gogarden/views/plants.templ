@@ -34,11 +34,11 @@ templ Plant(plant db.Plant) {
 	</div>
 }
 
-templ plantForm(form *forms.Form, cancelURL string) {
+templ NewPlant(form *forms.Form) {
 	<form>
 		<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
 			<div class="flex-grow"></div>
-			<button class="py-1 px-2 rounded-lg border-2" hx-get={cancelURL} hx-target="body" hx-push-url="true">Cancel</button>
+			<button class="py-1 px-2 rounded-lg border-2" hx-get="/plants" hx-target="body" hx-push-url="true">Cancel</button>
 			<button class="py-1 px-2 rounded-lg border-2" hx-post hx-target="body">Save</button>
 		</div>
 		@selectInput(form.Fields["SeedID"], "Seed")
@@ -47,11 +47,14 @@ templ plantForm(form *forms.Form, cancelURL string) {
 	</form>
 }
 
-templ NewPlant(form *forms.Form) {
-	@plantForm(form, "/plants")
-}
-
-
 templ EditPlant(id int64, form *forms.Form) {
-	@plantForm(form, f("/plants/%d", id))
+	<form>
+		<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+			<div class="flex-grow"></div>
+			<button class="py-1 px-2 rounded-lg border-2" hx-get={f("/plants/%d", id)} hx-target="body" hx-push-url="true">Cancel</button>
+			<button class="py-1 px-2 rounded-lg border-2" hx-post hx-target="body">Save</button>
+		</div>
+		@selectInput(form.Fields["SeedID"], "Seed")
+		@textInput(form.Fields["Name"], "Name")
+	</form>
 }
