@@ -1,11 +1,14 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"go.universe.tf/garden/gogarden/controllers"
 	"go.universe.tf/garden/gogarden/db"
@@ -28,6 +31,7 @@ var (
 )
 
 func main() {
+	log.Printf("Server starting")
 	flag.Parse()
 
 	logger := slog.Default()
@@ -59,8 +63,24 @@ func main() {
 	// r.Post("/api/locations/{id}", htu.ErrHandler(s.updateLocation))
 	r.Handle("/static/{hash}/*", http.HandlerFunc(s.static))
 	r.Handle("/.live", &reload.Reloader{})
+
+	httpSrv := http.Server{
+		Addr:    ":8000",
+		Handler: r,
+	}
+
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
+	go func() {
+		s := <-sig
+		log.Printf("received %v", s)
+		httpSrv.Close()
+	}()
+
 	log.Print("Server running")
-	http.ListenAndServe(":8000", r)
+	if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatal(err)
+	}
 }
 
 type Server struct {

@@ -4,6 +4,8 @@ go 1.21.5
 
 require (
 	github.com/a-h/templ v0.2.513
+	github.com/danderson/reload v0.0.0-20240107015751-faa1c9a33bbb
+	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/mattn/go-sqlite3 v1.14.19
@@ -31,7 +33,6 @@ require (
 	github.com/aws/smithy-go v1.17.0 // indirect
 	github.com/coreos/go-iptables v0.7.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
-	github.com/danderson/reload v0.0.0-20240107015751-faa1c9a33bbb // indirect
 	github.com/dblohm7/wingoes v0.0.0-20231025182615-65d8b4b5428f // indirect
 	github.com/digitalocean/go-smbios v0.0.0-20180907143718-390a4f403a8e // indirect
 	github.com/fxamacker/cbor/v2 v2.5.0 // indirect
