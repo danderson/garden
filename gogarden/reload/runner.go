@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -28,8 +29,9 @@ func NewRunner(command ...string) (*Runner, error) {
 		command: command,
 		done:    make(chan struct{}),
 	}
+	ctx := ret.resetCancel()
 
-	go ret.run()
+	go ret.run(ctx)
 	return ret, nil
 }
 
@@ -72,7 +74,9 @@ func (r *Runner) resetCancel() context.Context {
 	return ctx
 }
 
-func (r *Runner) run() {
+func (r *Runner) run(initialCtx context.Context) {
+	<-initialCtx.Done()
+	log.Printf("Starting: %s", strings.Join(r.command, " "))
 	for {
 		if err := r.runOnce(); err != nil {
 			log.Print(err)
@@ -80,6 +84,7 @@ func (r *Runner) run() {
 		if r.stopRequested() {
 			return
 		}
+		log.Printf("Restarting: %s", strings.Join(r.command, " "))
 	}
 }
 
@@ -99,6 +104,8 @@ func (r *Runner) runOnce() error {
 	if err := r.cmd.Run(); errors.Is(err, fs.ErrNotExist) {
 		log.Printf("Command %s not found, waiting for notification", r.command[0])
 		<-ctx.Done()
+	} else if errors.Is(err, context.Canceled) {
+		return nil
 	} else if err != nil {
 		return err
 	}

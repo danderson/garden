@@ -31,7 +31,6 @@ var (
 )
 
 func main() {
-	log.Printf("Server starting")
 	flag.Parse()
 
 	logger := slog.Default()

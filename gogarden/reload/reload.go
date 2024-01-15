@@ -36,7 +36,6 @@ func (r *Reloader) run() {
 			needsRun = true
 		}
 		if !needsRun {
-			log.Print("waiting for changes")
 			r.watcher.Wait(context.Background(), 10*time.Millisecond)
 		}
 		needsRun = false
