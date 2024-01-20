@@ -79,7 +79,7 @@ templ Seed(seed db.Seed) {
 		<button class="py-1 px-2 font-semibold" hx-get="/seeds" hx-target="body" hx-push-url="true">X</button>
 		<div class="flex-grow"></div>
 		<button class="py-1 px-2 rounded-lg border-2" hx-get={ f("/seeds/%d/edit", seed.ID) } hx-target="body" hx-push-url="true">Edit</button>
-		<button class="py-1 px-2 rounded-lg border-2">Plant</button>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get={ f("/plants/new?SeedID=%d", seed.ID) } hx-target="body" hx-push-url="true">Plant</button>
 	</div>
 	<div id="seed" class="px-2 py-3">
 		<h1 class="text-lg font-semibold">{ seed.Name }</h1>

@@ -41,7 +41,7 @@ templ Location(location db.Location, currentPlants, formerPlants []db.GetPlantsI
 		<button class="py-1 px-2 font-semibold" hx-get="/locations" hx-target="body" hx-push-url="true">X</button>
 		<div class="flex-grow"></div>
 		<button class="py-1 px-2 rounded-lg border-2" hx-get={ f("/locations/%d/edit", location.ID) } hx-target="body" hx-push-url="true">Edit</button>
-		<button class="py-1 px-2 rounded-lg border-2">Plant</button>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get={ f("/plants/new?LocationID=%d", location.ID) } hx-target="body" hx-push-url="true">Plant</button>
 	</div>
 	<div class="px-2 py-3">
 		<h1 class="text-lg font-semibold mb-2">{ location.Name }</h1>

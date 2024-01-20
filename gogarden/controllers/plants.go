@@ -83,7 +83,11 @@ func (s *plants) selectors(ctx context.Context) (seeds []forms.SelectOption, loc
 	if err != nil {
 		return nil, nil, err
 	}
-	locations = make([]forms.SelectOption, 0, len(locationData))
+	locations = make([]forms.SelectOption, 0, len(locationData)+1)
+	locations = append(locations, forms.SelectOption{
+		Value: "",
+		Label: "",
+	})
 	for _, s := range locationData {
 		locations = append(locations, forms.SelectOption{
 			Value: fmt.Sprint(s.ID),
@@ -112,7 +116,10 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if r.Method == "GET" {
-		form := forms.New[createParams]()
+		_, form, err := forms.FromRequest(&createParams{}, r)
+		if err != nil {
+			return internalErrorf("parsing form: %w", err)
+		}
 		if err := s.newPlantFormSelectors(r.Context(), form); err != nil {
 			return internalErrorf("adding form selectors: %w", err)
 		}

@@ -4,6 +4,7 @@ import (
 	"encoding"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -67,19 +68,21 @@ func FromRequest[T any](st *T, r *http.Request) (*T, *Form, error) {
 		if !r.Form.Has(name) {
 			name = strings.ToLower(name)
 		}
-		if !r.Form.Has(name) {
-			return nil
-		}
-		val := r.Form.Get(name)
+		val := ""
 		var errs []string
-		if err := fromFormValue(val, fv); err != nil {
-			errs = []string{err.Error()}
+		if r.Form.Has(name) {
+			val = r.Form.Get(name)
+			if err := fromFormValue(val, fv); err != nil {
+				errs = []string{err.Error()}
+			}
 		}
 		ret.Fields[fi.Name] = Field{
-			ID:     fi.Name,
-			Value:  val,
-			Errors: errs,
+			ID:      fi.Name,
+			Value:   val,
+			Errors:  errs,
+			Options: selectOptions(fv),
 		}
+		log.Print(ret.Fields[fi.Name])
 		return nil
 	})
 	if err != nil {
@@ -162,6 +165,10 @@ func fromFormValue(raw string, dest reflect.Value) error {
 		dest.Set(destp)
 		return nil
 	case reflect.Int64:
+		if raw == "" {
+			dest.SetInt(0)
+			return nil
+		}
 		i, err := strconv.ParseInt(raw, 10, 64)
 		if err != nil {
 			return err
