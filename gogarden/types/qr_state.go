@@ -62,6 +62,19 @@ func (b *QRState) UnmarshalText(bs []byte) error {
 	return nil
 }
 
+func (b QRState) MarshalText() ([]byte, error) {
+	switch b {
+	case Missing:
+		return []byte("Missing"), nil
+	case Applied:
+		return []byte("Applied"), nil
+	case Ignore:
+		return []byte("Ignore"), nil
+	default:
+		return nil, errors.New("no conversion")
+	}
+}
+
 func (QRState) SelectOptions() []forms.SelectOption {
 	return []forms.SelectOption{
 		{

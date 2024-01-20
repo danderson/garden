@@ -20,7 +20,7 @@ type Form struct {
 // Field is a struct field and its validation errors, if any.
 type Field struct {
 	ID      string
-	Value   any
+	Value   string
 	Errors  []string
 	Options []SelectOption // for <select>
 }
@@ -37,9 +37,13 @@ func FromStruct[T any](st *T) *Form {
 		Fields: map[string]Field{},
 	}
 	err := eachStructField(st, func(fi reflect.StructField, fv reflect.Value) error {
+		val, err := toFormValue(fv)
+		if err != nil {
+			panic(err)
+		}
 		ret.Fields[fi.Name] = Field{
 			ID:      fi.Name,
-			Value:   fv.Interface(),
+			Value:   val,
 			Options: selectOptions(fv),
 		}
 		return nil
@@ -68,12 +72,12 @@ func FromRequest[T any](st *T, r *http.Request) (*T, *Form, error) {
 		}
 		val := r.Form.Get(name)
 		var errs []string
-		if err := castValue(val, fv); err != nil {
+		if err := fromFormValue(val, fv); err != nil {
 			errs = []string{err.Error()}
 		}
 		ret.Fields[fi.Name] = Field{
 			ID:     fi.Name,
-			Value:  fv.Interface(),
+			Value:  val,
 			Errors: errs,
 		}
 		return nil
@@ -139,7 +143,7 @@ func eachStructField[T any](st *T, fn func(fi reflect.StructField, fv reflect.Va
 	return nil
 }
 
-func castValue(raw string, dest reflect.Value) error {
+func fromFormValue(raw string, dest reflect.Value) error {
 	if um, ok := dest.Addr().Interface().(encoding.TextUnmarshaler); ok {
 		return um.UnmarshalText([]byte(raw))
 	}
@@ -152,7 +156,7 @@ func castValue(raw string, dest reflect.Value) error {
 			return nil
 		}
 		destp := reflect.New(dest.Type().Elem())
-		if err := castValue(raw, destp.Elem()); err != nil {
+		if err := fromFormValue(raw, destp.Elem()); err != nil {
 			return err
 		}
 		dest.Set(destp)
@@ -170,6 +174,31 @@ func castValue(raw string, dest reflect.Value) error {
 	default:
 	}
 	return fmt.Errorf("unhandled form kind %v", dest.Kind())
+}
+
+func toFormValue(src reflect.Value) (string, error) {
+	if m, ok := src.Addr().Interface().(encoding.TextMarshaler); ok {
+		ret, err := m.MarshalText()
+		if err != nil {
+			return "", err
+		}
+		return string(ret), nil
+	}
+
+	switch src.Kind() {
+	case reflect.Pointer:
+		if src.IsZero() {
+			return "", nil
+		}
+		return toFormValue(src.Elem())
+	case reflect.Int64:
+		i := src.Interface().(int64)
+		return strconv.FormatInt(i, 10), nil
+	case reflect.String:
+		return src.Interface().(string), nil
+	default:
+	}
+	return "", fmt.Errorf("unhandled form value %v (%v)", src, src.Type())
 }
 
 type SelectOption struct {

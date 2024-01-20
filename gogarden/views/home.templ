@@ -1,0 +1,11 @@
+package views
+
+templ Home() {
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+		<div class="flex-grow"></div>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get="/seeds" hx-push-url="true" hx-target="body">Seeds</button>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get="/locations" hx-push-url="true" hx-target="body">Locations</button>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get="/plants" hx-push-url="true" hx-target="body">Plants</button>
+	</div>
+	<p>Someday there may be a fancy dashboard here, who knows! For now, select something.</p>
+}

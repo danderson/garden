@@ -27,7 +27,6 @@ templ Plant(plant db.Plant) {
 		<button class="py-1 px-2 font-semibold" hx-get="/plants" hx-target="body" hx-push-url="true">X</button>
 		<div class="flex-grow"></div>
 		<button class="py-1 px-2 rounded-lg border-2" hx-get={ f("/plants/%d/edit", plant.ID) } hx-target="body" hx-push-url="true">Edit</button>
-		<button class="py-1 px-2 rounded-lg border-2">Plant</button>
 	</div>
 	<div class="px-2 py-3">
 		<h1 class="text-lg font-semibold mb-2">{ plant.Name }</h1>

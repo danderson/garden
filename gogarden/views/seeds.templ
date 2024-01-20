@@ -102,18 +102,20 @@ templ seedForm(form *forms.Form, cancelURL string) {
 			<button class="py-1 px-2 rounded-lg border-2" hx-get={cancelURL} hx-target="body" hx-push-url="true">Cancel</button>
 			<button class="py-1 px-2 rounded-lg border-2" hx-post hx-target="body">Save</button>
 		</div>
-		@textInput(form.Fields["Name"], "")
-		@selectInput(form.Fields["Family"], "")
-		@selectInput(form.Fields["Edible"], "Edible?")
-		@selectInput(form.Fields["NeedsTrellis"], "Needs trellis?")
-		@selectInput(form.Fields["NeedsBirdNetting"], "Needs bird netting?")
-		@selectInput(form.Fields["IsKeto"], "Keto?")
-		@selectInput(form.Fields["IsNative"], "Native?")
-		@selectInput(form.Fields["IsInvasive"], "Invasive?")
-		@selectInput(form.Fields["IsCoverCrop"], "Cover crop?")
-		@selectInput(form.Fields["GrowsWellFromSeed"], "Grows well from seed?")
-		@selectInput(form.Fields["IsBadForCats"], "Bad for cats?")
-		@selectInput(form.Fields["IsDeerResistant"], "Deer resistant?")
+		<div class="flex flex-col gap-2">
+			@textInput(form.Fields["Name"], "")
+			@selectInput(form.Fields["Family"], "")
+			@selectInput(form.Fields["Edible"], "Edible?")
+			@selectInput(form.Fields["NeedsTrellis"], "Needs trellis?")
+			@selectInput(form.Fields["NeedsBirdNetting"], "Needs bird netting?")
+			@selectInput(form.Fields["IsKeto"], "Keto?")
+			@selectInput(form.Fields["IsNative"], "Native?")
+			@selectInput(form.Fields["IsInvasive"], "Invasive?")
+			@selectInput(form.Fields["IsCoverCrop"], "Cover crop?")
+			@selectInput(form.Fields["GrowsWellFromSeed"], "Grows well from seed?")
+			@selectInput(form.Fields["IsBadForCats"], "Bad for cats?")
+			@selectInput(form.Fields["IsDeerResistant"], "Deer resistant?")
+		</div>
 	</form>
 }
 

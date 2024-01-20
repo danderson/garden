@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -57,7 +56,11 @@ func (s *plants) selectors(ctx context.Context) (seeds []forms.SelectOption, loc
 	if err != nil {
 		return nil, nil, err
 	}
-	seeds = make([]forms.SelectOption, 0, len(seedData))
+	seeds = make([]forms.SelectOption, 0, len(seedData)+1)
+	seeds = append(seeds, forms.SelectOption{
+		Value: "",
+		Label: "(none)",
+	})
 	for _, s := range seedData {
 		seeds = append(seeds, forms.SelectOption{
 			Value: fmt.Sprint(s.ID),
@@ -187,7 +190,6 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 			return dbGetErrorf("getting plant: %w", err)
 		}
 		form := forms.FromStruct(&plant)
-		log.Print(form)
 		if err := s.editPlantFormSelectors(r.Context(), form); err != nil {
 			return internalErrorf("adding form selectors: %w", err)
 		}

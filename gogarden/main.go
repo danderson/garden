@@ -1,6 +1,8 @@
 package main
 
 import (
+	"cmp"
+	"encoding/csv"
 	"errors"
 	"flag"
 	"io/fs"
@@ -8,10 +10,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 
 	"go.universe.tf/garden/gogarden/controllers"
 	"go.universe.tf/garden/gogarden/db"
+	"go.universe.tf/garden/gogarden/htu"
 	"go.universe.tf/garden/gogarden/migrations"
 	"go.universe.tf/garden/gogarden/views"
 
@@ -58,6 +62,8 @@ func main() {
 	controllers.Seeds(r, db)
 	controllers.Locations(r, db)
 	controllers.Plants(r, db)
+	controllers.Home(r, db)
+	r.Get("/csv", htu.HandlerFunc(s.serveCSV).ServeHTTP)
 	// r.Get("/api/locations", htu.ErrHandler(s.listLocations))
 	// r.Post("/api/locations/{id}", htu.ErrHandler(s.updateLocation))
 	r.Handle("/static/{hash}/*", http.HandlerFunc(s.static))
@@ -85,6 +91,54 @@ func main() {
 type Server struct {
 	db     *db.DB
 	assets http.Handler
+}
+
+func (s *Server) serveCSV(w http.ResponseWriter, r *http.Request) error {
+	seeds, err := s.db.ListSeeds(r.Context())
+	if err != nil {
+		return err
+	}
+
+	slices.SortFunc(seeds, func(a, b db.Seed) int {
+		if v := cmp.Compare(a.Family, b.Family); v != 0 {
+			return v
+		}
+		return cmp.Compare(a.Name, b.Name)
+	})
+
+	fams := make([]string, 0, len(seeds))
+	names := make([]string, 0, len(seeds))
+	blank := make([]string, 0, len(seeds))
+
+	for _, s := range seeds {
+		fams = append(fams, s.Family.String())
+		names = append(names, s.Name)
+		blank = append(blank, "")
+	}
+
+	w.Header().Set("Content-Type", "text/csv")
+	wr := csv.NewWriter(w)
+	rc := append([]string{"", "", "", "", "", ""}, fams...)
+	if err := wr.Write(rc); err != nil {
+		return err
+	}
+
+	rc = append([]string{"type", "family", "companions", "do not plant with", "name", ""}, names...)
+	if err := wr.Write(rc); err != nil {
+		return err
+	}
+
+	for i := range fams {
+		rc = make([]string, len(blank)+6)
+		rc[1] = fams[i]
+		rc[4] = names[i]
+		if err := wr.Write(rc); err != nil {
+			return err
+		}
+	}
+
+	wr.Flush()
+	return nil
 }
 
 func (s *Server) static(w http.ResponseWriter, r *http.Request) {
