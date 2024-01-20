@@ -25,7 +25,7 @@ func main() {
 		},
 		{
 			Name:    "generate tailwind",
-			Match:   []string{"style.css"},
+			Match:   []string{"style.css", "*.templ"},
 			Command: []string{"tailwindcss", "-i", "style.css", "-o", "static/app.css"},
 		},
 		{

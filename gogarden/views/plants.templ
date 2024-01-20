@@ -5,20 +5,24 @@ import (
 	"go.universe.tf/garden/gogarden/forms"
 )
 
+templ PlantList(plants []db.Plant) {
+	for _, plant := range plants {
+		<div hx-get={ f("/plants/%d", plant.ID) }
+			 hx-target="body"
+			 hx-push-url="true"
+			 class="px-2 py-3">
+			<p class="font-semibold">{ plant.Name }</p>
+		</div>
+	}
+}
+
 templ Plants(plants []db.Plant) {
-	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex">
-		<div class="flex-grow"></div>
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+		<input size="1" class="flex-grow px-2 text-slate-900 bg-slate-100 rounded-md" type="search" name="q" hx-get="/plants/search" hx-trigger="input changed delay:200ms, search" hx-target="#plants" />
 		<button class="py-1 px-2 rounded-lg border-2" hx-get="/plants/new" hx-push-url="true" hx-target="body">Add</button>
 	</div>
-	<div class="flex flex-col">
-		for _, plant := range plants {
-			<div hx-get={ f("/plants/%d", plant.ID) }
-				 hx-target="body"
-				 hx-push-url="true"
-				 class="px-2 py-3">
-				<p class="font-semibold">{ plant.Name }</p>
-			</div>
-		}
+	<div id="plants" class="flex flex-col">
+		@PlantList(plants)
 	</div>
 }
 

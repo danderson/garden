@@ -7,6 +7,9 @@ select id,name from seeds order by name collate nocase;
 -- name: GetSeed :one
 select * from seeds where id=?;
 
+-- name: SearchSeeds :many
+select * from seeds where name like ? order by name collate nocase;
+
 -- name: CreateSeed :one
 insert into seeds (
   name,
@@ -28,12 +31,14 @@ insert into seeds (
 -- name: UpdateSeed :one
 update seeds set name=?,family=?,updated_at=CURRENT_TIMESTAMP,year=?,edible=?,needs_trellis=?,needs_bird_netting=?,is_keto=?,is_native=?,is_invasive=?,is_cover_crop=?,grows_well_from_seed=?,is_bad_for_cats=?,is_deer_resistant=? where id=? returning *;
 
--- name: ListLocations :many
+-- name: SearchLocations :many
 select l.*,count(pl.id) as num_plants
-  from locations as l left join plant_locations as pl on l.id=pl.location_id
-  where pl.end is null
-  group by l.id
-  order by l.name collate nocase;
+  from locations as l
+       left join plant_locations as pl on l.id=pl.location_id
+ where pl.end is null
+   and l.name like ?
+ group by l.id
+ order by l.name collate nocase;
 
 -- name: ListLocationsForSelector :many
 select id,name from locations order by name collate nocase;
@@ -66,6 +71,9 @@ select * from plants order by name collate nocase;
 
 -- name: GetPlant :one
 select * from plants where id=?;
+
+-- name: SearchPlants :many
+select * from plants where name like ? order by name collate nocase;
 
 -- name: GetPlantCurrentLocationID :one
 select location_id from plant_locations where plant_id=?;

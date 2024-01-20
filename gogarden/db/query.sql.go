@@ -370,55 +370,6 @@ func (q *Queries) GetSeedName(ctx context.Context, id int64) (string, error) {
 	return name, err
 }
 
-const listLocations = `-- name: ListLocations :many
-select l.id, l.name, l.inserted_at, l.updated_at, l.qr_id, l.qr_state,count(pl.id) as num_plants
-  from locations as l left join plant_locations as pl on l.id=pl.location_id
-  where pl.end is null
-  group by l.id
-  order by l.name collate nocase
-`
-
-type ListLocationsRow struct {
-	ID         int64          `json:"id"`
-	Name       string         `json:"name"`
-	InsertedAt types.TextTime `json:"inserted_at"`
-	UpdatedAt  types.TextTime `json:"updated_at"`
-	QRID       string         `json:"qr_id"`
-	QRState    types.QRState  `json:"qr_state"`
-	NumPlants  int64          `json:"num_plants"`
-}
-
-func (q *Queries) ListLocations(ctx context.Context) ([]ListLocationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listLocations)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListLocationsRow
-	for rows.Next() {
-		var i ListLocationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.InsertedAt,
-			&i.UpdatedAt,
-			&i.QRID,
-			&i.QRState,
-			&i.NumPlants,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listLocationsForSelector = `-- name: ListLocationsForSelector :many
 select id,name from locations order by name collate nocase
 `
@@ -577,6 +528,139 @@ type PullUpPlantParams struct {
 func (q *Queries) PullUpPlant(ctx context.Context, arg PullUpPlantParams) error {
 	_, err := q.db.ExecContext(ctx, pullUpPlant, arg.End, arg.PlantID)
 	return err
+}
+
+const searchLocations = `-- name: SearchLocations :many
+select l.id, l.name, l.inserted_at, l.updated_at, l.qr_id, l.qr_state,count(pl.id) as num_plants
+  from locations as l
+       left join plant_locations as pl on l.id=pl.location_id
+ where pl.end is null
+   and l.name like ?
+ group by l.id
+ order by l.name collate nocase
+`
+
+type SearchLocationsRow struct {
+	ID         int64          `json:"id"`
+	Name       string         `json:"name"`
+	InsertedAt types.TextTime `json:"inserted_at"`
+	UpdatedAt  types.TextTime `json:"updated_at"`
+	QRID       string         `json:"qr_id"`
+	QRState    types.QRState  `json:"qr_state"`
+	NumPlants  int64          `json:"num_plants"`
+}
+
+func (q *Queries) SearchLocations(ctx context.Context, name string) ([]SearchLocationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, searchLocations, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchLocationsRow
+	for rows.Next() {
+		var i SearchLocationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.QRID,
+			&i.QRState,
+			&i.NumPlants,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchPlants = `-- name: SearchPlants :many
+select id, name, seed_id, inserted_at, updated_at, name_from_seed from plants where name like ? order by name collate nocase
+`
+
+func (q *Queries) SearchPlants(ctx context.Context, name string) ([]Plant, error) {
+	rows, err := q.db.QueryContext(ctx, searchPlants, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Plant
+	for rows.Next() {
+		var i Plant
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.SeedID,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.NameFromSeed,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchSeeds = `-- name: SearchSeeds :many
+select id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family from seeds where name like ? order by name collate nocase
+`
+
+func (q *Queries) SearchSeeds(ctx context.Context, name string) ([]Seed, error) {
+	rows, err := q.db.QueryContext(ctx, searchSeeds, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Seed
+	for rows.Next() {
+		var i Seed
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.FrontImageID,
+			&i.BackImageID,
+			&i.Year,
+			&i.Edible,
+			&i.NeedsTrellis,
+			&i.NeedsBirdNetting,
+			&i.IsKeto,
+			&i.IsNative,
+			&i.IsInvasive,
+			&i.IsCoverCrop,
+			&i.GrowsWellFromSeed,
+			&i.IsBadForCats,
+			&i.IsDeerResistant,
+			&i.Type,
+			&i.Lifespan,
+			&i.Family,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateLocation = `-- name: UpdateLocation :one

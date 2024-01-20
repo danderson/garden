@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"go.universe.tf/garden/gogarden/db"
@@ -23,6 +25,7 @@ func Seeds(r *chi.Mux, db *db.DB) {
 	r.Post("/seeds/new", chiFn(s.newSeed))
 	r.Get("/seeds/{id}/edit", chiFn(s.editSeed))
 	r.Post("/seeds/{id}/edit", chiFn(s.editSeed))
+	r.Get("/seeds/search", chiFn(s.searchSeed))
 }
 
 func (s *seeds) listSeeds(w http.ResponseWriter, r *http.Request) error {
@@ -110,5 +113,17 @@ func (s *seeds) editSeed(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Set("Hx-Replace-Url", fmt.Sprintf("/seeds/%d", seed.ID))
 	render(w, r, views.Seed(seed))
+	return nil
+}
+
+func (s *seeds) searchSeed(w http.ResponseWriter, r *http.Request) error {
+	q := strings.Trim(r.FormValue("q"), "%")
+	q = fmt.Sprintf("%%%s%%", q)
+	log.Print(q)
+	seeds, err := s.db.SearchSeeds(r.Context(), q)
+	if err != nil {
+		return internalErrorf("executing search: %w", err)
+	}
+	views.SeedList(seeds).Render(r.Context(), w)
 	return nil
 }

@@ -3,7 +3,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -26,6 +28,7 @@ func Plants(r *chi.Mux, db *db.DB) {
 	r.Get("/plants/{id}", chiFn(s.showPlant))
 	r.Get("/plants/{id}/edit", chiFn(s.editPlant))
 	r.Post("/plants/{id}/edit", chiFn(s.editPlant))
+	r.Get("/plants/search", chiFn(s.searchPlant))
 }
 
 func (s *plants) listPlants(w http.ResponseWriter, r *http.Request) error {
@@ -280,4 +283,16 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/plants/%d", plant.ID))
 	return s.showPlantByID(w, r, plant.ID)
+}
+
+func (s *plants) searchPlant(w http.ResponseWriter, r *http.Request) error {
+	q := strings.Trim(r.FormValue("q"), "%")
+	q = fmt.Sprintf("%%%s%%", q)
+	log.Print(q)
+	plants, err := s.db.SearchPlants(r.Context(), q)
+	if err != nil {
+		return internalErrorf("executing search: %w", err)
+	}
+	views.PlantList(plants).Render(r.Context(), w)
+	return nil
 }

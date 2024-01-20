@@ -9,20 +9,24 @@ import (
 	"go.universe.tf/garden/gogarden/types/plantfamily"
 )
 
+templ SeedList(seeds []db.Seed) {
+	for _, seed := range seeds {
+		<div hx-get={ f("/seeds/%d", seed.ID) }
+			 hx-target="body"
+			 hx-push-url="true"
+			 class="px-2 py-3 font-semibold">
+			{ seed.Name }
+		</div>
+	}
+}
+
 templ Seeds(seeds []db.Seed) {
-	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex">
-		<div class="flex-grow"></div>
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+		<input size="1" class="flex-grow px-2 text-slate-900 bg-slate-100 rounded-md" type="search" name="q" hx-get="/seeds/search" hx-trigger="input changed delay:200ms, search" hx-target="#seeds" />
 		<button class="py-1 px-2 rounded-lg border-2" hx-get="/seeds/new" hx-push-url="true" hx-target="body">Add</button>
 	</div>
 	<div id="seeds" class="flex flex-col">
-		for _, seed := range seeds {
-			<div hx-get={ f("/seeds/%d", seed.ID) }
-				 hx-target="body"
-				 hx-push-url="true"
-				 class="px-2 py-3 font-semibold">
-				{ seed.Name }
-			</div>
-		}
+		@SeedList(seeds)
 	</div>
 }
 

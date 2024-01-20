@@ -3,7 +3,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"go.universe.tf/garden/gogarden/db"
@@ -24,10 +26,11 @@ func Locations(r *chi.Mux, db *db.DB) {
 	r.Get("/locations/{id}", chiFn(s.showLocation))
 	r.Get("/locations/{id}/edit", chiFn(s.editLocation))
 	r.Post("/locations/{id}/edit", chiFn(s.editLocation))
+	r.Get("/locations/search", chiFn(s.searchLocations))
 }
 
 func (s *locations) listLocations(w http.ResponseWriter, r *http.Request) error {
-	locations, err := s.db.ListLocations(r.Context())
+	locations, err := s.db.SearchLocations(r.Context(), "%")
 	if err != nil {
 		return internalErrorf("listing locations: %w", err)
 	}
@@ -141,5 +144,17 @@ func (s *locations) editLocation(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/locations/%d", location.ID))
 	render(w, r, views.Location(location, current, old))
+	return nil
+}
+
+func (s *locations) searchLocations(w http.ResponseWriter, r *http.Request) error {
+	q := strings.Trim(r.FormValue("q"), "%")
+	q = fmt.Sprintf("%%%s%%", q)
+	log.Print(q)
+	locations, err := s.db.SearchLocations(r.Context(), q)
+	if err != nil {
+		return internalErrorf("executing search: %w", err)
+	}
+	views.LocationList(locations).Render(r.Context(), w)
 	return nil
 }
