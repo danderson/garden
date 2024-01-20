@@ -177,11 +177,12 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *plants) editPlantFormSelectors(ctx context.Context, form *forms.Form) error {
-	seeds, _, err := s.selectors(ctx)
+	seeds, locations, err := s.selectors(ctx)
 	if err != nil {
 		return err
 	}
 	form.SetSelectOptions("SeedID", seeds)
+	form.SetSelectOptions("LocationID", locations)
 	return nil
 }
 
@@ -207,6 +208,9 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 	params, form, err := forms.FromRequest(&db.GetPlantForUpdateRow{}, r)
 	if err != nil {
 		return internalErrorf("parsing form: %w", err)
+	}
+	if params.LocationID == 0 {
+		form.AddError("LocationID", "required")
 	}
 	if params.SeedID == nil && params.Name == "" {
 		form.AddFormError("One of seed or name is required")
@@ -244,6 +248,30 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 	plant, err := tx.UpdatePlant(r.Context(), up)
 	if err != nil {
 		return internalErrorf("updating plant: %w", err)
+	}
+
+	curLocation, err := tx.GetPlantCurrentLocationID(r.Context(), id)
+	if err != nil {
+		return internalErrorf("getting plant current location: %w", err)
+	}
+	if params.LocationID != curLocation {
+		transplant := types.TextTime{Time: time.Now()}
+		err := tx.PullUpPlant(r.Context(), db.PullUpPlantParams{
+			PlantID: id,
+			End:     transplant,
+		})
+		if err != nil {
+			return internalErrorf("removing plant from current location: %w", err)
+		}
+
+		_, err = tx.CreatePlantLocation(r.Context(), db.CreatePlantLocationParams{
+			PlantID:    id,
+			LocationID: params.LocationID,
+			Start:      transplant,
+		})
+		if err != nil {
+			return internalErrorf("setting new plant location: %w", err)
+		}
 	}
 
 	if err := tx.Commit(); err != nil {

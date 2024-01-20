@@ -67,6 +67,7 @@ templ EditPlant(id int64, form *forms.Form) {
 			<p class="text-red-400">{err}</p>
 		}
 		@selectInput(form.Fields["SeedID"], "Seed")
+		@selectInput(form.Fields["LocationID"], "Location")
 		@textInput(form.Fields["Name"], "Name")
 	</form>
 }

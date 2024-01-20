@@ -67,6 +67,9 @@ select * from plants order by name collate nocase;
 -- name: GetPlant :one
 select * from plants where id=?;
 
+-- name: GetPlantCurrentLocationID :one
+select location_id from plant_locations where plant_id=?;
+
 -- name: GetPlantLocations :many
 select pl.*,l.name from plant_locations as pl
                         inner join locations as l on l.id=pl.location_id
@@ -87,10 +90,15 @@ insert into plant_locations (
   location_id,
   start) values (?,?,?) returning *;
 
+-- name: PullUpPlant :exec
+update plant_locations set end=? where plant_id=? and end is null;
+
 -- name: GetPlantForUpdate :one
-select p.seed_id, p.name
+select p.seed_id, p.name, pl.location_id
   from plants as p
- where p.id=?;
+       inner join plant_locations as pl
+           on pl.plant_id=p.id
+ where p.id=? and pl.end is null;
 
 -- name: UpdatePlant :one
 update plants set name=?,seed_id=?,name_from_seed=?,updated_at=CURRENT_TIMESTAMP where id=? returning *;

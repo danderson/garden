@@ -210,21 +210,35 @@ func (q *Queries) GetPlant(ctx context.Context, id int64) (Plant, error) {
 	return i, err
 }
 
+const getPlantCurrentLocationID = `-- name: GetPlantCurrentLocationID :one
+select location_id from plant_locations where plant_id=?
+`
+
+func (q *Queries) GetPlantCurrentLocationID(ctx context.Context, plantID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getPlantCurrentLocationID, plantID)
+	var location_id int64
+	err := row.Scan(&location_id)
+	return location_id, err
+}
+
 const getPlantForUpdate = `-- name: GetPlantForUpdate :one
-select p.seed_id, p.name
+select p.seed_id, p.name, pl.location_id
   from plants as p
- where p.id=?
+       inner join plant_locations as pl
+           on pl.plant_id=p.id
+ where p.id=? and pl.end is null
 `
 
 type GetPlantForUpdateRow struct {
-	SeedID *int64 `json:"seed_id"`
-	Name   string `json:"name"`
+	SeedID     *int64 `json:"seed_id"`
+	Name       string `json:"name"`
+	LocationID int64  `json:"location_id"`
 }
 
 func (q *Queries) GetPlantForUpdate(ctx context.Context, id int64) (GetPlantForUpdateRow, error) {
 	row := q.db.QueryRowContext(ctx, getPlantForUpdate, id)
 	var i GetPlantForUpdateRow
-	err := row.Scan(&i.SeedID, &i.Name)
+	err := row.Scan(&i.SeedID, &i.Name, &i.LocationID)
 	return i, err
 }
 
@@ -549,6 +563,20 @@ func (q *Queries) ListSeedsForSelector(ctx context.Context) ([]ListSeedsForSelec
 		return nil, err
 	}
 	return items, nil
+}
+
+const pullUpPlant = `-- name: PullUpPlant :exec
+update plant_locations set end=? where plant_id=? and end is null
+`
+
+type PullUpPlantParams struct {
+	End     types.TextTime `json:"end"`
+	PlantID int64          `json:"plant_id"`
+}
+
+func (q *Queries) PullUpPlant(ctx context.Context, arg PullUpPlantParams) error {
+	_, err := q.db.ExecContext(ctx, pullUpPlant, arg.End, arg.PlantID)
+	return err
 }
 
 const updateLocation = `-- name: UpdateLocation :one
