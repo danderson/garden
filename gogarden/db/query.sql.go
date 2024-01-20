@@ -228,6 +228,52 @@ func (q *Queries) GetPlantForUpdate(ctx context.Context, id int64) (GetPlantForU
 	return i, err
 }
 
+const getPlantLocations = `-- name: GetPlantLocations :many
+select pl.id, pl.plant_id, pl.location_id, pl.start, pl."end",l.name from plant_locations as pl
+                        inner join locations as l on l.id=pl.location_id
+ where pl.plant_id=?
+ order by pl.start desc
+`
+
+type GetPlantLocationsRow struct {
+	ID         int64          `json:"id"`
+	PlantID    int64          `json:"plant_id"`
+	LocationID int64          `json:"location_id"`
+	Start      types.TextTime `json:"start"`
+	End        types.TextTime `json:"end"`
+	Name       string         `json:"name"`
+}
+
+func (q *Queries) GetPlantLocations(ctx context.Context, plantID int64) ([]GetPlantLocationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPlantLocations, plantID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPlantLocationsRow
+	for rows.Next() {
+		var i GetPlantLocationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.PlantID,
+			&i.LocationID,
+			&i.Start,
+			&i.End,
+			&i.Name,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPlantsInLocation = `-- name: GetPlantsInLocation :many
 select p.name,pl.start,pl.end from locations as l
                                    inner join plant_locations as pl on l.id=pl.location_id

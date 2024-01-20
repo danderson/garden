@@ -42,12 +42,20 @@ func (s *plants) showPlant(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return badRequest(err)
 	}
+	return s.showPlantByID(w, r, id)
+}
+
+func (s *plants) showPlantByID(w http.ResponseWriter, r *http.Request, id int64) error {
 	plant, err := s.db.GetPlant(r.Context(), id)
 	if err != nil {
 		return dbGetErrorf("getting plant: %w", err)
 	}
+	locs, err := s.db.GetPlantLocations(r.Context(), id)
+	if err != nil {
+		return dbGetErrorf("getting plant locations: %w", err)
+	}
 
-	render(w, r, views.Plant(plant))
+	render(w, r, views.Plant(plant, locs))
 	return nil
 }
 
@@ -165,8 +173,7 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/plants/%d", p.ID))
-	render(w, r, views.Plant(p))
-	return nil
+	return s.showPlantByID(w, r, p.ID)
 }
 
 func (s *plants) editPlantFormSelectors(ctx context.Context, form *forms.Form) error {
@@ -244,6 +251,5 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/plants/%d", plant.ID))
-	render(w, r, views.Plant(plant))
-	return nil
+	return s.showPlantByID(w, r, plant.ID)
 }

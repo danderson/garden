@@ -22,14 +22,24 @@ templ Plants(plants []db.Plant) {
 	</div>
 }
 
-templ Plant(plant db.Plant) {
+templ Plant(plant db.Plant, locs []db.GetPlantLocationsRow) {
 	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
 		<button class="py-1 px-2 font-semibold" hx-get="/plants" hx-target="body" hx-push-url="true">X</button>
 		<div class="flex-grow"></div>
 		<button class="py-1 px-2 rounded-lg border-2" hx-get={ f("/plants/%d/edit", plant.ID) } hx-target="body" hx-push-url="true">Edit</button>
 	</div>
 	<div class="px-2 py-3">
-		<h1 class="text-lg font-semibold mb-2">{ plant.Name }</h1>
+		<h1 class="text-lg font-semibold">{ plant.Name }</h1>
+		if len(locs) > 0 {
+			<p class="text-sm">{locs[0].Name}, planted {daysAgo(locs[0].Start.Time)}</p>
+		}
+
+		if len(locs) > 1 {
+			<h2 class="font-semibold mt-4">Previous locations</h2>
+			for _, l := range locs[1:] {
+				<p class="text-sm">{l.Name} (from {date(l.Start.Time)} to {date(l.End.Time)}</p>
+			}
+		}
 	</div>
 }
 

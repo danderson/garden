@@ -67,6 +67,12 @@ select * from plants order by name collate nocase;
 -- name: GetPlant :one
 select * from plants where id=?;
 
+-- name: GetPlantLocations :many
+select pl.*,l.name from plant_locations as pl
+                        inner join locations as l on l.id=pl.location_id
+ where pl.plant_id=?
+ order by pl.start desc;
+
 -- name: CreatePlant :one
 insert into plants (
   name,
