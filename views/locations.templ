@@ -1,0 +1,86 @@
+package views
+
+import (
+	"go.universe.tf/garden/db"
+	"go.universe.tf/garden/forms"
+)
+
+templ LocationList(locations []db.SearchLocationsRow) {
+		for _, loc := range locations {
+			<div hx-get={ f("/locations/%d", loc.ID) }
+				 hx-target="body"
+				 hx-push-url="true"
+				 class="px-2 py-3">
+				<p class="font-semibold">{ loc.Name }</p>
+				<p class="text-slate-300">
+					@iconMagnifyingGlass()
+					if loc.NumPlants == 0 {
+						Empty
+					} else if loc.NumPlants == 1 {
+						1 plant
+					} else {
+						{s(loc.NumPlants)} plants
+					}
+				</p>
+			</div>
+		}
+}
+
+templ Locations(locations []db.SearchLocationsRow) {
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+		<input size="1" class="flex-grow px-2 text-slate-900 bg-slate-100 rounded-md" type="search" name="q" hx-get="/locations/search" hx-trigger="input changed delay:200ms, search" hx-target="#locations" />
+		<button class="py-1 px-2 rounded-lg border-2" hx-get="/locations/new" hx-push-url="true" hx-target="body">Add</button>
+	</div>
+	<div id="locations" class="flex flex-col">
+		@LocationList(locations)
+	</div>
+}
+
+templ Location(location db.Location, currentPlants, formerPlants []db.GetPlantsInLocationRow) {
+	<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+		<button class="py-1 px-2 font-semibold" hx-get="/locations" hx-target="body" hx-push-url="true">X</button>
+		<div class="flex-grow"></div>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get={ f("/locations/%d/edit", location.ID) } hx-target="body" hx-push-url="true">Edit</button>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get={ f("/plants/new?LocationID=%d", location.ID) } hx-target="body" hx-push-url="true">Plant</button>
+	</div>
+	<div class="px-2 py-3">
+		<h1 class="text-lg font-semibold mb-2">{ location.Name }</h1>
+		for _, p := range currentPlants {
+			<div class="pl-1" hx-get={f("/plants/%d", p.ID)} hx-push-url="true" hx-target="body">
+				<span class="font-semibold">{ p.Name }</span>
+				<span class="text-slate-400">{ daysAgo(p.Start.Time) }</span>
+			</div>
+		}
+		if len(formerPlants) > 0 {
+			<h2 class="font-semibold text-slate-400 mt-4 mb-2">Previously...</h2>
+			for _, p := range formerPlants {
+				<div class="pl-1 py-1">
+					<p class="font-semibold text-slate-400">{ p.Name }</p>
+					<p class="text-slate-400">removed { date(p.End.Time) }</p>
+				</div>
+			}
+		}
+	</div>
+}
+
+templ locationForm(form *forms.Form, cancelURL string) {
+	<form>
+		<div class="sticky bg-slate-700 text-slate-200 top-0 text-xl px-2 py-2 flex gap-2">
+			<div class="flex-grow"></div>
+			<button class="py-1 px-2 rounded-lg border-2" hx-get={cancelURL} hx-target="body" hx-push-url="true">Cancel</button>
+			<button class="py-1 px-2 rounded-lg border-2" hx-post hx-target="body">Save</button>
+		</div>
+		@textInput(form.Fields["Name"], "")
+		@hiddenInput(form.Fields["QRID"])
+		@hiddenInput(form.Fields["QRState"])
+	</form>
+}
+
+templ NewLocation(form *forms.Form) {
+	@locationForm(form, "/locations")
+}
+
+
+templ EditLocation(id int64, form *forms.Form) {
+	@locationForm(form, f("/locations/%d", id))
+}

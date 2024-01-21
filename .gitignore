@@ -1,0 +1,8 @@
+*.db
+*.db-shm
+*.db-wal
+.direnv/
+/images_prod.tgz
+/images/
+/garden.bin
+/garden.tmp
