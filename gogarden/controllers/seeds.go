@@ -29,7 +29,7 @@ func Seeds(r *chi.Mux, db *db.DB) {
 }
 
 func (s *seeds) listSeeds(w http.ResponseWriter, r *http.Request) error {
-	seeds, err := s.db.ListSeeds(r.Context())
+	seeds, err := s.db.SearchSeeds(r.Context(), "%")
 	if err != nil {
 		return internalErrorf("listing seeds: %w", err)
 	}

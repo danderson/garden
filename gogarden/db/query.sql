@@ -1,6 +1,3 @@
--- name: ListSeeds :many
-select * from seeds order by name collate nocase;
-
 -- name: ListSeedsForSelector :many
 select id,name from seeds order by name collate nocase;
 
@@ -47,7 +44,7 @@ select id,name from locations order by name collate nocase;
 select * from locations where id=?;
 
 -- name: GetPlantsInLocation :many
-select p.name,pl.start,pl.end from locations as l
+select p.id,p.name,pl.start,pl.end from locations as l
                                    inner join plant_locations as pl on l.id=pl.location_id
                                    inner join plants as p on p.id=pl.plant_id
  where l.id=?
@@ -66,14 +63,14 @@ insert into locations (
 -- name: UpdateLocation :one
 update locations set name=?,qr_id=?,qr_state=?,updated_at=CURRENT_TIMESTAMP where id=? returning *;
 
--- name: ListPlants :many
-select * from plants order by name collate nocase;
-
 -- name: GetPlant :one
 select * from plants where id=?;
 
 -- name: SearchPlants :many
-select * from plants where name like ? order by name collate nocase;
+select p.*,l.name as location_name from plants as p
+              left join plant_locations as pl on p.id=pl.plant_id
+              left join locations as l on l.id=pl.location_id
+ where pl.end is null and p.name like ? order by p.name collate nocase;
 
 -- name: GetPlantCurrentLocationID :one
 select location_id from plant_locations where plant_id=?;

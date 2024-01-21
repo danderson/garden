@@ -46,7 +46,7 @@ templ Location(location db.Location, currentPlants, formerPlants []db.GetPlantsI
 	<div class="px-2 py-3">
 		<h1 class="text-lg font-semibold mb-2">{ location.Name }</h1>
 		for _, p := range currentPlants {
-			<div class="pl-1">
+			<div class="pl-1" hx-get={f("/plants/%d", p.ID)} hx-push-url="true" hx-target="body">
 				<span class="font-semibold">{ p.Name }</span>
 				<span class="text-slate-400">{ daysAgo(p.Start.Time) }</span>
 			</div>

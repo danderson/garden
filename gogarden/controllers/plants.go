@@ -32,7 +32,7 @@ func Plants(r *chi.Mux, db *db.DB) {
 }
 
 func (s *plants) listPlants(w http.ResponseWriter, r *http.Request) error {
-	plants, err := s.db.ListPlants(r.Context())
+	plants, err := s.db.SearchPlants(r.Context(), "%")
 	if err != nil {
 		return internalErrorf("listing plants: %w", err)
 	}

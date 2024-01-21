@@ -148,7 +148,7 @@ type Server struct {
 }
 
 func (s *Server) serveCSV(w http.ResponseWriter, r *http.Request) error {
-	seeds, err := s.db.ListSeeds(r.Context())
+	seeds, err := s.db.SearchSeeds(r.Context(), "%")
 	if err != nil {
 		return err
 	}
