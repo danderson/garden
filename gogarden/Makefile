@@ -31,3 +31,12 @@ schema:
 .PHONY: sqlite
 sqlite:
 	sqlite3 garden_dev.db
+
+.PHONY: deploy
+deploy:
+	sqlc generate
+	templ generate
+	tailwindcss -i style.css -o static/app.css
+	go build -o garden.bin .
+	rsync garden.bin acrux:/fast/garden/garden.bin
+	ssh root@acrux systemctl restart garden

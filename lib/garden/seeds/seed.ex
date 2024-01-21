@@ -11,6 +11,7 @@ defmodule Garden.Seeds.Seed do
     field :family, Ecto.Enum,
       values: [
         :Adoxaceae,
+        :Aizoaceae,
         :Allium,
         :Amaranthaceae,
         :Apiaceae,
