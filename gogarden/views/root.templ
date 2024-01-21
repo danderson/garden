@@ -11,6 +11,13 @@ templ Root(contents templ.Component) {
 			<script defer type="text/javascript" src={ static("htmx.min.js") }></script>
 		</head>
 		<body id="body" class="bg-slate-900 text-slate-100">
+			<nav class="fixed bottom-0 inset-x-0 pb-2 z-20 bg-slate-700 text-slate-200 font-semibold will-change-scroll">
+				<div hx-boost="true" class="flex text-center">
+					<a href="/seeds" class="basis-0 py-2 flex-grow">Seeds</a>
+					<a href="/locations" class="basis-0 py-2 flex-grow">Locations</a>
+					<a href="/plants" class="basis-0 py-2 flex-grow">Plants</a>
+				</div>
+			</nav>
 			@contents
 		</body>
 	</html>

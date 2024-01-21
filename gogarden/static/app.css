@@ -544,12 +544,29 @@ video {
   position: static;
 }
 
+.fixed {
+  position: fixed;
+}
+
 .sticky {
   position: sticky;
 }
 
+.inset-x-0 {
+  left: 0px;
+  right: 0px;
+}
+
+.bottom-0 {
+  bottom: 0px;
+}
+
 .top-0 {
   top: 0px;
+}
+
+.z-20 {
+  z-index: 20;
 }
 
 .mb-2 {
@@ -586,6 +603,10 @@ video {
 
 .flex-grow {
   flex-grow: 1;
+}
+
+.basis-0 {
+  flex-basis: 0px;
 }
 
 .flex-col {
@@ -670,12 +691,20 @@ video {
   padding-bottom: 0.75rem;
 }
 
+.pb-2 {
+  padding-bottom: 0.5rem;
+}
+
 .pl-1 {
   padding-left: 0.25rem;
 }
 
 .pt-1 {
   padding-top: 0.25rem;
+}
+
+.text-center {
+  text-align: center;
 }
 
 .text-lg {
@@ -740,6 +769,10 @@ video {
 .text-slate-900 {
   --tw-text-opacity: 1;
   color: rgb(15 23 42 / var(--tw-text-opacity));
+}
+
+.will-change-scroll {
+  will-change: scroll-position;
 }
 
 .\[scrollbar-gutter\:stable\] {
