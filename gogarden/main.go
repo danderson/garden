@@ -89,7 +89,14 @@ func main() {
 	r.Get("/csv", htu.HandlerFunc(s.serveCSV).ServeHTTP)
 	r.Handle("/static/{hash}/*", http.HandlerFunc(s.static))
 	r.Handle("/user_images/*", http.StripPrefix("/user_images", http.FileServer(http.Dir(imagesPath))))
-	r.Handle("/.live", &reload.Reloader{})
+	if *dev {
+		r.Handle("/.live", &reload.Reloader{})
+	} else {
+		r.HandleFunc("/.live", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/javascript")
+			w.WriteHeader(http.StatusOK)
+		})
+	}
 	r.HandleFunc("/.magic/db", s.serveDB)
 	r.HandleFunc("/.magic/images", s.serveImages)
 
