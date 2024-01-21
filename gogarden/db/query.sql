@@ -49,7 +49,7 @@ select p.id,p.name,pl.start,pl.end from locations as l
                                    inner join plants as p on p.id=pl.plant_id
  where l.id=?
  order by p.name collate nocase,
-          pl.end desc,
+          pl.end desc nulls first,
           pl.start desc;
 
 -- name: CreateLocation :one
@@ -72,14 +72,15 @@ select p.*,l.name as location_name from plants as p
               left join locations as l on l.id=pl.location_id
  where pl.end is null and p.name like ? order by p.name collate nocase;
 
--- name: GetPlantCurrentLocationID :one
-select location_id from plant_locations where plant_id=?;
+-- name: GetPlantCurrentLocation :one
+select location_id,start from plant_locations where plant_id=? and end is null;
 
 -- name: GetPlantLocations :many
 select pl.*,l.name from plant_locations as pl
                         inner join locations as l on l.id=pl.location_id
  where pl.plant_id=?
- order by pl.start desc;
+ order by pl.end desc nulls first,
+          pl.start desc;
 
 -- name: CreatePlant :one
 insert into plants (

@@ -210,15 +210,20 @@ func (q *Queries) GetPlant(ctx context.Context, id int64) (Plant, error) {
 	return i, err
 }
 
-const getPlantCurrentLocationID = `-- name: GetPlantCurrentLocationID :one
-select location_id from plant_locations where plant_id=?
+const getPlantCurrentLocation = `-- name: GetPlantCurrentLocation :one
+select location_id,start from plant_locations where plant_id=? and end is null
 `
 
-func (q *Queries) GetPlantCurrentLocationID(ctx context.Context, plantID int64) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getPlantCurrentLocationID, plantID)
-	var location_id int64
-	err := row.Scan(&location_id)
-	return location_id, err
+type GetPlantCurrentLocationRow struct {
+	LocationID int64          `json:"location_id"`
+	Start      types.TextTime `json:"start"`
+}
+
+func (q *Queries) GetPlantCurrentLocation(ctx context.Context, plantID int64) (GetPlantCurrentLocationRow, error) {
+	row := q.db.QueryRowContext(ctx, getPlantCurrentLocation, plantID)
+	var i GetPlantCurrentLocationRow
+	err := row.Scan(&i.LocationID, &i.Start)
+	return i, err
 }
 
 const getPlantForUpdate = `-- name: GetPlantForUpdate :one
@@ -246,7 +251,8 @@ const getPlantLocations = `-- name: GetPlantLocations :many
 select pl.id, pl.plant_id, pl.location_id, pl.start, pl."end",l.name from plant_locations as pl
                         inner join locations as l on l.id=pl.location_id
  where pl.plant_id=?
- order by pl.start desc
+ order by pl.end desc nulls first,
+          pl.start desc
 `
 
 type GetPlantLocationsRow struct {
@@ -294,7 +300,7 @@ select p.id,p.name,pl.start,pl.end from locations as l
                                    inner join plants as p on p.id=pl.plant_id
  where l.id=?
  order by p.name collate nocase,
-          pl.end desc,
+          pl.end desc nulls first,
           pl.start desc
 `
 
