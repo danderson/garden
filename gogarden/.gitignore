@@ -2,4 +2,4 @@ db.sqlite3*
 .direnv/
 /images_prod.tgz
 /images/
-/garden.tmp
+/garden.bin
