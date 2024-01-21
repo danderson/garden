@@ -382,6 +382,43 @@ func (q *Queries) GetSeedName(ctx context.Context, id int64) (string, error) {
 	return name, err
 }
 
+const getSeedWindows = `-- name: GetSeedWindows :many
+select id, seed_id, how, datum, start, "end", transplant from seed_windows
+ where seed_id=?
+ order by start asc, end asc
+`
+
+func (q *Queries) GetSeedWindows(ctx context.Context, seedID int64) ([]SeedWindow, error) {
+	rows, err := q.db.QueryContext(ctx, getSeedWindows, seedID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SeedWindow
+	for rows.Next() {
+		var i SeedWindow
+		if err := rows.Scan(
+			&i.ID,
+			&i.SeedID,
+			&i.How,
+			&i.Datum,
+			&i.Start,
+			&i.End,
+			&i.Transplant,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listLocationsForSelector = `-- name: ListLocationsForSelector :many
 select id,name from locations order by name collate nocase
 `
