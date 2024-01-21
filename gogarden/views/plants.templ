@@ -64,6 +64,7 @@ templ NewPlant(form *forms.Form) {
 			<button class="py-1 px-2 rounded-lg border-2" hx-get="/plants" hx-target="body" hx-push-url="true">Cancel</button>
 			<button class="py-1 px-2 rounded-lg border-2" hx-post hx-target="body">Save</button>
 		</div>
+		@dateInput(form.Fields["Date"], "Planting date")
 		@selectInput(form.Fields["SeedID"], "Seed")
 		@selectInput(form.Fields["LocationID"], "Location")
 		@textInput(form.Fields["Name"], "Name")
@@ -91,7 +92,7 @@ templ UprootPlantForm(id int64, form *forms.Form) {
 		for _, err := range form.Fields["End"].Errors {
 			<p class="text-red-500">{err}</p>
 		}
-		<input type="date" name="End" class="text-slate-900" value={form.Fields["End"].Value} max={dateToday()} />
+		<input class="text-slate-900" type="date" name={form.Fields["End"].ID} value={form.Fields["End"].Value} max={dateToday()} />
 		<button class="py-1 px-2 rounded-lg border-2 border-red-500 text-red-500" hx-post={f("/plants/%d/uproot", id)} hx-target="#uproot" hx-swap="outerHTML">Uproot</button>
 		<button class="py-1 px-2 rounded-lg border-2" hx-get={f("/plants/%d", id)} hx-target="body">Cancel</button>
 	</form>

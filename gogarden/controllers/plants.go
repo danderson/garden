@@ -113,11 +113,14 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
 	type createParams struct {
 		Name       string
 		LocationID int64
+		Date       types.TextDate
 		SeedID     *int64
 	}
 
 	if r.Method == "GET" {
-		_, form, err := forms.FromRequest(&createParams{}, r)
+		_, form, err := forms.FromRequest(&createParams{
+			Date: types.TextDate{Time: time.Now()},
+		}, r)
 		if err != nil {
 			return internalErrorf("parsing form: %w", err)
 		}
@@ -134,6 +137,12 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
 	}
 	if np.LocationID == 0 {
 		form.AddError("LocationID", "required")
+	}
+	if np.Date.IsZero() {
+		form.AddError("Date", "required")
+	}
+	if np.Date.After(time.Now()) {
+		form.AddError("Date", "can't be in the future")
 	}
 	if np.SeedID == nil && np.Name == "" {
 		form.AddFormError("One of seed or name is required")
@@ -173,7 +182,7 @@ func (s *plants) newPlant(w http.ResponseWriter, r *http.Request) error {
 	_, err = s.db.CreatePlantLocation(r.Context(), db.CreatePlantLocationParams{
 		PlantID:    p.ID,
 		LocationID: np.LocationID,
-		Start:      types.TextTime{Time: time.Now()},
+		Start:      types.TextTime{Time: np.Date.Time},
 	})
 	if err != nil {
 		return internalErrorf("creating plant location: %w", err)

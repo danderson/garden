@@ -74,6 +74,12 @@ func FromRequest[T any](st *T, r *http.Request) (*T, *Form, error) {
 			if err := fromFormValue(val, fv); err != nil {
 				errs = []string{err.Error()}
 			}
+		} else {
+			var err error
+			val, err = toFormValue(fv)
+			if err != nil {
+				return err
+			}
 		}
 		ret.Fields[fi.Name] = Field{
 			ID:      fi.Name,
