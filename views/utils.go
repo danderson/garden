@@ -59,8 +59,31 @@ func date(t time.Time) string {
 	return t.Format("2006-01-02")
 }
 
+func daysBetween(a, b time.Time) int {
+	if a.After(b) {
+		a, b = b, a
+	}
+
+	// Make sure we're examining both t and current time in the local
+	// timezone.
+	a = a.In(types.Pacific)
+	b = b.In(types.Pacific)
+	// Shift both times to midnight of their respective day. Note we
+	// don't use Truncate, because that operates on the timestamp not
+	// the presentation time, and we want to truncate to midnight
+	// local time.
+	a = time.Date(a.Year(), a.Month(), a.Day(), 0, 0, 0, 0, types.Pacific)
+	b = time.Date(b.Year(), b.Month(), b.Day(), 0, 0, 0, 0, types.Pacific)
+
+	// Now we can reliably figure the number of days since t, where a
+	// day is defined as a transition through midnight not
+	// 24*time.Hour.
+	return int(b.Sub(a) / (24 * time.Hour))
+}
+
 func daysAgo(t time.Time) string {
-	d := time.Since(t) / (24 * time.Hour)
+	d := daysBetween(time.Now(), t)
+
 	switch {
 	case d == 0:
 		return "today"
