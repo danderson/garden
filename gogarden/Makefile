@@ -1,6 +1,6 @@
 .PHONY: fromprod
 fromprod:
-	curl -o garden_prod.db http://garden/.magic/backup
+	curl -o garden_prod.db http://garden/.magic/db
 	curl -o images_prod.tgz http://garden/.magic/images
 	make reset
 
@@ -8,7 +8,6 @@ fromprod:
 reset:
 	rm -f garden_dev.db*
 	cp -f garden_prod.db garden_dev.db
-	sqlite3 garden_dev.db "pragma user_version=1"
 	rm -rf images
 	tar xf images_prod.tgz
 	make live

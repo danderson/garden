@@ -7,6 +7,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"io/fs"
 	"log"
@@ -97,7 +98,7 @@ func main() {
 			w.WriteHeader(http.StatusOK)
 		})
 	}
-	r.HandleFunc("/.magic/db", s.serveDB)
+	r.Handle("/.magic/db", htu.HandlerFunc(s.serveDB))
 	r.HandleFunc("/.magic/images", s.serveImages)
 
 	srv := http.Server{
@@ -209,22 +210,21 @@ func (s *Server) static(w http.ResponseWriter, r *http.Request) {
 	s.assets.ServeHTTP(w, r)
 }
 
-func (s *Server) serveDB(w http.ResponseWriter, r *http.Request) {
+func (s *Server) serveDB(w http.ResponseWriter, r *http.Request) error {
 	d, err := os.MkdirTemp("", "backup")
 	if err != nil {
-		http.Error(w, "couldn't make tempdir", http.StatusInternalServerError)
-		return
+		return fmt.Errorf("couldn't make tempdir: %w", err)
 	}
 	defer os.RemoveAll(d)
 
 	backup := filepath.Join(d, "garden_backup.db")
 	out, err := exec.Command("sqlite3", s.dbPath, ".backup "+backup).CombinedOutput()
 	if err != nil {
-		http.Error(w, string(out), http.StatusInternalServerError)
-		return
+		return fmt.Errorf("couldn't make backup: %w (%s)", err, string(out))
 	}
 
 	http.ServeFile(w, r, backup)
+	return nil
 }
 
 func (s *Server) serveImages(w http.ResponseWriter, r *http.Request) {

@@ -440,20 +440,6 @@ func (q *Queries) ListSeedsForSelector(ctx context.Context) ([]ListSeedsForSelec
 	return items, nil
 }
 
-const pullUpPlant = `-- name: PullUpPlant :exec
-update plant_locations set end=? where plant_id=? and end is null
-`
-
-type PullUpPlantParams struct {
-	End     types.TextTime `json:"end"`
-	PlantID int64          `json:"plant_id"`
-}
-
-func (q *Queries) PullUpPlant(ctx context.Context, arg PullUpPlantParams) error {
-	_, err := q.db.ExecContext(ctx, pullUpPlant, arg.End, arg.PlantID)
-	return err
-}
-
 const searchLocations = `-- name: SearchLocations :many
 select l.id, l.name, l.inserted_at, l.updated_at, l.qr_id, l.qr_state,count(pl.id) as num_plants
   from locations as l
@@ -723,4 +709,18 @@ func (q *Queries) UpdateSeed(ctx context.Context, arg UpdateSeedParams) (Seed, e
 		&i.Family,
 	)
 	return i, err
+}
+
+const uprootPlant = `-- name: UprootPlant :exec
+update plant_locations set end=? where plant_id=? and end is null
+`
+
+type UprootPlantParams struct {
+	End     types.TextTime `json:"end"`
+	PlantID int64          `json:"plant_id"`
+}
+
+func (q *Queries) UprootPlant(ctx context.Context, arg UprootPlantParams) error {
+	_, err := q.db.ExecContext(ctx, uprootPlant, arg.End, arg.PlantID)
+	return err
 }

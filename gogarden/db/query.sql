@@ -95,7 +95,7 @@ insert into plant_locations (
   location_id,
   start) values (?,?,?) returning *;
 
--- name: PullUpPlant :exec
+-- name: UprootPlant :exec
 update plant_locations set end=? where plant_id=? and end is null;
 
 -- name: GetPlantForUpdate :one

@@ -51,6 +51,9 @@ templ Plant(plant db.Plant, locs []db.GetPlantLocationsRow) {
 				<p class="text-sm">{l.Name} (from {date(l.Start.Time)} to {date(l.End.Time)}</p>
 			}
 		}
+		<div class="py-2">
+			<button class="py-1 px-2 rounded-lg border-2" hx-confirm="Really uproot?" hx-post={f("/plants/%d/uproot", plant.ID)}>Uproot</button>
+		</div>
 	</div>
 }
 

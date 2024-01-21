@@ -29,6 +29,7 @@ func Plants(r *chi.Mux, db *db.DB) {
 	r.Get("/plants/{id}/edit", chiFn(s.editPlant))
 	r.Post("/plants/{id}/edit", chiFn(s.editPlant))
 	r.Get("/plants/search", chiFn(s.searchPlant))
+	r.Post("/plants/{id}/uproot", chiFn(s.uprootPlant))
 }
 
 func (s *plants) listPlants(w http.ResponseWriter, r *http.Request) error {
@@ -266,7 +267,7 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 	}
 	if params.LocationID != curLocation {
 		transplant := types.TextTime{Time: time.Now()}
-		err := tx.PullUpPlant(r.Context(), db.PullUpPlantParams{
+		err := tx.UprootPlant(r.Context(), db.UprootPlantParams{
 			PlantID: id,
 			End:     transplant,
 		})
@@ -301,5 +302,25 @@ func (s *plants) searchPlant(w http.ResponseWriter, r *http.Request) error {
 		return internalErrorf("executing search: %w", err)
 	}
 	views.PlantList(plants).Render(r.Context(), w)
+	return nil
+}
+
+func (s *plants) uprootPlant(w http.ResponseWriter, r *http.Request) error {
+	id, err := htu.Int64Param(r, "id")
+	if err != nil {
+		return badRequest(err)
+	}
+
+	end := types.TextTime{Time: time.Now()}
+	err = s.db.UprootPlant(r.Context(), db.UprootPlantParams{
+		PlantID: id,
+		End:     end,
+	})
+	if err != nil {
+		internalErrorf("uprooting plant: %w", err)
+	}
+
+	w.Header().Set("Hx-Location", "/plants")
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
