@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	r, err := reload.NewRunner("./garden.tmp", "-dev")
+	r, err := reload.NewRunner("./garden.bin", "-dev")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func main() {
 			Name:    "compile Go",
 			Match:   []string{"*.go"},
 			Ignore:  []string{"*_test.go"},
-			Command: []string{"go", "build", "-o", "garden.tmp", "."},
+			Command: []string{"make", "bin"},
 			Notify:  r.Restart,
 		},
 	}

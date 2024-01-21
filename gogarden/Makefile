@@ -24,6 +24,10 @@ dev:
 live:
 	go run ./cmd/watch
 
+.PHONY: bin
+bin:
+	go build -o garden.bin -tags=osusergo,netgo,sqlite_stat4,sqlite_omit_load_extension,sqlite_fts5,sqlite_json,sqlite_math_functions -ldflags=-extldflags=-static
+
 .PHONY: schema
 schema:
 	sqlite3 garden_dev.db ".schema"
@@ -37,6 +41,6 @@ deploy:
 	sqlc generate
 	templ generate
 	tailwindcss -i style.css -o static/app.css
-	go build -o garden.bin .
+	make bin
 	rsync garden.bin acrux:/fast/garden/garden.bin
 	ssh root@acrux systemctl restart garden
