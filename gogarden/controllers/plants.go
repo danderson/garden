@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -29,6 +28,7 @@ func Plants(r *chi.Mux, db *db.DB) {
 	r.Get("/plants/{id}/edit", chiFn(s.editPlant))
 	r.Post("/plants/{id}/edit", chiFn(s.editPlant))
 	r.Get("/plants/search", chiFn(s.searchPlant))
+	r.Get("/plants/{id}/uproot", chiFn(s.uprootPlant))
 	r.Post("/plants/{id}/uproot", chiFn(s.uprootPlant))
 }
 
@@ -296,7 +296,6 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 func (s *plants) searchPlant(w http.ResponseWriter, r *http.Request) error {
 	q := strings.Trim(r.FormValue("q"), "%")
 	q = fmt.Sprintf("%%%s%%", q)
-	log.Print(q)
 	plants, err := s.db.SearchPlants(r.Context(), q)
 	if err != nil {
 		return internalErrorf("executing search: %w", err)
@@ -306,15 +305,39 @@ func (s *plants) searchPlant(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *plants) uprootPlant(w http.ResponseWriter, r *http.Request) error {
+	type uprootForm struct {
+		End types.TextDate
+	}
+
 	id, err := htu.Int64Param(r, "id")
 	if err != nil {
 		return badRequest(err)
 	}
 
-	end := types.TextTime{Time: time.Now()}
+	if r.Method == "GET" {
+		form := forms.FromStruct(&uprootForm{types.TextDate{Time: time.Now()}})
+		views.UprootPlantForm(id, form).Render(r.Context(), w)
+		return nil
+	}
+
+	f, form, err := forms.FromRequest(&uprootForm{}, r)
+	if err != nil {
+		return internalErrorf("parsing form: %w", err)
+	}
+	if f.End.IsZero() {
+		form.AddError("End", "required")
+	}
+	if f.End.After(time.Now()) {
+		form.AddError("End", "can't be in the future")
+	}
+	if form.HasErrors() {
+		views.UprootPlantForm(id, form).Render(r.Context(), w)
+		return nil
+	}
+
 	err = s.db.UprootPlant(r.Context(), db.UprootPlantParams{
 		PlantID: id,
-		End:     end,
+		End:     types.TextTime{Time: f.End.Time},
 	})
 	if err != nil {
 		internalErrorf("uprooting plant: %w", err)

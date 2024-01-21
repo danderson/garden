@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"go.universe.tf/garden/gogarden/types"
 )
 
 var (
@@ -71,4 +73,8 @@ func daysAgo(t time.Time) string {
 	default:
 		return fmt.Sprintf("%d years ago", d/365)
 	}
+}
+
+func dateToday() string {
+	return time.Now().In(types.Pacific).Format("2006-01-02")
 }

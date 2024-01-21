@@ -62,5 +62,36 @@ func (n TextTime) Value() (driver.Value, error) {
 	if n.IsZero() {
 		return "", nil
 	}
-	return n.Time.Format("2006-01-02T15:04:05.999999"), nil
+	return n.Time.UTC().Format("2006-01-02T15:04:05.999999"), nil
+}
+
+type TextDate struct {
+	time.Time
+}
+
+var Pacific = func() *time.Location {
+	l, err := time.LoadLocation("America/Vancouver")
+	if err != nil {
+		panic("couldn't find timezone")
+	}
+	return l
+}()
+
+func (d *TextDate) UnmarshalText(bs []byte) error {
+	if len(bs) == 0 {
+		*d = TextDate{}
+		return nil
+	}
+	if t, err := time.ParseInLocation("2006-01-02", string(bs), Pacific); err == nil {
+		*d = TextDate{t}
+		return nil
+	}
+	return fmt.Errorf("Unparseable date %q", bs)
+}
+
+func (d TextDate) MarshalText() ([]byte, error) {
+	if d.IsZero() {
+		return []byte(""), nil
+	}
+	return []byte(d.In(Pacific).Format("2006-01-02")), nil
 }

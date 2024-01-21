@@ -4,7 +4,6 @@ import (
 	"encoding"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -82,7 +81,6 @@ func FromRequest[T any](st *T, r *http.Request) (*T, *Form, error) {
 			Errors:  errs,
 			Options: selectOptions(fv),
 		}
-		log.Print(ret.Fields[fi.Name])
 		return nil
 	})
 	if err != nil {

@@ -10,6 +10,7 @@
   outputs = { self, nixpkgs, templ }: {
     devShell.x86_64-linux = with nixpkgs.legacyPackages.x86_64-linux; mkShell {
       buildInputs = [
+        glibc
         glibc.static
         elixir
         elixir_ls

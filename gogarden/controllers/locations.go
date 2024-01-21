@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -150,7 +149,6 @@ func (s *locations) editLocation(w http.ResponseWriter, r *http.Request) error {
 func (s *locations) searchLocations(w http.ResponseWriter, r *http.Request) error {
 	q := strings.Trim(r.FormValue("q"), "%")
 	q = fmt.Sprintf("%%%s%%", q)
-	log.Print(q)
 	locations, err := s.db.SearchLocations(r.Context(), q)
 	if err != nil {
 		return internalErrorf("executing search: %w", err)

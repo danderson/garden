@@ -3,3 +3,4 @@ db.sqlite3*
 /images_prod.tgz
 /images/
 /garden.bin
+/garden.tmp

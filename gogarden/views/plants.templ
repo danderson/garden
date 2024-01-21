@@ -52,7 +52,7 @@ templ Plant(plant db.Plant, locs []db.GetPlantLocationsRow) {
 			}
 		}
 		<div class="py-2">
-			<button class="py-1 px-2 rounded-lg border-2" hx-confirm="Really uproot?" hx-post={f("/plants/%d/uproot", plant.ID)}>Uproot</button>
+			<button class="py-1 px-2 rounded-lg border-2" hx-get={f("/plants/%d/uproot", plant.ID)} hx-swap="outerHTML">Uproot</button>
 		</div>
 	</div>
 }
@@ -83,5 +83,16 @@ templ EditPlant(id int64, form *forms.Form) {
 		@selectInput(form.Fields["SeedID"], "Seed")
 		@selectInput(form.Fields["LocationID"], "Location")
 		@textInput(form.Fields["Name"], "Name")
+	</form>
+}
+
+templ UprootPlantForm(id int64, form *forms.Form) {
+	<form id="uproot">
+		for _, err := range form.Fields["End"].Errors {
+			<p class="text-red-500">{err}</p>
+		}
+		<input type="date" name="End" class="text-slate-900" value={form.Fields["End"].Value} max={dateToday()} />
+		<button class="py-1 px-2 rounded-lg border-2 border-red-500 text-red-500" hx-post={f("/plants/%d/uproot", id)} hx-target="#uproot" hx-swap="outerHTML">Uproot</button>
+		<button class="py-1 px-2 rounded-lg border-2" hx-get={f("/plants/%d", id)} hx-target="body">Cancel</button>
 	</form>
 }
