@@ -14,6 +14,7 @@ type PlantFamily int
 const (
 	Unknown PlantFamily = iota
 	Adoxaceae
+	Aizoaceae
 	Allium
 	Amaranthaceae
 	Apiaceae
