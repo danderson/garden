@@ -5,15 +5,15 @@ import (
 	"database/sql"
 	"fmt"
 	"io/fs"
+	"log"
 	"strconv"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/exp/slog"
 )
 
-func Open(logger *slog.Logger, path string, fileMigrations fs.FS, goMigrations map[int]func(*sqlx.Tx) error) (*DB, error) {
+func Open(path string, fileMigrations fs.FS, goMigrations map[int]func(*sqlx.Tx) error) (*DB, error) {
 	migrations, err := assembleMigrations(fileMigrations, goMigrations)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func Open(logger *slog.Logger, path string, fileMigrations fs.FS, goMigrations m
 	}
 
 	if migration_version != len(migrations) {
-		logger.Info("running migrations", "old_db_version", migration_version, "new_db_version", len(migrations))
+		log.Printf("running migrations from version %d to %d", migration_version, len(migrations))
 		for i, m := range migrations[migration_version:] {
 			tx, err := db.Beginx()
 			if err != nil {

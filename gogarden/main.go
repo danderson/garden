@@ -7,9 +7,11 @@ import (
 	"flag"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"slices"
 	"syscall"
 
@@ -18,11 +20,12 @@ import (
 	"go.universe.tf/garden/gogarden/htu"
 	"go.universe.tf/garden/gogarden/migrations"
 	"go.universe.tf/garden/gogarden/views"
+	"tailscale.com/tsnet"
+	"tailscale.com/types/logger"
 
 	"github.com/a-h/templ"
 	"github.com/danderson/reload"
 	"github.com/go-chi/chi/v5"
-	"golang.org/x/exp/slog"
 
 	"embed"
 )
@@ -31,14 +34,25 @@ import (
 var static embed.FS
 
 var (
-	dev = flag.Bool("dev", false, "development mode")
+	hostname = flag.String("hostname", "garden", "hostname")
+	stateDir = flag.String("state-dir", "", "state directory")
+	dev      = flag.Bool("dev", false, "development mode")
 )
 
 func main() {
 	flag.Parse()
 
-	logger := slog.Default()
-	db, err := db.Open(logger, "garden_dev.db", migrations.FileMigrations(), migrations.GoMigrations())
+	dbFile := "garden.db"
+	if *dev {
+		dbFile = "garden_dev.db"
+	}
+
+	if *stateDir != "" {
+		if err := os.MkdirAll(*stateDir, 0700); err != nil {
+			log.Fatal(err)
+		}
+	}
+	db, err := db.Open(filepath.Join(*stateDir, dbFile), migrations.FileMigrations(), migrations.GoMigrations())
 	if err != nil {
 		log.Fatalf("opening database: %v", err)
 	}
@@ -64,13 +78,10 @@ func main() {
 	controllers.Plants(r, db)
 	controllers.Home(r, db)
 	r.Get("/csv", htu.HandlerFunc(s.serveCSV).ServeHTTP)
-	// r.Get("/api/locations", htu.ErrHandler(s.listLocations))
-	// r.Post("/api/locations/{id}", htu.ErrHandler(s.updateLocation))
 	r.Handle("/static/{hash}/*", http.HandlerFunc(s.static))
 	r.Handle("/.live", &reload.Reloader{})
 
-	httpSrv := http.Server{
-		Addr:    ":8000",
+	srv := http.Server{
 		Handler: r,
 	}
 
@@ -79,12 +90,41 @@ func main() {
 	go func() {
 		s := <-sig
 		log.Printf("received %v", s)
-		httpSrv.Close()
+		srv.Close()
 	}()
 
-	log.Print("Server running")
-	if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatal(err)
+	if *dev {
+		ln, err := net.Listen("tcp", ":8000")
+		if err != nil {
+			log.Fatalf("listening: %v", err)
+		}
+		log.Print("Server running on :8000")
+		if err := srv.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal(err)
+		}
+	} else {
+		tnsrv := &tsnet.Server{
+			Dir:      filepath.Join(*stateDir, "tsnet"),
+			Hostname: *hostname,
+			Logf:     logger.Discard,
+		}
+		p80, err := tnsrv.Listen("tcp", ":80")
+		if err != nil {
+			log.Fatal(err)
+		}
+		p443, err := tnsrv.ListenTLS("tcp", ":443")
+		if err != nil {
+			log.Fatal(err)
+		}
+		go func() {
+			if err := srv.Serve(p80); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				log.Fatal(err)
+			}
+		}()
+		log.Print("Server running over tailscale")
+		if err := srv.Serve(p443); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal(err)
+		}
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	r, err := reload.NewRunner("./garden.tmp")
+	r, err := reload.NewRunner("./garden.tmp", "-dev")
 	if err != nil {
 		log.Fatal(err)
 	}
