@@ -1,15 +1,19 @@
 package main
 
 import (
+	"archive/tar"
 	"cmp"
+	"compress/gzip"
 	"encoding/csv"
 	"errors"
 	"flag"
+	"io"
 	"io/fs"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"slices"
@@ -52,7 +56,8 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-	db, err := db.Open(filepath.Join(*stateDir, dbFile), migrations.FileMigrations(), migrations.GoMigrations())
+	dbPath := filepath.Join(*stateDir, dbFile)
+	db, err := db.Open(dbPath, migrations.FileMigrations(), migrations.GoMigrations())
 	if err != nil {
 		log.Fatalf("opening database: %v", err)
 	}
@@ -67,9 +72,13 @@ func main() {
 		assets = os.DirFS("static")
 	}
 
+	imagesPath := filepath.Join(*stateDir, "images")
+
 	s := &Server{
-		db:     db,
-		assets: http.FileServer(http.FS(assets)),
+		dbPath:     dbPath,
+		imagesPath: imagesPath,
+		db:         db,
+		assets:     http.FileServer(http.FS(assets)),
 	}
 
 	r := chi.NewRouter()
@@ -79,7 +88,10 @@ func main() {
 	controllers.Home(r, db)
 	r.Get("/csv", htu.HandlerFunc(s.serveCSV).ServeHTTP)
 	r.Handle("/static/{hash}/*", http.HandlerFunc(s.static))
+	r.Handle("/user_images/*", http.StripPrefix("/user_images", http.FileServer(http.Dir(imagesPath))))
 	r.Handle("/.live", &reload.Reloader{})
+	r.HandleFunc("/.magic/db", s.serveDB)
+	r.HandleFunc("/.magic/images", s.serveImages)
 
 	srv := http.Server{
 		Handler: r,
@@ -129,8 +141,10 @@ func main() {
 }
 
 type Server struct {
-	db     *db.DB
-	assets http.Handler
+	dbPath     string
+	imagesPath string
+	db         *db.DB
+	assets     http.Handler
 }
 
 func (s *Server) serveCSV(w http.ResponseWriter, r *http.Request) error {
@@ -186,6 +200,81 @@ func (s *Server) static(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = "/" + slug
 	r.URL.RawPath = "/" + slug
 	s.assets.ServeHTTP(w, r)
+}
+
+func (s *Server) serveDB(w http.ResponseWriter, r *http.Request) {
+	d, err := os.MkdirTemp("", "backup")
+	if err != nil {
+		http.Error(w, "couldn't make tempdir", http.StatusInternalServerError)
+		return
+	}
+	defer os.RemoveAll(d)
+
+	backup := filepath.Join(d, "garden_backup.db")
+	out, err := exec.Command("sqlite3", s.dbPath, ".backup "+backup).CombinedOutput()
+	if err != nil {
+		http.Error(w, string(out), http.StatusInternalServerError)
+		return
+	}
+
+	http.ServeFile(w, r, backup)
+}
+
+func (s *Server) serveImages(w http.ResponseWriter, r *http.Request) {
+	imgs := s.imagesPath
+
+	g := gzip.NewWriter(w)
+	defer g.Close()
+
+	t := tar.NewWriter(g)
+	defer t.Close()
+	base := filepath.Dir(imgs)
+
+	w.Header().Set("Content-Type", "application/tar+gzip")
+
+	err := filepath.WalkDir(imgs, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		rel, err := filepath.Rel(base, path)
+		if err != nil {
+			return err
+		}
+
+		fi, err := d.Info()
+		if err != nil {
+			return err
+		}
+
+		hdr, err := tar.FileInfoHeader(fi, "")
+		if err != nil {
+			return err
+		}
+
+		hdr.Name = rel
+
+		if err := t.WriteHeader(hdr); err != nil {
+			return err
+		}
+
+		if fi.IsDir() {
+			return nil
+		}
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		if _, err := io.Copy(t, f); err != nil {
+			return err
+		}
+		f.Close()
+		return nil
+	})
+	if err != nil {
+		log.Print(err)
+	}
 }
 
 func (s *Server) render(w http.ResponseWriter, r *http.Request, page templ.Component) {
