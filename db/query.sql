@@ -4,10 +4,10 @@ select id,name from seeds order by name collate nocase;
 -- name: GetSeed :one
 select * from seeds where id=?;
 
--- name: GetSeedWindows :many
-select * from seed_windows
- where seed_id=?
- order by start asc, end asc;
+-- -- name: GetSeedWindows :many
+-- select * from seed_windows
+--  where seed_id=?
+--  order by start asc, end asc;
 
 -- name: SearchSeeds :many
 select * from seeds where name like ? order by name collate nocase;

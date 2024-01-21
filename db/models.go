@@ -71,13 +71,3 @@ type Seed struct {
 	Lifespan          *string                 `json:"lifespan"`
 	Family            plantfamily.PlantFamily `json:"family"`
 }
-
-type SeedWindow struct {
-	ID         int64  `json:"id"`
-	SeedID     int64  `json:"seed_id"`
-	How        string `json:"how"`
-	Datum      string `json:"datum"`
-	Start      int64  `json:"start"`
-	End        int64  `json:"end"`
-	Transplant *int64 `json:"transplant"`
-}
