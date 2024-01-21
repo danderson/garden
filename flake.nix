@@ -12,13 +12,8 @@
       buildInputs = [
         glibc
         glibc.static
-        elixir
-        elixir_ls
         inotify-tools
-        nodejs
-        erlang
 	      sqlite-interactive
-        flyctl
         go
         gopls
         (buildGoModule {
@@ -39,33 +34,7 @@
         })
         templ.packages.x86_64-linux.templ
         tailwindcss
-        wgo
       ];
-    };
-
-    packages.x86_64-linux.default = with nixpkgs.legacyPackages.x86_64-linux; let
-      mix = "${pkgs.elixir}/bin/mix";
-    in stdenv.mkDerivation {
-      name = "garden";
-      src = ./.;
-
-      nativeBuildInputs = [
-        elixir
-        erlang
-        nodejs
-        cacert
-      ];
-      __noChroot = true;
-
-      buildPhase = ''
-        export HOME=`pwd`
-        export MIX_ENV=prod
-        ${mix} deps.get --only prod
-        ${mix} compile
-        ${mix} assets.deploy
-        ${mix} phx.gen.release
-        ${mix} release --path $out
-      '';
     };
   };
 }
