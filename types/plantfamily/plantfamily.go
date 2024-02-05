@@ -34,6 +34,7 @@ const (
 	Malvaceae
 	Onagraceae
 	Papaveraceae
+	Plantaginaceae
 	Poaceae
 	Polygonaceae
 	Ranunculaceae
