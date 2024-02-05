@@ -35,6 +35,7 @@ const (
 	Onagraceae
 	Papaveraceae
 	Plantaginaceae
+	Plumbaginaceae
 	Poaceae
 	Polygonaceae
 	Ranunculaceae
