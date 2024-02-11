@@ -26,6 +26,7 @@ func Locations(r *chi.Mux, db *db.DB) {
 	r.Get("/locations/{id}/edit", chiFn(s.editLocation))
 	r.Post("/locations/{id}/edit", chiFn(s.editLocation))
 	r.Get("/locations/search", chiFn(s.searchLocations))
+	r.Get("/box/{id}", chiFn(s.redirectLocation))
 }
 
 func (s *locations) listLocations(w http.ResponseWriter, r *http.Request) error {
@@ -154,5 +155,14 @@ func (s *locations) searchLocations(w http.ResponseWriter, r *http.Request) erro
 		return internalErrorf("executing search: %w", err)
 	}
 	views.LocationList(locations).Render(r.Context(), w)
+	return nil
+}
+
+func (s *locations) redirectLocation(w http.ResponseWriter, r *http.Request) error {
+	id, err := htu.Int64Param(r, "id")
+	if err != nil {
+		return badRequest(err)
+	}
+	http.Redirect(w, r, fmt.Sprintf("/locations/%d", id), http.StatusFound)
 	return nil
 }
