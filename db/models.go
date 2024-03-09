@@ -7,6 +7,8 @@ package db
 import (
 	"go.universe.tf/garden/types"
 	"go.universe.tf/garden/types/plantfamily"
+	"go.universe.tf/garden/types/soiltype"
+	"go.universe.tf/garden/types/suntype"
 	"go.universe.tf/garden/types/tribool"
 )
 
@@ -50,24 +52,28 @@ type SchemaMigration struct {
 }
 
 type Seed struct {
-	ID                int64                   `json:"id"`
-	Name              string                  `json:"name"`
-	InsertedAt        string                  `json:"inserted_at"`
-	UpdatedAt         string                  `json:"updated_at"`
-	FrontImageID      *string                 `json:"front_image_id"`
-	BackImageID       *string                 `json:"back_image_id"`
-	Year              *int64                  `json:"year"`
-	Edible            tribool.Tribool         `json:"edible"`
-	NeedsTrellis      tribool.Tribool         `json:"needs_trellis"`
-	NeedsBirdNetting  tribool.Tribool         `json:"needs_bird_netting"`
-	IsKeto            tribool.Tribool         `json:"is_keto"`
-	IsNative          tribool.Tribool         `json:"is_native"`
-	IsInvasive        tribool.Tribool         `json:"is_invasive"`
-	IsCoverCrop       tribool.Tribool         `json:"is_cover_crop"`
-	GrowsWellFromSeed tribool.Tribool         `json:"grows_well_from_seed"`
-	IsBadForCats      tribool.Tribool         `json:"is_bad_for_cats"`
-	IsDeerResistant   tribool.Tribool         `json:"is_deer_resistant"`
-	Type              *string                 `json:"type"`
-	Lifespan          *string                 `json:"lifespan"`
-	Family            plantfamily.PlantFamily `json:"family"`
+	ID                  int64                   `json:"id"`
+	Name                string                  `json:"name"`
+	InsertedAt          string                  `json:"inserted_at"`
+	UpdatedAt           string                  `json:"updated_at"`
+	FrontImageID        *string                 `json:"front_image_id"`
+	BackImageID         *string                 `json:"back_image_id"`
+	Year                *int64                  `json:"year"`
+	Edible              tribool.Tribool         `json:"edible"`
+	NeedsTrellis        tribool.Tribool         `json:"needs_trellis"`
+	NeedsBirdNetting    tribool.Tribool         `json:"needs_bird_netting"`
+	IsKeto              tribool.Tribool         `json:"is_keto"`
+	IsNative            tribool.Tribool         `json:"is_native"`
+	IsInvasive          tribool.Tribool         `json:"is_invasive"`
+	IsCoverCrop         tribool.Tribool         `json:"is_cover_crop"`
+	GrowsWellFromSeed   tribool.Tribool         `json:"grows_well_from_seed"`
+	IsBadForCats        tribool.Tribool         `json:"is_bad_for_cats"`
+	IsDeerResistant     tribool.Tribool         `json:"is_deer_resistant"`
+	Type                *string                 `json:"type"`
+	Lifespan            *string                 `json:"lifespan"`
+	Family              plantfamily.PlantFamily `json:"family"`
+	LatinName           string                  `json:"latin_name"`
+	NeedsStratification tribool.Tribool         `json:"needs_stratification"`
+	SunType             suntype.SunType         `json:"sun_type"`
+	SoilType            soiltype.SoilType       `json:"soil_type"`
 }

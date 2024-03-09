@@ -42,6 +42,14 @@ sql:
             go_type: go.universe.tf/garden/types/tribool.Tribool
           - column: seeds.is_deer_resistant
             go_type: go.universe.tf/garden/types/tribool.Tribool
+          - column: seeds.needs_stratification
+            go_type: go.universe.tf/garden/types/tribool.Tribool
+          - column: seeds.sun_type
+            go_type: go.universe.tf/garden/types/suntype.SunType
+          - column: seeds.soil_type
+            go_type: go.universe.tf/garden/types/soiltype.SoilType
+          - column: seeds.latin_name
+            go_type: string
 
           - column: plant_locations.end
             go_type: go.universe.tf/garden/types.TextTime

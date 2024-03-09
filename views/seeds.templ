@@ -6,6 +6,8 @@ import (
 	"go.universe.tf/garden/db"
 	"go.universe.tf/garden/forms"
 	"go.universe.tf/garden/types/tribool"
+	"go.universe.tf/garden/types/suntype"
+	"go.universe.tf/garden/types/soiltype"
 	"go.universe.tf/garden/types/plantfamily"
 )
 
@@ -84,10 +86,15 @@ templ Seed(seed db.Seed) {
 	<div id="seed" class="px-2 py-3">
 		<h1 class="text-lg font-semibold">{ seed.Name }</h1>
 		<p class="text-sm">
-			if seed.Family != plantfamily.Unknown {
+			if seed.LatinName != "" {
+				{ s(seed.LatinName) }
+				if seed.Family != plantfamily.Unknown {
+					({ s(seed.Family) })
+				}
+			} else if seed.Family != plantfamily.Unknown {
 				{ s(seed.Family) }
 			}
-			if seed.Year != nil && seed.Family != plantfamily.Unknown {
+			if seed.Year != nil && (seed.Family != plantfamily.Unknown || seed.LatinName != "") {
 				{ ", " }
 			}
 			if seed.Year != nil {
@@ -131,6 +138,25 @@ templ Seed(seed db.Seed) {
 			if seed.NeedsBirdNetting == tribool.True {
 				@badge(badgeInfo, thumbNone, "bird net")
 			}
+			if seed.NeedsStratification == tribool.True {
+				@badge(badgeInfo, thumbNone, "stratify")
+			}
+			switch seed.SunType {
+			case suntype.Full:
+				@badge(badgeInfo, thumbNone, "full sun")
+			case suntype.Partial:
+				@badge(badgeInfo, thumbNone, "partial sun")
+			case suntype.Shade:
+				@badge(badgeInfo, thumbNone, "shade")
+			}
+			switch seed.SoilType {
+			case soiltype.Dry:
+				@badge(badgeInfo, thumbNone, "dry soil")
+			case soiltype.Wet:
+				@badge(badgeInfo, thumbNone, "wet soil")
+			case soiltype.Both:
+				@badge(badgeInfo, thumbNone, "dry or wet soil")
+			}
 		</div>
 	</div>
 }
@@ -144,10 +170,14 @@ templ seedForm(form *forms.Form, cancelURL string) {
 		</div>
 		<div class="flex flex-col gap-2">
 			@textInput(form.Fields["Name"], "")
+			@textInput(form.Fields["LatinName"], "Latin name")
 			@selectInput(form.Fields["Family"], "")
+			@selectInput(form.Fields["SunType"], "Sun exposure")
+			@selectInput(form.Fields["SoilType"], "Soil wetness")
 			@selectInput(form.Fields["Edible"], "Edible?")
 			@selectInput(form.Fields["NeedsTrellis"], "Needs trellis?")
 			@selectInput(form.Fields["NeedsBirdNetting"], "Needs bird netting?")
+			@selectInput(form.Fields["NeedsStratification"], "Needs stratification?")
 			@selectInput(form.Fields["IsKeto"], "Keto?")
 			@selectInput(form.Fields["IsNative"], "Native?")
 			@selectInput(form.Fields["IsInvasive"], "Invasive?")
