@@ -30,6 +30,7 @@ const (
 	Cucurbitaceae
 	Fabaceae
 	Lamiaceae
+	Lilliaceae
 	Linaceae
 	Malvaceae
 	Onagraceae

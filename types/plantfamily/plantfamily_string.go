@@ -26,25 +26,26 @@ func _() {
 	_ = x[Cucurbitaceae-15]
 	_ = x[Fabaceae-16]
 	_ = x[Lamiaceae-17]
-	_ = x[Linaceae-18]
-	_ = x[Malvaceae-19]
-	_ = x[Onagraceae-20]
-	_ = x[Papaveraceae-21]
-	_ = x[Plantaginaceae-22]
-	_ = x[Plumbaginaceae-23]
-	_ = x[Poaceae-24]
-	_ = x[Polygonaceae-25]
-	_ = x[Ranunculaceae-26]
-	_ = x[Rosaceae-27]
-	_ = x[Solanaceae-28]
-	_ = x[Tropaeolaceae-29]
-	_ = x[Violaceae-30]
-	_ = x[Wildflower-31]
+	_ = x[Lilliaceae-18]
+	_ = x[Linaceae-19]
+	_ = x[Malvaceae-20]
+	_ = x[Onagraceae-21]
+	_ = x[Papaveraceae-22]
+	_ = x[Plantaginaceae-23]
+	_ = x[Plumbaginaceae-24]
+	_ = x[Poaceae-25]
+	_ = x[Polygonaceae-26]
+	_ = x[Ranunculaceae-27]
+	_ = x[Rosaceae-28]
+	_ = x[Solanaceae-29]
+	_ = x[Tropaeolaceae-30]
+	_ = x[Violaceae-31]
+	_ = x[Wildflower-32]
 }
 
-const _PlantFamily_name = "UnknownAdoxaceaeAizoaceaeAlliumAmaranthaceaeApiaceaeApocynaceaeAsparagaceaeAsteraceaeBoraginaceaeBrassicaceaeCampanulaceaeCaprifoliaceaeCaryophyllaceaeConvolvulaceaeCucurbitaceaeFabaceaeLamiaceaeLinaceaeMalvaceaeOnagraceaePapaveraceaePlantaginaceaePlumbaginaceaePoaceaePolygonaceaeRanunculaceaeRosaceaeSolanaceaeTropaeolaceaeViolaceaeWildflower"
+const _PlantFamily_name = "UnknownAdoxaceaeAizoaceaeAlliumAmaranthaceaeApiaceaeApocynaceaeAsparagaceaeAsteraceaeBoraginaceaeBrassicaceaeCampanulaceaeCaprifoliaceaeCaryophyllaceaeConvolvulaceaeCucurbitaceaeFabaceaeLamiaceaeLilliaceaeLinaceaeMalvaceaeOnagraceaePapaveraceaePlantaginaceaePlumbaginaceaePoaceaePolygonaceaeRanunculaceaeRosaceaeSolanaceaeTropaeolaceaeViolaceaeWildflower"
 
-var _PlantFamily_index = [...]uint16{0, 7, 16, 25, 31, 44, 52, 63, 75, 85, 97, 109, 122, 136, 151, 165, 178, 186, 195, 203, 212, 222, 234, 248, 262, 269, 281, 294, 302, 312, 325, 334, 344}
+var _PlantFamily_index = [...]uint16{0, 7, 16, 25, 31, 44, 52, 63, 75, 85, 97, 109, 122, 136, 151, 165, 178, 186, 195, 205, 213, 222, 232, 244, 258, 272, 279, 291, 304, 312, 322, 335, 344, 354}
 
 func (i PlantFamily) String() string {
 	if i < 0 || i >= PlantFamily(len(_PlantFamily_index)-1) {
