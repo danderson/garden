@@ -22,6 +22,7 @@ func GoMigrations() map[int]func(*sqlx.Tx) error {
 		3: dropLocationExplicitNulls,
 		4: dropPlantsExplicitNulls,
 		5: dropPlantLocationsExplicitNulls,
+		7: fixupLifespanValues,
 	}
 }
 
@@ -158,6 +159,22 @@ func dropPlantLocationsExplicitNulls(tx *sqlx.Tx) error {
 		return err
 	}
 	if _, err := tx.Exec("PRAGMA integrity_check"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func fixupLifespanValues(tx *sqlx.Tx) error {
+	if _, err := tx.Exec("update seeds set lifespan=NULL where lifespan='U'"); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("update seeds set lifespan='Annual' where lifespan='A'"); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("update seeds set lifespan='Perennial' where lifespan='P'"); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("update seeds set lifespan='Perennial' where lifespan='B'"); err != nil {
 		return err
 	}
 	return nil

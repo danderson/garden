@@ -10,6 +10,7 @@ import (
 
 	"go.universe.tf/garden/types"
 	"go.universe.tf/garden/types/plantfamily"
+	"go.universe.tf/garden/types/plantlifespan"
 	"go.universe.tf/garden/types/soiltype"
 	"go.universe.tf/garden/types/suntype"
 	"go.universe.tf/garden/types/tribool"
@@ -115,23 +116,33 @@ insert into seeds (
   is_cover_crop,
   grows_well_from_seed,
   is_bad_for_cats,
-  is_deer_resistant) values (?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?,?) returning id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family, latin_name, needs_stratification, sun_type, soil_type
+  is_deer_resistant,
+  latin_name,
+  needs_stratification,
+  sun_type,
+  soil_type,
+  lifespan) values (?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) returning id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family, latin_name, needs_stratification, sun_type, soil_type
 `
 
 type CreateSeedParams struct {
-	Name              string                  `json:"name"`
-	Family            plantfamily.PlantFamily `json:"family"`
-	Year              *int64                  `json:"year"`
-	Edible            tribool.Tribool         `json:"edible"`
-	NeedsTrellis      tribool.Tribool         `json:"needs_trellis"`
-	NeedsBirdNetting  tribool.Tribool         `json:"needs_bird_netting"`
-	IsKeto            tribool.Tribool         `json:"is_keto"`
-	IsNative          tribool.Tribool         `json:"is_native"`
-	IsInvasive        tribool.Tribool         `json:"is_invasive"`
-	IsCoverCrop       tribool.Tribool         `json:"is_cover_crop"`
-	GrowsWellFromSeed tribool.Tribool         `json:"grows_well_from_seed"`
-	IsBadForCats      tribool.Tribool         `json:"is_bad_for_cats"`
-	IsDeerResistant   tribool.Tribool         `json:"is_deer_resistant"`
+	Name                string                      `json:"name"`
+	Family              plantfamily.PlantFamily     `json:"family"`
+	Year                *int64                      `json:"year"`
+	Edible              tribool.Tribool             `json:"edible"`
+	NeedsTrellis        tribool.Tribool             `json:"needs_trellis"`
+	NeedsBirdNetting    tribool.Tribool             `json:"needs_bird_netting"`
+	IsKeto              tribool.Tribool             `json:"is_keto"`
+	IsNative            tribool.Tribool             `json:"is_native"`
+	IsInvasive          tribool.Tribool             `json:"is_invasive"`
+	IsCoverCrop         tribool.Tribool             `json:"is_cover_crop"`
+	GrowsWellFromSeed   tribool.Tribool             `json:"grows_well_from_seed"`
+	IsBadForCats        tribool.Tribool             `json:"is_bad_for_cats"`
+	IsDeerResistant     tribool.Tribool             `json:"is_deer_resistant"`
+	LatinName           string                      `json:"latin_name"`
+	NeedsStratification tribool.Tribool             `json:"needs_stratification"`
+	SunType             suntype.SunType             `json:"sun_type"`
+	SoilType            soiltype.SoilType           `json:"soil_type"`
+	Lifespan            plantlifespan.PlantLifespan `json:"lifespan"`
 }
 
 func (q *Queries) CreateSeed(ctx context.Context, arg CreateSeedParams) (Seed, error) {
@@ -149,6 +160,11 @@ func (q *Queries) CreateSeed(ctx context.Context, arg CreateSeedParams) (Seed, e
 		arg.GrowsWellFromSeed,
 		arg.IsBadForCats,
 		arg.IsDeerResistant,
+		arg.LatinName,
+		arg.NeedsStratification,
+		arg.SunType,
+		arg.SoilType,
+		arg.Lifespan,
 	)
 	var i Seed
 	err := row.Scan(
@@ -674,28 +690,29 @@ func (q *Queries) UpdatePlant(ctx context.Context, arg UpdatePlantParams) (Plant
 }
 
 const updateSeed = `-- name: UpdateSeed :one
-update seeds set name=?,family=?,updated_at=CURRENT_TIMESTAMP,year=?,edible=?,needs_trellis=?,needs_bird_netting=?,is_keto=?,is_native=?,is_invasive=?,is_cover_crop=?,grows_well_from_seed=?,is_bad_for_cats=?,is_deer_resistant=?,latin_name=?,needs_stratification=?,sun_type=?,soil_type=? where id=? returning id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family, latin_name, needs_stratification, sun_type, soil_type
+update seeds set name=?,family=?,updated_at=CURRENT_TIMESTAMP,year=?,edible=?,needs_trellis=?,needs_bird_netting=?,is_keto=?,is_native=?,is_invasive=?,is_cover_crop=?,grows_well_from_seed=?,is_bad_for_cats=?,is_deer_resistant=?,latin_name=?,needs_stratification=?,sun_type=?,soil_type=?,lifespan=? where id=? returning id, name, inserted_at, updated_at, front_image_id, back_image_id, year, edible, needs_trellis, needs_bird_netting, is_keto, is_native, is_invasive, is_cover_crop, grows_well_from_seed, is_bad_for_cats, is_deer_resistant, type, lifespan, family, latin_name, needs_stratification, sun_type, soil_type
 `
 
 type UpdateSeedParams struct {
-	Name                string                  `json:"name"`
-	Family              plantfamily.PlantFamily `json:"family"`
-	Year                *int64                  `json:"year"`
-	Edible              tribool.Tribool         `json:"edible"`
-	NeedsTrellis        tribool.Tribool         `json:"needs_trellis"`
-	NeedsBirdNetting    tribool.Tribool         `json:"needs_bird_netting"`
-	IsKeto              tribool.Tribool         `json:"is_keto"`
-	IsNative            tribool.Tribool         `json:"is_native"`
-	IsInvasive          tribool.Tribool         `json:"is_invasive"`
-	IsCoverCrop         tribool.Tribool         `json:"is_cover_crop"`
-	GrowsWellFromSeed   tribool.Tribool         `json:"grows_well_from_seed"`
-	IsBadForCats        tribool.Tribool         `json:"is_bad_for_cats"`
-	IsDeerResistant     tribool.Tribool         `json:"is_deer_resistant"`
-	LatinName           string                  `json:"latin_name"`
-	NeedsStratification tribool.Tribool         `json:"needs_stratification"`
-	SunType             suntype.SunType         `json:"sun_type"`
-	SoilType            soiltype.SoilType       `json:"soil_type"`
-	ID                  int64                   `json:"id"`
+	Name                string                      `json:"name"`
+	Family              plantfamily.PlantFamily     `json:"family"`
+	Year                *int64                      `json:"year"`
+	Edible              tribool.Tribool             `json:"edible"`
+	NeedsTrellis        tribool.Tribool             `json:"needs_trellis"`
+	NeedsBirdNetting    tribool.Tribool             `json:"needs_bird_netting"`
+	IsKeto              tribool.Tribool             `json:"is_keto"`
+	IsNative            tribool.Tribool             `json:"is_native"`
+	IsInvasive          tribool.Tribool             `json:"is_invasive"`
+	IsCoverCrop         tribool.Tribool             `json:"is_cover_crop"`
+	GrowsWellFromSeed   tribool.Tribool             `json:"grows_well_from_seed"`
+	IsBadForCats        tribool.Tribool             `json:"is_bad_for_cats"`
+	IsDeerResistant     tribool.Tribool             `json:"is_deer_resistant"`
+	LatinName           string                      `json:"latin_name"`
+	NeedsStratification tribool.Tribool             `json:"needs_stratification"`
+	SunType             suntype.SunType             `json:"sun_type"`
+	SoilType            soiltype.SoilType           `json:"soil_type"`
+	Lifespan            plantlifespan.PlantLifespan `json:"lifespan"`
+	ID                  int64                       `json:"id"`
 }
 
 func (q *Queries) UpdateSeed(ctx context.Context, arg UpdateSeedParams) (Seed, error) {
@@ -717,6 +734,7 @@ func (q *Queries) UpdateSeed(ctx context.Context, arg UpdateSeedParams) (Seed, e
 		arg.NeedsStratification,
 		arg.SunType,
 		arg.SoilType,
+		arg.Lifespan,
 		arg.ID,
 	)
 	var i Seed

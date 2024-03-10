@@ -48,6 +48,8 @@ sql:
             go_type: go.universe.tf/garden/types/suntype.SunType
           - column: seeds.soil_type
             go_type: go.universe.tf/garden/types/soiltype.SoilType
+          - column: seeds.lifespan
+            go_type: go.universe.tf/garden/types/plantlifespan.PlantLifespan
           - column: seeds.latin_name
             go_type: string
 

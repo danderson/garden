@@ -9,6 +9,7 @@ import (
 	"go.universe.tf/garden/types/suntype"
 	"go.universe.tf/garden/types/soiltype"
 	"go.universe.tf/garden/types/plantfamily"
+	"go.universe.tf/garden/types/plantlifespan"
 )
 
 templ SeedList(seeds []db.Seed) {
@@ -158,6 +159,9 @@ templ Seed(seed db.Seed) {
 				@badge(badgeInfo, thumbNone, "dry or wet soil")
 			}
 		</div>
+		if seed.Lifespan != plantlifespan.Unknown {
+			<p>Lifespan: { s(seed.Lifespan) }</p>
+		}
 	</div>
 }
 
@@ -172,6 +176,7 @@ templ seedForm(form *forms.Form, cancelURL string) {
 			@textInput(form.Fields["Name"], "")
 			@textInput(form.Fields["LatinName"], "Latin name")
 			@selectInput(form.Fields["Family"], "")
+			@selectInput(form.Fields["Lifespan"], "")
 			@selectInput(form.Fields["SunType"], "Sun exposure")
 			@selectInput(form.Fields["SoilType"], "Soil wetness")
 			@selectInput(form.Fields["Edible"], "Edible?")
