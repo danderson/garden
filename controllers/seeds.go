@@ -41,11 +41,31 @@ func (s *seeds) showSeed(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return badRequest(err)
 	}
-	seed, err := s.db.GetSeed(r.Context(), id)
+	tx, err := s.db.ReadTx(r.Context())
+	if err != nil {
+		return dbGetErrorf("starting transaction: %w", err)
+	}
+	defer tx.Rollback()
+	seed, err := tx.GetSeed(r.Context(), id)
 	if err != nil {
 		return dbGetErrorf("getting seed: %w", err)
 	}
-	render(w, r, views.Seed(seed))
+	rawHist, err := tx.GetSeedHistory(r.Context(), id)
+	if err != nil {
+		return dbGetErrorf("getting seed history: %w", err)
+	}
+
+	var hist [][]db.GetSeedHistoryRow
+	lastID := int64(-1)
+	for _, h := range rawHist {
+		if h.ID != lastID {
+			hist = append(hist, nil)
+			lastID = h.ID
+		}
+		hist[len(hist)-1] = append(hist[len(hist)-1], h)
+	}
+
+	render(w, r, views.Seed(seed, hist))
 	return nil
 }
 
@@ -73,8 +93,8 @@ func (s *seeds) newSeed(w http.ResponseWriter, r *http.Request) error {
 		return internalErrorf("creating seed: %w", err)
 	}
 
-	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/seeds/%d", seed.ID))
-	render(w, r, views.Seed(seed))
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/seeds/%d", seed.ID))
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
 
@@ -110,8 +130,8 @@ func (s *seeds) editSeed(w http.ResponseWriter, r *http.Request) error {
 		return internalErrorf("updating seed: %w", err)
 	}
 
-	w.Header().Set("Hx-Replace-Url", fmt.Sprintf("/seeds/%d", seed.ID))
-	render(w, r, views.Seed(seed))
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/seeds/%d", seed.ID))
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
 

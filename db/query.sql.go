@@ -397,6 +397,58 @@ func (q *Queries) GetSeed(ctx context.Context, id int64) (Seed, error) {
 	return i, err
 }
 
+const getSeedHistory = `-- name: GetSeedHistory :many
+select
+  p.id,
+  pl.start,
+  pl.end,
+  l.id as location_id,
+  l.name as location_name
+  from seeds as s
+    inner join plants as p on p.seed_id = s.id
+    inner join plant_locations as pl on pl.plant_id = p.id
+    inner join locations as l on pl.location_id = l.id
+  where s.id=?
+  order by pl.id, pl.start
+`
+
+type GetSeedHistoryRow struct {
+	ID           int64          `json:"id"`
+	Start        types.TextTime `json:"start"`
+	End          types.TextTime `json:"end"`
+	LocationID   int64          `json:"location_id"`
+	LocationName string         `json:"location_name"`
+}
+
+func (q *Queries) GetSeedHistory(ctx context.Context, id int64) ([]GetSeedHistoryRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSeedHistory, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSeedHistoryRow
+	for rows.Next() {
+		var i GetSeedHistoryRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Start,
+			&i.End,
+			&i.LocationID,
+			&i.LocationName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSeedName = `-- name: GetSeedName :one
 select name from seeds where id=?
 `

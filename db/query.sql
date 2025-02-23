@@ -4,6 +4,20 @@ select id,name from seeds order by name collate nocase;
 -- name: GetSeed :one
 select * from seeds where id=?;
 
+-- name: GetSeedHistory :many
+select
+  p.id,
+  pl.start,
+  pl.end,
+  l.id as location_id,
+  l.name as location_name
+  from seeds as s
+    inner join plants as p on p.seed_id = s.id
+    inner join plant_locations as pl on pl.plant_id = p.id
+    inner join locations as l on pl.location_id = l.id
+  where s.id=?
+  order by pl.id, pl.start;
+
 -- -- name: GetSeedWindows :many
 -- select * from seed_windows
 --  where seed_id=?
