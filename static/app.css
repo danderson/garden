@@ -14,6 +14,7 @@
     --color-green-900: oklch(0.393 0.095 152.535);
     --color-blue-200: oklch(0.882 0.059 254.128);
     --color-blue-900: oklch(0.379 0.146 265.522);
+    --color-slate-50: oklch(0.984 0.003 247.858);
     --color-slate-100: oklch(0.968 0.007 247.896);
     --color-slate-200: oklch(0.929 0.013 255.508);
     --color-slate-300: oklch(0.869 0.022 252.894);
@@ -295,6 +296,9 @@
   }
   .bg-red-200 {
     background-color: var(--color-red-200);
+  }
+  .bg-slate-50 {
+    background-color: var(--color-slate-50);
   }
   .bg-slate-100 {
     background-color: var(--color-slate-100);
