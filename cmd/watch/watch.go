@@ -16,12 +16,12 @@ func main() {
 		{
 			Name:    "generate sql",
 			Match:   []string{"*.sql", "sqlc.yaml"},
-			Command: []string{"sqlc", "generate"},
+			Command: []string{"go", "tool", "sqlc", "generate"},
 		},
 		{
 			Name:    "generate templ",
 			Match:   []string{"*.templ"},
-			Command: []string{"templ", "generate"},
+			Command: []string{"go", "tool", "templ", "generate"},
 		},
 		{
 			Name:    "generate tailwind",

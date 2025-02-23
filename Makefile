@@ -14,8 +14,8 @@ reset:
 
 .PHONY: dev
 dev:
-	sqlc generate
-	templ generate
+	go tool sqlc generate
+	go tool templ generate
 	tailwindcss -i style.css -o static/app.css
 	go run .
 
@@ -37,8 +37,8 @@ sqlite:
 
 .PHONY: deploy
 deploy:
-	sqlc generate
-	templ generate
+	go tool sqlc generate
+	go tool templ generate
 	tailwindcss -i style.css -o static/app.css
 	make bin
 	rsync garden.bin acrux:/fast/garden/garden.bin
