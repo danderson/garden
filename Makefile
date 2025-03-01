@@ -14,10 +14,7 @@ reset:
 
 .PHONY: dev
 dev:
-	go tool sqlc generate
-	go tool templ generate
-	tailwindcss -i style.css -o static/app.css
-	go run .
+	go run ./cmd/watch
 
 .PHONY: live
 live:
@@ -25,7 +22,7 @@ live:
 
 .PHONY: bin
 bin:
-	go build -o garden.bin -tags=osusergo,netgo,sqlite_stat4,sqlite_omit_load_extension,sqlite_fts5,sqlite_json,sqlite_math_functions -ldflags=-extldflags=-static
+	go build -o garden.bin -tags=osusergo,netgo
 
 .PHONY: schema
 schema:
@@ -39,7 +36,6 @@ sqlite:
 deploy:
 	go tool sqlc generate
 	go tool templ generate
-	tailwindcss -i style.css -o static/app.css
 	make bin
 	rsync garden.bin acrux:/fast/garden/garden.bin
 	ssh root@acrux systemctl restart garden

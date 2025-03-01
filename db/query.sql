@@ -16,7 +16,7 @@ select
     inner join plant_locations as pl on pl.plant_id = p.id
     inner join locations as l on pl.location_id = l.id
   where s.id=?
-  order by pl.id, pl.start;
+  order by p.id, pl.start desc;
 
 -- -- name: GetSeedWindows :many
 -- select * from seed_windows

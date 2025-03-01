@@ -24,15 +24,15 @@ func main() {
 			Command: []string{"go", "tool", "templ", "generate"},
 		},
 		{
-			Name:    "generate tailwind",
-			Match:   []string{"style.css", "*.templ"},
-			Command: []string{"tailwindcss", "-i", "style.css", "-o", "static/app.css"},
+			Name:   "update styles",
+			Match:  []string{"*.css"},
+			Notify: r.Restart,
 		},
 		{
 			Name:    "compile Go",
 			Match:   []string{"*.go"},
 			Ignore:  []string{"*_test.go"},
-			Command: []string{"go", "build", "-o", "garden.tmp", "."},
+			Command: []string{"go", "build", "-v", "-tags", "osusergo,netgo", "-o", "garden.tmp", "."},
 			Notify:  r.Restart,
 		},
 	}

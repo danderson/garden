@@ -1,0 +1,290 @@
+/* CSS reset from https://www.joshwcomeau.com/css/custom-css-reset/ */
+
+/* 1. Use a more-intuitive box-sizing model */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 2. Remove default margin */
+* {
+  margin: 0;
+}
+
+body {
+  /* 3. Add accessible line-height */
+  line-height: 1.5;
+  /* 4. Improve text rendering */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 5. Improve media defaults */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* 6. Inherit fonts for form controls */
+input, button, textarea, select {
+  font: inherit;
+}
+
+/* 7. Avoid text overflows */
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+/* 8. Improve line wrapping */
+p {
+  text-wrap: pretty;
+}
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+/* Color palette */
+
+:root {
+  --color-slate-50: oklch(0.984 0.003 247.858);
+  --color-slate-100: oklch(0.968 0.007 247.896);
+  --color-slate-200: oklch(0.929 0.013 255.508);
+  --color-slate-300: oklch(0.869 0.022 252.894);
+  --color-slate-400: oklch(0.704 0.04 256.788);
+  --color-slate-500: oklch(0.554 0.046 257.417);
+  --color-slate-600: oklch(0.446 0.043 257.281);
+  --color-slate-700: oklch(0.372 0.044 257.287);
+  --color-slate-800: oklch(0.279 0.041 260.031);
+  --color-slate-900: oklch(0.208 0.042 265.755);
+  --color-slate-950: oklch(0.129 0.042 264.695);
+
+  --color-green-200: oklch(0.925 0.084 155.995);
+  --color-green-900: oklch(0.393 0.095 152.535);
+
+  --color-red-200: oklch(0.885 0.062 18.334);
+  --color-red-400: oklch(0.704 0.191 22.216);
+  --color-red-900: oklch(0.396 0.141 25.723);
+
+  --color-blue-200: oklch(0.882 0.059 254.128);
+  --color-blue-900: oklch(0.379 0.146 265.522);
+
+  --main-bg: var(--color-slate-900);
+  --nav-bg: var(--color-slate-700);
+
+  --main-fg: var(--color-slate-100);
+  --nav-fg: var(--color-slate-200);
+  --detail-fg: var(--color-slate-300);
+
+  --radius-button: 8px;
+  --radius-input: 8px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+}
+
+/* General styling */
+
+html {
+    scrollbar-gutter: stable;
+    font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    background-color: var(--main-bg);
+    color: var(--main-fg);
+    /* So that the bottom nav bar doesn't hide content */
+    padding-bottom: 50px;
+}
+
+h1 {
+    font-size: 22px;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+a {
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+dl {
+    width: auto;
+    display: grid;
+    grid-gap: var(--space-3) var(--space-3);
+    grid-template-columns: auto auto;
+}
+
+dt {
+    font-weight: bold;
+}
+
+dd {
+    grid-column-start: 2;
+}
+
+button {
+    background-color: transparent;
+    color: inherit;
+    border: 2px solid;
+    border-radius: var(--radius-button);
+    padding: var(--space-1) var(--space-2);
+}
+
+input {
+    border: 0 solid;
+    border-radius: var(--radius-input);
+}
+
+form {
+    border: 0;
+    display: grid;
+    grid-gap: var(--space-3) var(--space-3);
+    grid-template-columns: minmax(0, auto) minmax(0, auto);
+    padding: 0 var(--space-2);
+}
+
+form .errors {
+    grid-column-end: span 2;
+    padding: 0 var(--space-2);
+    color: var(--color-red-400);
+}
+
+/* Nav bars and elements within */
+
+nav {
+    background-color: var(--nav-bg);
+    color: var(--nav-fg);
+    width: 100%;
+    position: sticky;
+    top: 0;
+    display: flex;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+#nav-primary {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    /* Slightly more padding on the bottom is more ergonomic on iphone */
+    padding: var(--space-2) 0 var(--space-3) 0;
+    margin: 0;
+}
+
+nav input {
+    flex-grow: 1;
+    padding: 0 var(--space-2);
+}
+
+nav a {
+    flex-grow: 1;
+    flex-basis: 0;
+
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav button {
+    font-weight: bold;
+}
+
+nav .stretch {
+    flex-grow: 1;
+}
+
+/* Main content displayed as a list */
+
+body > ul {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+}
+
+body > ul li {
+    padding: var(--space-2) var(--space-3);
+}
+
+/* Detail pages */
+
+article {
+    padding-bottom: var(--space-5);
+}
+
+article ul {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+}
+
+article ul li {
+    padding: var(--space-2) var(--space-3);
+}
+
+article dl {
+    padding: var(--space-2) var(--space-3);
+}
+
+div.grid-spacer {
+    height: 1.25em;
+}
+
+.hidden {
+    display: none;
+}
+
+.group {
+    display: contents;
+}
+
+.icon {
+    display: inline;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+
+.detail {
+    font-weight: normal;
+    color: var(--detail-fg);
+}
+
+.badges {
+    display: flex;
+    flex-flow: row wrap;
+    gap: var(--space-1);
+    font-weight: normal;
+    padding: var(--space-1) var(--space-2);
+}
+
+.badge {
+    border-radius: 12px;
+    border: 1px solid;
+    padding: 0 var(--space-2);
+    text-wrap-mode: nowrap;
+}
+
+.badge.good {
+    background-color: var(--color-green-200);
+    color: var(--color-green-900);
+}
+
+.badge.info {
+    background-color: var(--color-blue-200);
+    color: var(--color-blue-900);
+}
+
+.badge.bad {
+    background-color: var(--color-red-200);
+    color: var(--color-red-900);
+}
+
+.badge .icon {
+    width: 16px;
+    height: 16px;
+}

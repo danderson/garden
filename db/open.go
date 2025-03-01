@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func Open(path string, fileMigrations fs.FS, goMigrations map[int]func(*sqlx.Tx) error) (*DB, error) {
@@ -23,7 +23,7 @@ func Open(path string, fileMigrations fs.FS, goMigrations map[int]func(*sqlx.Tx)
 		path = ":memory:"
 	}
 	url := fmt.Sprintf("file:%s?_foreign_keys=true&_journal_mode=WAL&loc=UTC", path)
-	db, err := sqlx.Open("sqlite3", url)
+	db, err := sqlx.Open("sqlite", url)
 	if err != nil {
 		return nil, err
 	}

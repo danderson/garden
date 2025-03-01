@@ -45,6 +45,9 @@ func (t *Task) match(files []string) bool {
 
 func (t *Task) run() error {
 	t.needsRun = false
+	if t.Command == nil {
+		return nil
+	}
 	log.Printf("Running: %s", strings.Join(t.Command, " "))
 	cmd := exec.Command(t.Command[0], t.Command[1:]...)
 	cmd.Stdout = os.Stdout
