@@ -26,6 +26,7 @@ func Locations(r *chi.Mux, db *db.DB) {
 	r.Get("/locations/{id}/edit", chiFn(s.editLocation))
 	r.Post("/locations/{id}/edit", chiFn(s.editLocation))
 	r.Get("/locations/search", chiFn(s.searchLocations))
+	r.Get("/locations/search-complete", chiFn(s.searchLocationsAutocomplete))
 	r.Get("/box/{id}", chiFn(s.redirectLocation))
 }
 
@@ -155,6 +156,17 @@ func (s *locations) searchLocations(w http.ResponseWriter, r *http.Request) erro
 		return internalErrorf("executing search: %w", err)
 	}
 	views.LocationList(locations).Render(r.Context(), w)
+	return nil
+}
+
+func (s *locations) searchLocationsAutocomplete(w http.ResponseWriter, r *http.Request) error {
+	q := strings.Trim(r.FormValue("q"), "%")
+	q = fmt.Sprintf("%%%s%%", q)
+	locations, err := s.db.SearchLocations(r.Context(), q)
+	if err != nil {
+		return internalErrorf("executing search: %w", err)
+	}
+	views.LocationListAutocomplete(locations).Render(r.Context(), w)
 	return nil
 }
 

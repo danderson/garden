@@ -83,3 +83,24 @@ templ dateInput(field forms.Field, label string) {
 	 />
 	@fieldErrors(field)
 }
+
+templ comboInput(field forms.Field, label, searchURL string) {
+	<div class="combobox"
+		 x-data="{open: false, focus: false, selection: null, q: ''}">
+		<input type="hidden" name={field.ID} value={s(field.Value)} x-model="selection" />
+		<input type="text"
+			   name="q"
+			   autocomplete="off"
+			   x-model="q"
+			   @focus="if (!focus) { focus=true; open=true }"
+			   @blur="if ($event.target !== document.activeElement) { focus=false; open=false }"
+			   @keyup.escape="open=false"
+			   hx-get={searchURL}
+			   hx-trigger="load, input changed delay:200ms"
+			   hx-target="next ul" />
+		<ul @htmx:after-swap.camel.self="open=true"
+			x-show="open && focus"
+			@click="selection = $event.target.getAttribute('value'); q = $event.target.textContent">
+		</ul>
+	</div>
+}

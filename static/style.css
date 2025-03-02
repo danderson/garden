@@ -68,13 +68,16 @@ h1, h2, h3, h4, h5, h6 {
 
   --main-bg: var(--color-slate-900);
   --nav-bg: var(--color-slate-700);
+  --dropdown-bg: var(--color-slate-700);
 
   --main-fg: var(--color-slate-100);
   --nav-fg: var(--color-slate-200);
   --detail-fg: var(--color-slate-300);
+  --dropdown-fg: var(--color-slate-200);
 
   --radius-button: 8px;
   --radius-input: 8px;
+  --radius-dropdown: 8px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -156,6 +159,7 @@ form .errors {
 /* Nav bars and elements within */
 
 nav {
+    z-index: 1;
     background-color: var(--nav-bg);
     color: var(--nav-fg);
     width: 100%;
@@ -213,6 +217,7 @@ body > ul li {
 /* Detail pages */
 
 article {
+    padding: 0 var(--space-2);
     padding-bottom: var(--space-5);
 }
 
@@ -287,4 +292,22 @@ div.grid-spacer {
 .badge .icon {
     width: 16px;
     height: 16px;
+}
+
+/* Combobox */
+
+.combobox {
+    position: relative;
+}
+
+.combobox ul {
+    display: block;
+    position: absolute;
+    width: 100%;
+    margin-top: var(--space-1);
+    max-height: 30vh;
+    overflow: auto;
+    border-radius: var(--radius-button);
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-fg);
 }

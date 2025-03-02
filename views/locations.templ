@@ -25,6 +25,12 @@ templ LocationList(locations []db.SearchLocationsRow) {
 	}
 }
 
+templ LocationListAutocomplete(locations []db.SearchLocationsRow) {
+	for _, loc := range locations {
+		<li value={s(loc.ID)}>{loc.Name}</li>
+	}
+}
+
 templ Locations(locations []db.SearchLocationsRow) {
 	<nav>
 		<input size="1" type="search" name="q" hx-get="/locations/search" hx-trigger="input changed delay:200ms, search" hx-target="#locations" />

@@ -8,7 +8,8 @@ templ Root(contents templ.Component) {
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<link rel="stylesheet" href={ static("style.css") }/>
 			<script type="text/javascript" src="/.live"></script>
-			<script defer type="text/javascript" src={ static("htmx.min.js") }></script>
+			<script defer src={ static("htmx.min.js") }></script>
+			<script defer src={ static("alpine.js") }></script>
 		</head>
 		<body id="body">
 			<nav id="nav-primary" hx-boost="true">
