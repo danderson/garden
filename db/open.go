@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 
@@ -14,11 +15,6 @@ import (
 )
 
 func Open(path string, fileMigrations fs.FS, goMigrations map[int]func(*sqlx.Tx) error) (*DB, error) {
-	migrations, err := assembleMigrations(fileMigrations, goMigrations)
-	if err != nil {
-		return nil, err
-	}
-
 	if path == "" {
 		path = ":memory:"
 	}
@@ -28,20 +24,21 @@ func Open(path string, fileMigrations fs.FS, goMigrations map[int]func(*sqlx.Tx)
 		return nil, err
 	}
 
-	var migration_version int
-	if err := db.Get(&migration_version, "PRAGMA user_version"); err != nil {
+	var dbVersion int
+	if err := db.Get(&dbVersion, "PRAGMA user_version"); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("getting migration version: %w", err)
 	}
 
-	if migration_version > len(migrations) {
-		db.Close()
-		return nil, fmt.Errorf("database version %d exceeds max known version %d", migration_version, len(migrations))
+	dbVersion, migrations, err := assembleMigrations(dbVersion, fileMigrations, goMigrations)
+	if err != nil {
+		return nil, err
 	}
 
-	if migration_version != len(migrations) {
-		log.Printf("running migrations from version %d to %d", migration_version, len(migrations))
-		for i, m := range migrations[migration_version:] {
+	log.Printf("database schema is version %d, have %d migrations to run", dbVersion, len(migrations))
+
+	if len(migrations) > 0 {
+		for _, m := range migrations {
 			tx, err := db.Beginx()
 			if err != nil {
 				db.Close()
@@ -56,7 +53,8 @@ func Open(path string, fileMigrations fs.FS, goMigrations map[int]func(*sqlx.Tx)
 
 			// Setting pragmas in sqlite with '?' substitutions apparently
 			// doesn't work, so do scary sql-injecty formatting by hand.
-			if _, err := tx.Exec(fmt.Sprintf("PRAGMA user_version=%d", migration_version+i+1)); err != nil {
+			dbVersion++
+			if _, err := tx.Exec(fmt.Sprintf("PRAGMA user_version=%d", dbVersion)); err != nil {
 				db.Close()
 				return nil, fmt.Errorf("updating database migration version: %w", err)
 			}
@@ -110,52 +108,71 @@ func (m *sqlMigration) do(tx *sqlx.Tx) error {
 	return nil
 }
 
-func assembleMigrations(fileMigrations fs.FS, goMigrations map[int]func(*sqlx.Tx) error) ([]func(*sqlx.Tx) error, error) {
+func assembleMigrations(dbVersion int, fileMigrations fs.FS, goMigrations map[int]func(*sqlx.Tx) error) (baseVersion int, fns []func(*sqlx.Tx) error, err error) {
 	migrations := map[int]func(*sqlx.Tx) error{}
+	lowest := math.MaxInt
 
 	ents, err := fs.ReadDir(fileMigrations, ".")
 	if err != nil {
-		return nil, fmt.Errorf("listing migration files: %w", err)
+		return 0, nil, fmt.Errorf("listing migration files: %w", err)
 	}
 	for _, ent := range ents {
 		fields := strings.Split(ent.Name(), "_")
 		if len(fields) < 1 {
-			return nil, fmt.Errorf("unparseable filename %q", ent.Name())
+			return 0, nil, fmt.Errorf("unparseable filename %q", ent.Name())
 		}
 		i, err := strconv.Atoi(fields[0])
 		if err != nil {
-			return nil, fmt.Errorf("filename %q doesn't begin with a number", ent.Name())
+			return 0, nil, fmt.Errorf("filename %q doesn't begin with a number", ent.Name())
 		}
 		if i < 0 {
-			return nil, fmt.Errorf("filename %q has invalid migration number %d, must be 1 or more", ent.Name(), i)
+			return 0, nil, fmt.Errorf("filename %q has invalid migration number %d, must be 1 or more", ent.Name(), i)
+		}
+		if i <= dbVersion {
+			continue
 		}
 		if migrations[i] != nil {
-			return nil, fmt.Errorf("duplicate migration number %d", i)
+			return 0, nil, fmt.Errorf("duplicate migration number %d", i)
 		}
 		bs, err := fs.ReadFile(fileMigrations, ent.Name())
 		if err != nil {
-			return nil, fmt.Errorf("reading migration %q: %w", ent.Name(), err)
+			return 0, nil, fmt.Errorf("reading migration %q: %w", ent.Name(), err)
 		}
 		m := &sqlMigration{
 			filename: ent.Name(),
 			sql:      string(bs),
 		}
 		migrations[i] = m.do
+		lowest = min(lowest, i)
 	}
 	for i, f := range goMigrations {
+		if i <= dbVersion {
+			continue
+		}
 		if migrations[i] != nil {
-			return nil, fmt.Errorf("duplicate go migration number %d", i)
+			return 0, nil, fmt.Errorf("duplicate go migration number %d", i)
 		}
 		migrations[i] = f
+		lowest = min(lowest, i)
 	}
 
-	max := len(migrations)
-	ret := make([]func(*sqlx.Tx) error, 0, max)
-	for i := 1; i <= max; i++ {
-		if migrations[i] == nil {
-			return nil, fmt.Errorf("missing migration number %d", i)
-		}
-		ret = append(ret, migrations[i])
+	if len(migrations) == 0 {
+		return dbVersion, nil, nil
 	}
-	return ret, nil
+
+	if dbVersion == 0 {
+		dbVersion = lowest - 1
+	} else if lowest > dbVersion {
+		return 0, nil, fmt.Errorf("database version %d is older than earliest known migration %d, cannot upgrade", dbVersion, lowest)
+	}
+
+	ret := make([]func(*sqlx.Tx) error, 0, len(migrations))
+	for i := range len(migrations) {
+		version := dbVersion + i + 1
+		if migrations[version] == nil {
+			return 0, nil, fmt.Errorf("missing migration number %d", version)
+		}
+		ret = append(ret, migrations[version])
+	}
+	return dbVersion, ret, nil
 }
