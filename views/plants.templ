@@ -74,8 +74,8 @@ templ NewPlant(form *forms.Form) {
 	</nav>
 	<form id="plant-form" hx-post hx-target="body">
 		@dateInput(form.Fields["Date"], "Planting date")
-		@selectInput(form.Fields["SeedID"], "Seed")
-		@selectInput(form.Fields["LocationID"], "Location")
+		@comboInput(form.Fields["SeedID"], "Seed", "/seeds/search-complete")
+		@comboInput(form.Fields["LocationID"], "Location", "/locations/search-complete")
 		@textInput(form.Fields["Name"], "Name")
 		@formErrors(form)
 	</form>
@@ -93,23 +93,13 @@ templ EditPlant(id int64, form *forms.Form, locationChanged bool) {
 	</nav>
 
 	<form id="plant-form" hx-post hx-target="body">
-		@selectInput(form.Fields["SeedID"], "Seed")
-		@selectInputWithAttrs(form.Fields["LocationID"], "Location", templ.Attributes{
-			"hx-post": f("/plants/%d/validate", id),
-			"hx-target": "#dateMoved",
-		})
-		<div class="group" id="dateMoved">
-			@EditPlantLocation(id, form, locationChanged)
-		</div>
+		@comboInput(form.Fields["SeedID"], "Seed", "/seeds/search-complete")
+		//@selectInput(form.Fields["SeedID"], "Seed")
+		@comboInput(form.Fields["LocationID"], "Location", "/locations/search-complete")
+		@dateInput(form.Fields["Date"], "Date (if moved)")
 		@textInput(form.Fields["Name"], "Name")
 		@formErrors(form)
 	</form>
-}
-
-templ EditPlantLocation(id int64, form *forms.Form, locationChanged bool) {
-	if locationChanged {
-		@dateInput(form.Fields["Date"], "Date moved")
-	}
 }
 
 templ UprootPlantForm(id int64, form *forms.Form) {

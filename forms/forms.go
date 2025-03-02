@@ -25,6 +25,15 @@ type Field struct {
 	Options []SelectOption // for <select>
 }
 
+func (f Field) LabelForValue() string {
+	for _, opt := range f.Options {
+		if opt.Value == f.Value {
+			return opt.Label
+		}
+	}
+	return ""
+}
+
 // FromStruct returns a Form initialized with st's data, and no
 // validation errors.
 func New[T any]() *Form {

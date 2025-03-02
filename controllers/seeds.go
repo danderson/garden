@@ -9,6 +9,7 @@ import (
 	"go.universe.tf/garden/db"
 	"go.universe.tf/garden/forms"
 	"go.universe.tf/garden/htu"
+	"go.universe.tf/garden/types/plantfamily"
 	"go.universe.tf/garden/views"
 )
 
@@ -24,7 +25,9 @@ func Seeds(r *chi.Mux, db *db.DB) {
 	r.Post("/seeds/new", chiFn(s.newSeed))
 	r.Get("/seeds/{id}/edit", chiFn(s.editSeed))
 	r.Post("/seeds/{id}/edit", chiFn(s.editSeed))
-	r.Get("/seeds/search", chiFn(s.searchSeed))
+	r.Get("/seeds/search", chiFn(s.searchSeeds))
+	r.Get("/seeds/search-complete", chiFn(s.searchSeedsAutocomplete))
+	r.Get("/seeds/search-family", chiFn(s.searchFamilyAutocomplete))
 }
 
 func (s *seeds) listSeeds(w http.ResponseWriter, r *http.Request) error {
@@ -135,7 +138,7 @@ func (s *seeds) editSeed(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (s *seeds) searchSeed(w http.ResponseWriter, r *http.Request) error {
+func (s *seeds) searchSeeds(w http.ResponseWriter, r *http.Request) error {
 	q := strings.Trim(r.FormValue("q"), "%")
 	q = fmt.Sprintf("%%%s%%", q)
 	seeds, err := s.db.SearchSeeds(r.Context(), q)
@@ -143,5 +146,28 @@ func (s *seeds) searchSeed(w http.ResponseWriter, r *http.Request) error {
 		return internalErrorf("executing search: %w", err)
 	}
 	views.SeedList(seeds).Render(r.Context(), w)
+	return nil
+}
+
+func (s *seeds) searchSeedsAutocomplete(w http.ResponseWriter, r *http.Request) error {
+	q := strings.Trim(r.FormValue("q"), "%")
+	q = fmt.Sprintf("%%%s%%", q)
+	seeds, err := s.db.SearchSeeds(r.Context(), q)
+	if err != nil {
+		return internalErrorf("executing search: %w", err)
+	}
+	views.SeedListAutocomplete(seeds).Render(r.Context(), w)
+	return nil
+}
+
+func (s *seeds) searchFamilyAutocomplete(w http.ResponseWriter, r *http.Request) error {
+	q := strings.ToLower(r.FormValue("q"))
+	var opts []forms.SelectOption
+	for _, opt := range plantfamily.Unknown.SelectOptions() {
+		if strings.Contains(strings.ToLower(opt.Label), q) {
+			opts = append(opts, opt)
+		}
+	}
+	views.ComboInputOptions(opts).Render(r.Context(), w)
 	return nil
 }

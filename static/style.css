@@ -68,12 +68,14 @@ h1, h2, h3, h4, h5, h6 {
 
   --main-bg: var(--color-slate-900);
   --nav-bg: var(--color-slate-700);
-  --dropdown-bg: var(--color-slate-700);
+  --input-bg: var(--color-slate-50);
+  --dropdown-bg: var(--input-bg);
 
   --main-fg: var(--color-slate-100);
   --nav-fg: var(--color-slate-200);
   --detail-fg: var(--color-slate-300);
-  --dropdown-fg: var(--color-slate-200);
+  --input-fg: var(--color-slate-900);
+  --dropdown-fg: var(--input-fg);
 
   --radius-button: 8px;
   --radius-input: 8px;
@@ -140,6 +142,8 @@ button {
 input {
     border: 0 solid;
     border-radius: var(--radius-input);
+    padding: var(--space-1) var(--space-2);
+    background-color: var(--color-slate-50);
 }
 
 form {
@@ -298,16 +302,42 @@ div.grid-spacer {
 
 .combobox {
     position: relative;
+    grid-column-end: span 2;
+    display: grid;
+    grid-template-columns: subgrid;
+}
+
+.combobox input {
+    width: 100%;
+}
+
+.combobox input:focus {
+    outline: none;
+}
+
+.combobox input[open] {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .combobox ul {
     display: block;
     position: absolute;
-    width: 100%;
-    margin-top: var(--space-1);
-    max-height: 30vh;
+    grid-row-start: 2;
+    z-index: 1;
+    width: calc(100% - var(--space-4));
+    margin-left: var(--space-4);
     overflow: auto;
     border-radius: var(--radius-button);
+    border-top-right-radius: 0;
     background-color: var(--dropdown-bg);
     color: var(--dropdown-fg);
+}
+
+.combobox ul li {
+    padding: var(--space-2);
+}
+
+.combobox ul li:hover {
+    background-color: var(--color-slate-400);
 }

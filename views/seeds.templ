@@ -20,6 +20,12 @@ templ SeedList(seeds []db.Seed) {
 	}
 }
 
+templ SeedListAutocomplete(seeds []db.Seed) {
+	for _, seed := range seeds {
+		<li value={s(seed.ID)}>{seed.Name}</li>
+	}
+}
+
 templ Seeds(seeds []db.Seed) {
 	<nav>
 		<input
@@ -208,7 +214,7 @@ templ seedForm(form *forms.Form, cancelURL string) {
 	<form id="seed-form" hx-post hx-target="body">
 		@textInput(form.Fields["Name"], "")
 		@textInput(form.Fields["LatinName"], "Latin name")
-		@selectInput(form.Fields["Family"], "")
+		@comboInput(form.Fields["Family"], "", "/seeds/search-family")
 		@selectInput(form.Fields["Lifespan"], "")
 		@selectInput(form.Fields["SunType"], "Sun exposure")
 		@selectInput(form.Fields["SoilType"], "Soil wetness")

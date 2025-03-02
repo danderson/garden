@@ -30,7 +30,6 @@ func Plants(r *chi.Mux, db *db.DB) {
 	r.Get("/plants/search", chiFn(s.searchPlant))
 	r.Get("/plants/{id}/uproot", chiFn(s.uprootPlant))
 	r.Post("/plants/{id}/uproot", chiFn(s.uprootPlant))
-	r.Post("/plants/{id}/validate", chiFn(s.validateEditLocation))
 }
 
 func (s *plants) listPlants(w http.ResponseWriter, r *http.Request) error {
@@ -229,6 +228,7 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 			SeedID:     plant.SeedID,
 			LocationID: plant.LocationID,
 			Name:       plant.Name,
+			Date:       types.TextDate{time.Now()},
 		})
 		if err := s.editPlantFormSelectors(r.Context(), form); err != nil {
 			return internalErrorf("adding form selectors: %w", err)
@@ -323,33 +323,6 @@ func (s *plants) editPlant(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Set("HX-Replace-Url", fmt.Sprintf("/plants/%d", plant.ID))
 	return s.showPlantByID(w, r, plant.ID)
-}
-
-func (s *plants) validateEditLocation(w http.ResponseWriter, r *http.Request) error {
-	id, err := htu.Int64Param(r, "id")
-	if err != nil {
-		return badRequest(err)
-	}
-
-	vals := &struct {
-		LocationID int64
-		Date       types.TextDate
-	}{
-		Date: types.TextDate{Time: time.Now()},
-	}
-
-	vals, form, err := forms.FromRequest(vals, r)
-	if err != nil {
-		return internalErrorf("parsing form: %w", err)
-	}
-
-	curLocation, err := s.db.GetPlantCurrentLocation(r.Context(), id)
-	if err != nil {
-		return internalErrorf("getting plant current location: %w", err)
-	}
-
-	views.EditPlantLocation(id, form, vals.LocationID != curLocation.LocationID).Render(r.Context(), w)
-	return nil
 }
 
 func (s *plants) searchPlant(w http.ResponseWriter, r *http.Request) error {
