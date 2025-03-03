@@ -367,15 +367,30 @@ func (s *plants) uprootPlant(w http.ResponseWriter, r *http.Request) error {
 		return nil
 	}
 
-	err = s.db.UprootPlant(r.Context(), db.UprootPlantParams{
+	tx, err := s.db.Tx(r.Context())
+	if err != nil {
+		return internalErrorf("start transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	loc, err := tx.GetPlantCurrentLocation(r.Context(), id)
+	if err != nil {
+		return internalErrorf("getting plant location: %w", err)
+	}
+
+	err = tx.UprootPlant(r.Context(), db.UprootPlantParams{
 		PlantID: id,
 		End:     types.TextTime{Time: f.End.Time},
 	})
 	if err != nil {
-		internalErrorf("uprooting plant: %w", err)
+		return internalErrorf("uprooting plant: %w", err)
 	}
 
-	w.Header().Set("Hx-Location", "/plants")
+	if err := tx.Commit(); err != nil {
+		return internalErrorf("commit: %w", err)
+	}
+
+	w.Header().Set("Hx-Location", fmt.Sprintf("/locations/%d", loc.LocationID))
 	w.WriteHeader(http.StatusOK)
 	return nil
 }
