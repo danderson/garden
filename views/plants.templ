@@ -42,6 +42,13 @@ templ Plant(plant db.Plant, locs []db.GetPlantLocationsRow) {
 				hx-push-url="true">
 			Edit
 		</button>
+		if plant.SeedID != nil {
+		<button hx-get={ f("/plants/new?SeedID=%d&LocationID=%d", *plant.SeedID, locs[0].LocationID) }
+				hx-target="body"
+				hx-push-url="true">
+			Plant again
+		</button>
+		}
 	</nav>
 	<article>
 		<h1>{ plant.Name }</h1>
